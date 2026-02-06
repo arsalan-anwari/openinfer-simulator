@@ -101,7 +101,7 @@ struct OpsJsonInfo {
 }
 
 fn load_ops_json(manifest_dir: &Path) -> Result<OpsJsonInfo, Box<dyn Error>> {
-    let ops_path = manifest_dir.join("../ops.json");
+    let ops_path = manifest_dir.join("ops.json");
     let contents = fs::read_to_string(&ops_path)?;
     let root: Value = serde_json::from_str(&contents)?;
 
