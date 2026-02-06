@@ -8,7 +8,7 @@ anyhow = "1"
 uuid = { version = "1", features = ["v4", "serde"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-openinfer-dsl = { git = "https://github.com/arsalan-awnari/openinfer-dsl.git" }
+openinfer-dsl = { git = "https://github.com/arsalan-anwari/openinfer-dsl.git" }
 rand = "0.8"
 memmap2 = "0.9"
 rayon = "*"
