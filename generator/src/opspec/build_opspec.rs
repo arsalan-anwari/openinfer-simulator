@@ -48,7 +48,7 @@ fn main() {
         thread::sleep(Duration::from_millis(200));
     }
     println!();
-    if let Err(err) = openinfer_generator::op_schema::generate_cpu_kernels(workspace_root) {
+    if let Err(err) = crate::op_schema::generate_cpu_kernels(workspace_root) {
         eprintln!("build_opspec: failed to generate cpu kernels: {err}");
         std::process::exit(1);
     }
