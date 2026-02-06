@@ -2,13 +2,17 @@
 name = "openinfer"
 version = "0.1.0"
 edition = "2021"
+description = "Host-side simulator and runtime for OpenInfer graphs."
+license = "Apache-2.0"
+repository = "https://github.com/arsalan-anwari/openinfer-simulator"
+readme = "README.md"
 
 [dependencies]
 anyhow = "1"
 uuid = { version = "1", features = ["v4", "serde"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-openinfer-dsl = { git = "https://github.com/arsalan-anwari/openinfer-dsl.git" }
+openinfer-dsl = "0.1.3"
 rand = "0.8"
 memmap2 = "0.9"
 rayon = "*"
