@@ -21,7 +21,7 @@ bytemuck = { version = "1", features = ["derive"] }
 ash = "0.38.0"
 
 [build-dependencies]
-openinfer-simulator-generator = { version = "0.1.2", path = "generator" }
+openinfer-simulator-generator = { version = "0.1.3", path = "generator" }
 
 [dev-dependencies]
 
