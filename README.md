@@ -32,9 +32,9 @@ cargo run --example mlp_regression
 
 ### Model files
 Graph tests and examples load `.oinf` model files from `res/models`. In the main
-repo, these are synced from `openinfer-oinf` via:
+repo (https://github.com/arsalan-anwari/openinfer), these are synced from `openinfer-oinf` via:
 ```bash
 ./scripts/sync_models.sh
 ```
 
-Docs: https://github.com/arsalan-awnari/openinfer/tree/main/docs/sphinx/modules/openinfer-simulator
+Docs: docs.open-infer.nl
