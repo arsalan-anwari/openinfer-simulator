@@ -6,6 +6,7 @@ use std::thread;
 use std::time::Duration;
 
 use serde_json::Value;
+use openinfer_simulator_generator::op_schema;
 
 struct OpSpecInfo {
     name: String,
@@ -48,7 +49,7 @@ fn main() {
         thread::sleep(Duration::from_millis(200));
     }
     println!();
-    if let Err(err) = crate::op_schema::generate_cpu_kernels(workspace_root) {
+    if let Err(err) = op_schema::generate_cpu_kernels(workspace_root) {
         eprintln!("build_opspec: failed to generate cpu kernels: {err}");
         std::process::exit(1);
     }
