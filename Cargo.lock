@@ -177,6 +177,7 @@ dependencies = [
 [[package]]
 name = "openinfer-dsl"
 version = "0.1.0"
+source = "git+https://github.com/arsalan-anwari/openinfer-dsl.git#3ed3fe26f83559ee69a0dab21a118be78e6191be"
 dependencies = [
  "proc-macro2",
  "quote",
