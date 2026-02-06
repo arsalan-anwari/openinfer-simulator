@@ -11,7 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Publish crate
-        run: cargo publish
+      - name: Publish generator crate
+        run: cargo publish --manifest-path generator/Cargo.toml
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+      - name: Publish simulator crate
+        run: cargo publish --manifest-path Cargo.toml
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}

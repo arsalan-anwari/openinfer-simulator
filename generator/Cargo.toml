@@ -1,7 +1,11 @@
 [package]
-name = "openinfer-generator"
-version = "0.1.0"
+name = "openinfer-simulator-generator"
+version = "0.1.1"
 edition = "2021"
+description = "Internal build tools for OpenInfer (not public API)."
+license = "Apache-2.0"
+repository = "https://github.com/arsalan-anwari/openinfer-simulator"
+readme = "README.md"
 
 [dependencies]
 anyhow = "1"
