@@ -18,8 +18,7 @@ fn read_settings_max_dims(path: &Path) -> Option<usize> {
     let contents = fs::read_to_string(path).ok()?;
     let value: serde_json::Value = serde_json::from_str(&contents).ok()?;
     value
-        .get("openinfer")
-        .and_then(|v| v.get("vulkan"))
+        .get("vulkan")
         .and_then(|v| v.get("max_tensor_rank"))
         .and_then(|v| v.as_u64())
         .map(|v| v as usize)

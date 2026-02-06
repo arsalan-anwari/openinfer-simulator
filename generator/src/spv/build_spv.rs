@@ -210,8 +210,7 @@ fn read_settings_flags(settings_path: &Path) -> Result<Option<(u32, u32, u32)>> 
         .with_context(|| format!("read {}", settings_path.display()))?;
     let value: Value = serde_json::from_str(&contents)?;
     let vulkan = value
-        .get("openinfer")
-        .and_then(|v| v.get("vulkan"))
+        .get("vulkan")
         .and_then(|v| v.as_object());
     let Some(vulkan) = vulkan else {
         return Ok(None);
