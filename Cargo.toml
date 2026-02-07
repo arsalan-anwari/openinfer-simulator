@@ -1,6 +1,6 @@
 [package]
 name = "openinfer-simulator"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 description = "Host-side simulator and runtime for OpenInfer graphs."
 license = "Apache-2.0"
@@ -21,7 +21,7 @@ bytemuck = { version = "1", features = ["derive"] }
 ash = "0.38.0"
 
 [build-dependencies]
-openinfer-simulator-generator = { version = "0.1.5", path = "generator" }
+openinfer-simulator-generator = { version = "0.1.6", path = "generator" }
 
 [dev-dependencies]
 
