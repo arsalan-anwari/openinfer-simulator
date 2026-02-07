@@ -19,15 +19,15 @@ jobs:
         run: |
           set -euo pipefail
           crate_name="openinfer-simulator-generator"
-          crate_version="$(cargo metadata --format-version=1 --manifest-path generator/Cargo.toml | sed -n 's/.*"version":"\([^"]*\)".*/\1/p' | head -n 1)"
+          crate_version="$(awk -F\" '/^version =/ {print $2; exit}' generator/Cargo.toml)"
           echo "Waiting for ${crate_name} ${crate_version} to appear on crates.io..."
           for attempt in $(seq 1 30); do
             if curl -fsSL "https://crates.io/api/v1/crates/${crate_name}/${crate_version}" >/dev/null; then
               echo "Found ${crate_name} ${crate_version} on crates.io"
               exit 0
             fi
-            echo "Not yet available (attempt ${attempt}/30). Sleeping 10s..."
-            sleep 10
+            echo "Not yet available (attempt ${attempt}/10). Sleeping 30s..."
+            sleep 30
           done
           echo "Timed out waiting for ${crate_name} ${crate_version} on crates.io"
           exit 1

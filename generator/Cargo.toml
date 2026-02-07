@@ -1,6 +1,6 @@
 [package]
 name = "openinfer-simulator-generator"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 description = "Internal build tools for OpenInfer (not public API)."
 license = "Apache-2.0"
