@@ -6,6 +6,17 @@ use crate::tensor::{I1, I2, I4, Tensor, U1, U2, U4};
 
 use super::common::{SignedAcc, SignedInput, UnsignedAcc, UnsignedInput};
 
+#[inline]
+fn add_scaled(base: usize, idx: usize, stride: isize) -> usize {
+    let term = (idx as isize)
+        .checked_mul(stride)
+        .expect("accumulate matmul offset multiplication overflow");
+    let out = (base as isize)
+        .checked_add(term)
+        .expect("accumulate matmul offset accumulation overflow");
+    usize::try_from(out).expect("accumulate matmul produced negative storage offset")
+}
+
 fn matmul_accumulate_signed<In, Acc>(a: &Tensor<In>, b: &Tensor<In>, out: &mut Tensor<Acc>) -> Result<()>
 where
     In: SignedInput,
@@ -62,18 +73,18 @@ where
         &b_batch_strides,
         |out_base, a_base, b_base| {
             for m in 0..a_m {
-                let a_m_offset = a_base + m * a_stride_m;
-                let out_m_offset = out_base + m * out_stride_m;
+                let a_m_offset = add_scaled(a_base, m, a_stride_m);
+                let out_m_offset = add_scaled(out_base, m, out_stride_m);
                 for n in 0..b_n {
                     let mut acc: i64 = 0;
                     for k in 0..a_k {
-                        let a_offset = a_m_offset + k * a_stride_k;
-                        let b_offset = b_base + k * b_stride_k + n * b_stride_n;
+                        let a_offset = add_scaled(a_m_offset, k, a_stride_k);
+                        let b_offset = add_scaled(add_scaled(b_base, k, b_stride_k), n, b_stride_n);
                         let lhs = a.data[a_offset].to_i64();
                         let rhs = b.data[b_offset].to_i64();
                         acc = acc.wrapping_add(lhs.wrapping_mul(rhs));
                     }
-                    let out_offset = out_m_offset + n * out_stride_n;
+                    let out_offset = add_scaled(out_m_offset, n, out_stride_n);
                     out.data[out_offset] = Acc::from_i64(acc);
                 }
             }
@@ -138,18 +149,18 @@ where
         &b_batch_strides,
         |out_base, a_base, b_base| {
             for m in 0..a_m {
-                let a_m_offset = a_base + m * a_stride_m;
-                let out_m_offset = out_base + m * out_stride_m;
+                let a_m_offset = add_scaled(a_base, m, a_stride_m);
+                let out_m_offset = add_scaled(out_base, m, out_stride_m);
                 for n in 0..b_n {
                     let mut acc: u64 = 0;
                     for k in 0..a_k {
-                        let a_offset = a_m_offset + k * a_stride_k;
-                        let b_offset = b_base + k * b_stride_k + n * b_stride_n;
+                        let a_offset = add_scaled(a_m_offset, k, a_stride_k);
+                        let b_offset = add_scaled(add_scaled(b_base, k, b_stride_k), n, b_stride_n);
                         let lhs = a.data[a_offset].to_u64();
                         let rhs = b.data[b_offset].to_u64();
                         acc = acc.wrapping_add(lhs.wrapping_mul(rhs));
                     }
-                    let out_offset = out_m_offset + n * out_stride_n;
+                    let out_offset = add_scaled(out_m_offset, n, out_stride_n);
                     out.data[out_offset] = Acc::from_u64(acc);
                 }
             }
@@ -219,18 +230,18 @@ where
         &b_batch_strides,
         |out_base, a_base, b_base| {
             for m in 0..a_m {
-                let a_m_offset = a_base + m * a_stride_m;
-                let out_m_offset = out_base + m * out_stride_m;
+                let a_m_offset = add_scaled(a_base, m, a_stride_m);
+                let out_m_offset = add_scaled(out_base, m, out_stride_m);
                 for n in 0..b_n {
                     let mut acc: i64 = 0;
                     for k in 0..a_k {
-                        let a_offset = a_m_offset + k * a_stride_k;
-                        let b_offset = b_base + k * b_stride_k + n * b_stride_n;
+                        let a_offset = add_scaled(a_m_offset, k, a_stride_k);
+                        let b_offset = add_scaled(add_scaled(b_base, k, b_stride_k), n, b_stride_n);
                         let lhs = sign_extend(get_bits(&a.data, a_offset, width), width) as i64;
                         let rhs = sign_extend(get_bits(&b.data, b_offset, width), width) as i64;
                         acc = acc.wrapping_add(lhs.wrapping_mul(rhs));
                     }
-                    let out_offset = out_m_offset + n * out_stride_n;
+                    let out_offset = add_scaled(out_m_offset, n, out_stride_n);
                     out.data[out_offset] = Acc::from_i64(acc);
                 }
             }
@@ -300,18 +311,18 @@ where
         &b_batch_strides,
         |out_base, a_base, b_base| {
             for m in 0..a_m {
-                let a_m_offset = a_base + m * a_stride_m;
-                let out_m_offset = out_base + m * out_stride_m;
+                let a_m_offset = add_scaled(a_base, m, a_stride_m);
+                let out_m_offset = add_scaled(out_base, m, out_stride_m);
                 for n in 0..b_n {
                     let mut acc: u64 = 0;
                     for k in 0..a_k {
-                        let a_offset = a_m_offset + k * a_stride_k;
-                        let b_offset = b_base + k * b_stride_k + n * b_stride_n;
+                        let a_offset = add_scaled(a_m_offset, k, a_stride_k);
+                        let b_offset = add_scaled(add_scaled(b_base, k, b_stride_k), n, b_stride_n);
                         let lhs = get_bits(&a.data, a_offset, width) as u64;
                         let rhs = get_bits(&b.data, b_offset, width) as u64;
                         acc = acc.wrapping_add(lhs.wrapping_mul(rhs));
                     }
-                    let out_offset = out_m_offset + n * out_stride_n;
+                    let out_offset = add_scaled(out_m_offset, n, out_stride_n);
                     out.data[out_offset] = Acc::from_u64(acc);
                 }
             }

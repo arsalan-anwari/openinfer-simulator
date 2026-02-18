@@ -79,7 +79,7 @@ pub fn output_offset(
     input_indices: &[usize],
     axes: &[usize],
     keepdims: bool,
-    out_strides: &[usize],
+    out_strides: &[isize],
 ) -> usize {
     let mut coords = Vec::with_capacity(out_strides.len());
     for (idx, coord) in input_indices.iter().enumerate() {
@@ -91,11 +91,16 @@ pub fn output_offset(
             coords.push(*coord);
         }
     }
-    coords
-        .iter()
-        .zip(out_strides.iter())
-        .map(|(i, s)| i.saturating_mul(*s))
-        .sum()
+    let mut out = 0isize;
+    for (i, s) in coords.iter().zip(out_strides.iter()) {
+        let term = (*i as isize)
+            .checked_mul(*s)
+            .expect("reduce output offset multiplication overflow");
+        out = out
+            .checked_add(term)
+            .expect("reduce output offset accumulation overflow");
+    }
+    usize::try_from(out).expect("reduce produced negative storage offset")
 }
 
 pub fn reduce_count(shape: &[usize], axes: &[usize]) -> usize {
@@ -105,7 +110,7 @@ pub fn reduce_count(shape: &[usize], axes: &[usize]) -> usize {
         .product()
 }
 
-pub fn output_strides(shape: &[usize]) -> Vec<usize> {
+pub fn output_strides(shape: &[usize]) -> Vec<isize> {
     compute_strides(shape)
 }
 
@@ -120,9 +125,10 @@ pub fn linear_to_indices(mut linear: usize, shape: &[usize]) -> Vec<usize> {
             indices.push(0);
             continue;
         }
-        let coord = linear / *stride;
+        let stride = *stride as usize;
+        let coord = linear / stride;
         indices.push(coord.min(dim.saturating_sub(1)));
-        linear %= *stride;
+        linear %= stride;
     }
     indices
 }

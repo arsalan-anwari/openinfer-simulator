@@ -19,4 +19,7 @@ pub use scalar_value::ScalarValue;
 pub use shape::{compute_strides, numel};
 #[allow(unused_imports)]
 pub use tensor::{Tensor, TensorOptions, TensorView};
-pub use value::{DType, TensorElement, TensorValue};
+#[allow(unused_imports)]
+pub use value::{
+    DType, QuantParams, QuantScale, QuantScheme, QuantZeroPoint, TensorElement, TensorValue,
+};

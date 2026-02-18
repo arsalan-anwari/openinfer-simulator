@@ -16,6 +16,9 @@ pub fn exec_op(
     output: Option<&SharedTensor>,
     is_inplace: bool,
 ) -> Result<()> {
+    for input in inputs {
+        ensure_layout_supported(input)?;
+    }
     let schema = op_schema(op).ok_or_else(|| anyhow!("unsupported op {}", op))?;
     let input_dtypes = inputs.iter().map(|tensor| tensor.dtype()).collect::<Vec<_>>();
     let is_accumulate = schema.accumulate.allow() && attrs.items.iter().any(|attr| attr.name == "acc");
@@ -54,7 +57,26 @@ pub fn exec_op(
         ),
         None => None,
     };
+    if let Some(out) = output_guard.as_ref() {
+        ensure_layout_supported(out)?;
+    }
     kernel(attrs, inputs, output_guard.as_deref_mut())
+}
+
+fn ensure_layout_supported(value: &TensorValue) -> Result<()> {
+    if value.has_negative_strides() {
+        return Err(anyhow!(
+            "non-contiguous execution is not yet supported: negative strides for dtype {:?}",
+            value.dtype()
+        ));
+    }
+    if !value.is_contiguous_layout() {
+        return Err(anyhow!(
+            "non-contiguous execution is not yet supported: layout must be contiguous with zero offset for dtype {:?}",
+            value.dtype()
+        ));
+    }
+    Ok(())
 }
 
 fn acc_dtype(attrs: &OpAttrs) -> Result<DType> {

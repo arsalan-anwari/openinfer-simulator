@@ -5,10 +5,21 @@ use crate::tensor::{Bitset, BF16, F16, F8, Tensor};
 
 use super::common::MatmulElement;
 
+#[inline]
+fn add_scaled(base: usize, idx: usize, stride: isize) -> usize {
+    let term = (idx as isize)
+        .checked_mul(stride)
+        .expect("matmul offset multiplication overflow");
+    let out = (base as isize)
+        .checked_add(term)
+        .expect("matmul offset accumulation overflow");
+    usize::try_from(out).expect("matmul produced negative storage offset")
+}
+
 fn matmul_with_data<T: MatmulElement>(
     a_data: &[T],
     a_shape: &[usize],
-    a_strides: &[usize],
+    a_strides: &[isize],
     b: &Tensor<T>,
     out: &mut Tensor<T>,
 ) -> Result<()> {
@@ -61,16 +72,16 @@ fn matmul_with_data<T: MatmulElement>(
         &b_batch_strides,
         |out_base, a_base, b_base| {
             for m in 0..a_m {
-                let a_m_offset = a_base + m * a_stride_m;
-                let out_m_offset = out_base + m * out_stride_m;
+                let a_m_offset = add_scaled(a_base, m, a_stride_m);
+                let out_m_offset = add_scaled(out_base, m, out_stride_m);
                 for n in 0..b_n {
                     let mut acc = T::zero();
                     for k in 0..a_k {
-                        let a_offset = a_m_offset + k * a_stride_k;
-                        let b_offset = b_base + k * b_stride_k + n * b_stride_n;
+                        let a_offset = add_scaled(a_m_offset, k, a_stride_k);
+                        let b_offset = add_scaled(add_scaled(b_base, k, b_stride_k), n, b_stride_n);
                         acc = acc.add(a_data[a_offset].mul(b.data[b_offset]));
                     }
-                    let out_offset = out_m_offset + n * out_stride_n;
+                    let out_offset = add_scaled(out_m_offset, n, out_stride_n);
                     out.data[out_offset] = acc;
                 }
             }

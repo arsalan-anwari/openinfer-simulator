@@ -99,7 +99,9 @@ fn generate_with_rng<T: RandomValue>(
         TensorOptions {
             shape: Some(shape),
             strides: opts.strides,
+            offset_elems: opts.offset_elems,
             allow_len_mismatch: opts.allow_len_mismatch,
+            quant: opts.quant,
         },
     )
 }

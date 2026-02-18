@@ -5,6 +5,35 @@ use super::{
     numel, Bitset, BF16, F16, F8, I1, I2, I4, T1, T2, U1, U2, U4, Tensor, TensorOptions,
 };
 
+/// Quantization scheme attached to a tensor value.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum QuantScheme {
+    Symmetric,
+    Asymmetric,
+}
+
+/// Scale definition for quantized tensors.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum QuantScale {
+    PerTensor(f32),
+    PerChannel { axis: usize, values: Vec<f32> },
+}
+
+/// Zero-point definition for quantized tensors.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum QuantZeroPoint {
+    PerTensor(i32),
+    PerChannel { axis: usize, values: Vec<i32> },
+}
+
+/// Optional quantization metadata associated with tensor storage.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct QuantParams {
+    pub scheme: QuantScheme,
+    pub scale: QuantScale,
+    pub zero_point: Option<QuantZeroPoint>,
+}
+
 /// Element type that can be converted to/from `TensorValue`.
 pub trait TensorElement: Sized + Clone {
     /// Attempt to extract a typed tensor from a generic value.
@@ -552,7 +581,7 @@ impl TensorValue {
     }
 
     /// Return the tensor strides.
-    pub fn strides(&self) -> &[usize] {
+    pub fn strides(&self) -> &[isize] {
         match self {
             TensorValue::I8(tensor) => tensor.strides(),
             TensorValue::I16(tensor) => tensor.strides(),
@@ -577,6 +606,122 @@ impl TensorValue {
             TensorValue::U1(tensor) => tensor.strides(),
             TensorValue::T2(tensor) => tensor.strides(),
             TensorValue::T1(tensor) => tensor.strides(),
+        }
+    }
+
+    /// Return the storage offset in logical elements.
+    pub fn offset_elems(&self) -> usize {
+        match self {
+            TensorValue::I8(tensor) => tensor.offset_elems(),
+            TensorValue::I16(tensor) => tensor.offset_elems(),
+            TensorValue::F32(tensor) => tensor.offset_elems(),
+            TensorValue::F64(tensor) => tensor.offset_elems(),
+            TensorValue::U8(tensor) => tensor.offset_elems(),
+            TensorValue::U16(tensor) => tensor.offset_elems(),
+            TensorValue::I32(tensor) => tensor.offset_elems(),
+            TensorValue::I64(tensor) => tensor.offset_elems(),
+            TensorValue::U32(tensor) => tensor.offset_elems(),
+            TensorValue::U64(tensor) => tensor.offset_elems(),
+            TensorValue::Bool(tensor) => tensor.offset_elems(),
+            TensorValue::Bitset(tensor) => tensor.offset_elems(),
+            TensorValue::F16(tensor) => tensor.offset_elems(),
+            TensorValue::BF16(tensor) => tensor.offset_elems(),
+            TensorValue::F8(tensor) => tensor.offset_elems(),
+            TensorValue::I4(tensor) => tensor.offset_elems(),
+            TensorValue::I2(tensor) => tensor.offset_elems(),
+            TensorValue::I1(tensor) => tensor.offset_elems(),
+            TensorValue::U4(tensor) => tensor.offset_elems(),
+            TensorValue::U2(tensor) => tensor.offset_elems(),
+            TensorValue::U1(tensor) => tensor.offset_elems(),
+            TensorValue::T2(tensor) => tensor.offset_elems(),
+            TensorValue::T1(tensor) => tensor.offset_elems(),
+        }
+    }
+
+    /// Return optional quantization metadata.
+    pub fn quant(&self) -> Option<&QuantParams> {
+        match self {
+            TensorValue::I8(tensor) => tensor.quant(),
+            TensorValue::I16(tensor) => tensor.quant(),
+            TensorValue::F32(tensor) => tensor.quant(),
+            TensorValue::F64(tensor) => tensor.quant(),
+            TensorValue::U8(tensor) => tensor.quant(),
+            TensorValue::U16(tensor) => tensor.quant(),
+            TensorValue::I32(tensor) => tensor.quant(),
+            TensorValue::I64(tensor) => tensor.quant(),
+            TensorValue::U32(tensor) => tensor.quant(),
+            TensorValue::U64(tensor) => tensor.quant(),
+            TensorValue::Bool(tensor) => tensor.quant(),
+            TensorValue::Bitset(tensor) => tensor.quant(),
+            TensorValue::F16(tensor) => tensor.quant(),
+            TensorValue::BF16(tensor) => tensor.quant(),
+            TensorValue::F8(tensor) => tensor.quant(),
+            TensorValue::I4(tensor) => tensor.quant(),
+            TensorValue::I2(tensor) => tensor.quant(),
+            TensorValue::I1(tensor) => tensor.quant(),
+            TensorValue::U4(tensor) => tensor.quant(),
+            TensorValue::U2(tensor) => tensor.quant(),
+            TensorValue::U1(tensor) => tensor.quant(),
+            TensorValue::T2(tensor) => tensor.quant(),
+            TensorValue::T1(tensor) => tensor.quant(),
+        }
+    }
+
+    /// True when tensor uses standard contiguous layout with zero offset.
+    pub fn is_contiguous_layout(&self) -> bool {
+        match self {
+            TensorValue::I8(tensor) => tensor.is_contiguous(),
+            TensorValue::I16(tensor) => tensor.is_contiguous(),
+            TensorValue::F32(tensor) => tensor.is_contiguous(),
+            TensorValue::F64(tensor) => tensor.is_contiguous(),
+            TensorValue::U8(tensor) => tensor.is_contiguous(),
+            TensorValue::U16(tensor) => tensor.is_contiguous(),
+            TensorValue::I32(tensor) => tensor.is_contiguous(),
+            TensorValue::I64(tensor) => tensor.is_contiguous(),
+            TensorValue::U32(tensor) => tensor.is_contiguous(),
+            TensorValue::U64(tensor) => tensor.is_contiguous(),
+            TensorValue::Bool(tensor) => tensor.is_contiguous(),
+            TensorValue::Bitset(tensor) => tensor.is_contiguous(),
+            TensorValue::F16(tensor) => tensor.is_contiguous(),
+            TensorValue::BF16(tensor) => tensor.is_contiguous(),
+            TensorValue::F8(tensor) => tensor.is_contiguous(),
+            TensorValue::I4(tensor) => tensor.is_contiguous(),
+            TensorValue::I2(tensor) => tensor.is_contiguous(),
+            TensorValue::I1(tensor) => tensor.is_contiguous(),
+            TensorValue::U4(tensor) => tensor.is_contiguous(),
+            TensorValue::U2(tensor) => tensor.is_contiguous(),
+            TensorValue::U1(tensor) => tensor.is_contiguous(),
+            TensorValue::T2(tensor) => tensor.is_contiguous(),
+            TensorValue::T1(tensor) => tensor.is_contiguous(),
+        }
+    }
+
+    /// True when tensor contains any negative stride.
+    pub fn has_negative_strides(&self) -> bool {
+        match self {
+            TensorValue::I8(tensor) => tensor.has_negative_strides(),
+            TensorValue::I16(tensor) => tensor.has_negative_strides(),
+            TensorValue::F32(tensor) => tensor.has_negative_strides(),
+            TensorValue::F64(tensor) => tensor.has_negative_strides(),
+            TensorValue::U8(tensor) => tensor.has_negative_strides(),
+            TensorValue::U16(tensor) => tensor.has_negative_strides(),
+            TensorValue::I32(tensor) => tensor.has_negative_strides(),
+            TensorValue::I64(tensor) => tensor.has_negative_strides(),
+            TensorValue::U32(tensor) => tensor.has_negative_strides(),
+            TensorValue::U64(tensor) => tensor.has_negative_strides(),
+            TensorValue::Bool(tensor) => tensor.has_negative_strides(),
+            TensorValue::Bitset(tensor) => tensor.has_negative_strides(),
+            TensorValue::F16(tensor) => tensor.has_negative_strides(),
+            TensorValue::BF16(tensor) => tensor.has_negative_strides(),
+            TensorValue::F8(tensor) => tensor.has_negative_strides(),
+            TensorValue::I4(tensor) => tensor.has_negative_strides(),
+            TensorValue::I2(tensor) => tensor.has_negative_strides(),
+            TensorValue::I1(tensor) => tensor.has_negative_strides(),
+            TensorValue::U4(tensor) => tensor.has_negative_strides(),
+            TensorValue::U2(tensor) => tensor.has_negative_strides(),
+            TensorValue::U1(tensor) => tensor.has_negative_strides(),
+            TensorValue::T2(tensor) => tensor.has_negative_strides(),
+            TensorValue::T1(tensor) => tensor.has_negative_strides(),
         }
     }
 

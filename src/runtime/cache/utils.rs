@@ -4,6 +4,20 @@ use crate::tensor::TensorValue;
 
 use super::TensorIndexSelection;
 
+#[inline]
+fn linear_offset(indices: &[usize], strides: &[isize]) -> Result<usize> {
+    let mut offset = 0isize;
+    for (idx, stride) in indices.iter().zip(strides.iter()) {
+        let term = (*idx as isize)
+            .checked_mul(*stride)
+            .ok_or_else(|| anyhow!("cache index multiplication overflow"))?;
+        offset = offset
+            .checked_add(term)
+            .ok_or_else(|| anyhow!("cache index accumulation overflow"))?;
+    }
+    usize::try_from(offset).map_err(|_| anyhow!("cache produced negative storage offset"))
+}
+
 pub fn scalar_to_i64(value: &TensorValue) -> Result<i64> {
     if value.len() != 1 {
         return Err(anyhow!("cache index must be scalar"));
@@ -142,7 +156,7 @@ pub fn slice_tensor_value(
 
 fn make_slice<T: Copy, F>(
     out_shape: Vec<usize>,
-    strides: &[usize],
+    strides: &[isize],
     selections: &[TensorIndexSelection],
     data: &[T],
     wrap: F,
@@ -161,25 +175,21 @@ where
 
 pub fn slice_tensor_data<T: Copy>(
     data: &[T],
-    strides: &[usize],
+    strides: &[isize],
     selections: &[TensorIndexSelection],
 ) -> Result<Vec<T>> {
     let mut output = Vec::new();
     let mut current = vec![0usize; selections.len()];
     fn recurse<T: Copy>(
         data: &[T],
-        strides: &[usize],
+        strides: &[isize],
         selections: &[TensorIndexSelection],
         depth: usize,
         current: &mut [usize],
         output: &mut Vec<T>,
     ) -> Result<()> {
         if depth == selections.len() {
-            let offset: usize = current
-                .iter()
-                .zip(strides.iter())
-                .map(|(idx, stride)| idx * stride)
-                .sum();
+            let offset = linear_offset(current, strides)?;
             output.push(data[offset]);
             return Ok(());
         }
@@ -241,23 +251,17 @@ fn expand_copy<T: Copy>(src: &crate::tensor::Tensor<T>, dst: &mut crate::tensor:
     fn recurse<T: Copy>(
         src: &[T],
         src_shape: &[usize],
-        src_strides: &[usize],
+        src_strides: &[isize],
         dst: &mut [T],
-        dst_strides: &[usize],
+        dst_strides: &[isize],
         depth: usize,
         current: &mut [usize],
     ) {
         if depth == src_shape.len() {
-            let src_offset: usize = current
-                .iter()
-                .zip(src_strides.iter())
-                .map(|(idx, stride)| idx * stride)
-                .sum();
-            let dst_offset: usize = current
-                .iter()
-                .zip(dst_strides.iter())
-                .map(|(idx, stride)| idx * stride)
-                .sum();
+            let src_offset = linear_offset(current, src_strides)
+                .unwrap_or_else(|err| panic!("expand tensor source offset error: {}", err));
+            let dst_offset = linear_offset(current, dst_strides)
+                .unwrap_or_else(|err| panic!("expand tensor destination offset error: {}", err));
             dst[dst_offset] = src[src_offset];
             return;
         }

@@ -4,10 +4,21 @@ use crate::ops::cpu::broadcast::{broadcast_shape, broadcast_strides, for_each_br
 use crate::ops::cpu::packed_cpu::{get_bits, set_bits, sign_extend, PackedBits};
 use crate::tensor::{I1, I2, I4, Tensor, U1, U2, U4};
 
+#[inline]
+fn add_scaled(base: usize, idx: usize, stride: isize) -> usize {
+    let term = (idx as isize)
+        .checked_mul(stride)
+        .expect("packed matmul offset multiplication overflow");
+    let out = (base as isize)
+        .checked_add(term)
+        .expect("packed matmul offset accumulation overflow");
+    usize::try_from(out).expect("packed matmul produced negative storage offset")
+}
+
 fn matmul_packed_with_data<T: PackedBits>(
     a_data: &[T],
     a_shape: &[usize],
-    a_strides: &[usize],
+    a_strides: &[isize],
     b: &Tensor<T>,
     out: &mut Tensor<T>,
     width: u8,
@@ -62,30 +73,30 @@ fn matmul_packed_with_data<T: PackedBits>(
         &b_batch_strides,
         |out_base, a_base, b_base| {
             for m in 0..a_m {
-                let a_m_offset = a_base + m * a_stride_m;
-                let out_m_offset = out_base + m * out_stride_m;
+                let a_m_offset = add_scaled(a_base, m, a_stride_m);
+                let out_m_offset = add_scaled(out_base, m, out_stride_m);
                 for n in 0..b_n {
                     if signed {
                         let mut acc: i8 = 0;
                         for k in 0..a_k {
-                            let a_offset = a_m_offset + k * a_stride_k;
-                            let b_offset = b_base + k * b_stride_k + n * b_stride_n;
+                            let a_offset = add_scaled(a_m_offset, k, a_stride_k);
+                            let b_offset = add_scaled(add_scaled(b_base, k, b_stride_k), n, b_stride_n);
                             let lhs = sign_extend(get_bits(a_data, a_offset, width), width);
                             let rhs = sign_extend(get_bits(&b.data, b_offset, width), width);
                             acc = acc.wrapping_add(lhs.wrapping_mul(rhs));
                         }
-                        let out_offset = out_m_offset + n * out_stride_n;
+                        let out_offset = add_scaled(out_m_offset, n, out_stride_n);
                         set_bits(&mut out.data, out_offset, width, acc as u8);
                     } else {
                         let mut acc: u8 = 0;
                         for k in 0..a_k {
-                            let a_offset = a_m_offset + k * a_stride_k;
-                            let b_offset = b_base + k * b_stride_k + n * b_stride_n;
+                            let a_offset = add_scaled(a_m_offset, k, a_stride_k);
+                            let b_offset = add_scaled(add_scaled(b_base, k, b_stride_k), n, b_stride_n);
                             let lhs = get_bits(a_data, a_offset, width);
                             let rhs = get_bits(&b.data, b_offset, width);
                             acc = acc.wrapping_add(lhs.wrapping_mul(rhs));
                         }
-                        let out_offset = out_m_offset + n * out_stride_n;
+                        let out_offset = add_scaled(out_m_offset, n, out_stride_n);
                         set_bits(&mut out.data, out_offset, width, acc);
                     }
                 }

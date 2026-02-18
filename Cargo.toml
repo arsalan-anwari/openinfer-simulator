@@ -7,6 +7,9 @@ license = "Apache-2.0"
 repository = "https://github.com/arsalan-anwari/openinfer-simulator"
 readme = "README.md"
 
+[lib]
+name = "openinfer"
+
 [dependencies]
 anyhow = "1"
 uuid = { version = "1", features = ["v4", "serde"] }

@@ -19,8 +19,8 @@ pub fn broadcast_shape(a: &[usize], b: &[usize]) -> Result<Vec<usize>> {
     Ok(out)
 }
 
-pub fn broadcast_strides(shape: &[usize], strides: &[usize], out_rank: usize) -> Vec<usize> {
-    let mut out = vec![0usize; out_rank];
+pub fn broadcast_strides(shape: &[usize], strides: &[isize], out_rank: usize) -> Vec<isize> {
+    let mut out = vec![0isize; out_rank];
     let offset = out_rank.saturating_sub(shape.len());
     for i in 0..out_rank {
         if i < offset {
@@ -36,9 +36,9 @@ pub fn broadcast_strides(shape: &[usize], strides: &[usize], out_rank: usize) ->
 
 pub fn for_each_broadcast_index(
     out_shape: &[usize],
-    out_strides: &[usize],
-    a_strides: &[usize],
-    b_strides: &[usize],
+    out_strides: &[isize],
+    a_strides: &[isize],
+    b_strides: &[isize],
     mut f: impl FnMut(usize, usize, usize),
 ) {
     if out_shape.is_empty() {
@@ -65,12 +65,17 @@ fn dim_from_right(shape: &[usize], out_rank: usize, idx: usize) -> usize {
     }
 }
 
-fn linear_offset(indices: &[usize], strides: &[usize]) -> usize {
-    indices
-        .iter()
-        .zip(strides.iter())
-        .map(|(i, s)| i.saturating_mul(*s))
-        .sum()
+fn linear_offset(indices: &[usize], strides: &[isize]) -> usize {
+    let mut offset = 0isize;
+    for (idx, stride) in indices.iter().zip(strides.iter()) {
+        let term = (*idx as isize)
+            .checked_mul(*stride)
+            .expect("broadcast offset multiplication overflow");
+        offset = offset
+            .checked_add(term)
+            .expect("broadcast offset accumulation overflow");
+    }
+    usize::try_from(offset).expect("broadcast produced negative storage offset")
 }
 
 fn bump_index(index: &mut [usize], shape: &[usize]) {
