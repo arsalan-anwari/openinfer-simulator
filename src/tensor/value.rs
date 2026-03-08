@@ -667,6 +667,35 @@ impl TensorValue {
         }
     }
 
+    /// Replace optional quantization metadata.
+    pub fn set_quant(&mut self, quant: Option<QuantParams>) {
+        match self {
+            TensorValue::I8(tensor) => tensor.set_quant(quant),
+            TensorValue::I16(tensor) => tensor.set_quant(quant),
+            TensorValue::F32(tensor) => tensor.set_quant(quant),
+            TensorValue::F64(tensor) => tensor.set_quant(quant),
+            TensorValue::U8(tensor) => tensor.set_quant(quant),
+            TensorValue::U16(tensor) => tensor.set_quant(quant),
+            TensorValue::I32(tensor) => tensor.set_quant(quant),
+            TensorValue::I64(tensor) => tensor.set_quant(quant),
+            TensorValue::U32(tensor) => tensor.set_quant(quant),
+            TensorValue::U64(tensor) => tensor.set_quant(quant),
+            TensorValue::Bool(tensor) => tensor.set_quant(quant),
+            TensorValue::Bitset(tensor) => tensor.set_quant(quant),
+            TensorValue::F16(tensor) => tensor.set_quant(quant),
+            TensorValue::BF16(tensor) => tensor.set_quant(quant),
+            TensorValue::F8(tensor) => tensor.set_quant(quant),
+            TensorValue::I4(tensor) => tensor.set_quant(quant),
+            TensorValue::I2(tensor) => tensor.set_quant(quant),
+            TensorValue::I1(tensor) => tensor.set_quant(quant),
+            TensorValue::U4(tensor) => tensor.set_quant(quant),
+            TensorValue::U2(tensor) => tensor.set_quant(quant),
+            TensorValue::U1(tensor) => tensor.set_quant(quant),
+            TensorValue::T2(tensor) => tensor.set_quant(quant),
+            TensorValue::T1(tensor) => tensor.set_quant(quant),
+        }
+    }
+
     /// True when tensor uses standard contiguous layout with zero offset.
     pub fn is_contiguous_layout(&self) -> bool {
         match self {

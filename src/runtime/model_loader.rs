@@ -12,7 +12,8 @@ use memmap2::Mmap;
 
 use crate::runtime::tensor_store::{MappedSlice, TensorRef, TensorStore};
 use crate::tensor::{
-    BF16, Bitset, DType, F16, F8, I1, I2, I4, T1, T2, U1, U2, U4, Tensor, TensorValue,
+    BF16, Bitset, DType, F16, F8, I1, I2, I4, QuantParams, QuantScale, QuantScheme,
+    QuantZeroPoint, T1, T2, U1, U2, U4, Tensor, TensorValue,
 };
 use crate::types::VarInfo;
 
@@ -37,6 +38,7 @@ pub struct ModelLoader {
     vars: HashMap<String, VarInfo>,
     #[allow(dead_code)]
     metadata: HashMap<String, MetadataInfo>,
+    tensor_quant: HashMap<String, Option<QuantParams>>,
     mmap: Arc<Mmap>,
     tensor_store: TensorStore,
 }
@@ -66,7 +68,7 @@ impl ModelLoader {
             return Err(anyhow!("invalid OINF magic"));
         }
         let version = read_u32(data, &mut cursor)?;
-        if version != 1 {
+        if version != 2 {
             return Err(anyhow!("unsupported OINF version {}", version));
         }
         let _flags = read_u32(data, &mut cursor)?;
@@ -166,6 +168,7 @@ impl ModelLoader {
         }
 
         let mut vars = HashMap::new();
+        let mut tensor_quant: HashMap<String, Option<QuantParams>> = HashMap::new();
         let mut tensor_cursor = offset_tensors;
         for _ in 0..n_tensors {
             let name = read_string(data, &mut tensor_cursor)?;
@@ -181,9 +184,15 @@ impl ModelLoader {
             }
             let data_nbytes = read_u64(data, &mut tensor_cursor)? as usize;
             let data_offset = read_u64(data, &mut tensor_cursor)? as usize;
+            let quant_nbytes = read_u64(data, &mut tensor_cursor)? as usize;
+            let quant_offset = read_u64(data, &mut tensor_cursor)? as usize;
 
             let dtype = ValueType::to_dtype(dtype_raw)?;
             let has_data = (flags & 1) != 0;
+            let has_quant = (flags & 2) != 0;
+            if flags & !0x3 != 0 {
+                return Err(anyhow!("tensor flags contain unsupported bits"));
+            }
             if has_data {
                 if data_offset % 8 != 0 {
                     return Err(anyhow!("tensor data offset not aligned"));
@@ -197,6 +206,19 @@ impl ModelLoader {
             } else if data_offset != 0 || data_nbytes != 0 {
                 return Err(anyhow!("tensor without data must have zero offset/size"));
             }
+            if has_quant {
+                if quant_offset % 8 != 0 {
+                    return Err(anyhow!("tensor quant offset not aligned"));
+                }
+                if quant_offset < offset_data {
+                    return Err(anyhow!("tensor quant offset precedes data section"));
+                }
+                if quant_offset + quant_nbytes > file_size {
+                    return Err(anyhow!("tensor quant payload out of bounds"));
+                }
+            } else if quant_offset != 0 || quant_nbytes != 0 {
+                return Err(anyhow!("tensor without quant must have zero quant offset/size"));
+            }
 
             let dims_str = dims.iter().map(|d| d.to_string()).collect();
             let value_range = if has_data {
@@ -204,16 +226,26 @@ impl ModelLoader {
             } else {
                 None
             };
+            let dims_usize = dims
+                .iter()
+                .map(|d| usize::try_from(*d).map_err(|_| anyhow!("tensor dim exceeds usize for {}", name)))
+                .collect::<Result<Vec<_>>>()?;
+            let quant = if has_quant {
+                Some(parse_quant_params(data, quant_offset, quant_nbytes, &dims_usize, &name)?)
+            } else {
+                None
+            };
             vars.insert(
                 name.clone(),
                 VarInfo {
-                    name,
+                    name: name.clone(),
                     dtype,
                     dims: dims_str,
                     value_range,
                     has_data,
                 },
             );
+            tensor_quant.insert(name, quant);
         }
 
         let mmap = Arc::new(mmap);
@@ -224,6 +256,7 @@ impl ModelLoader {
             sizes,
             vars,
             metadata,
+            tensor_quant,
             mmap,
             tensor_store,
         })
@@ -327,7 +360,11 @@ impl ModelLoader {
             .value_range
             .ok_or_else(|| anyhow!("missing data range for {}", name))?;
         let data = &self.mmap[range.0..range.1];
-        tensor_value_from_bytes(info, data)
+        let mut tensor = tensor_value_from_bytes(info, data)?;
+        if let Some(quant) = self.tensor_quant.get(name) {
+            tensor.set_quant(quant.clone());
+        }
+        Ok(tensor)
     }
 
     /// Load a metadata tensor by name, if present.
@@ -729,4 +766,152 @@ impl ValueType {
             _ => return Err(anyhow!("unknown tensor dtype {}", value_type)),
         })
     }
+}
+
+fn parse_quant_params(
+    data: &[u8],
+    offset: usize,
+    nbytes: usize,
+    dims: &[usize],
+    name: &str,
+) -> Result<QuantParams> {
+    if nbytes < 48 {
+        return Err(anyhow!("tensor quant payload too small for {}", name));
+    }
+    let end = offset
+        .checked_add(nbytes)
+        .ok_or_else(|| anyhow!("tensor quant payload overflow for {}", name))?;
+    if end > data.len() {
+        return Err(anyhow!("tensor quant payload out of bounds for {}", name));
+    }
+    let payload = &data[offset..end];
+    let scheme = read_u32_at(payload, 0)?;
+    let scale_mode = read_u32_at(payload, 4)?;
+    let zp_mode = read_u32_at(payload, 8)?;
+    let reserved = read_u32_at(payload, 12)?;
+    if reserved != 0 {
+        return Err(anyhow!("tensor quant reserved must be 0 for {}", name));
+    }
+    let scale_axis = read_u64_at(payload, 16)? as usize;
+    let scale_count = read_u64_at(payload, 24)? as usize;
+    let zp_axis = read_u64_at(payload, 32)? as usize;
+    let zp_count = read_u64_at(payload, 40)? as usize;
+    let scale_bytes = scale_count
+        .checked_mul(4)
+        .ok_or_else(|| anyhow!("scale byte count overflow for {}", name))?;
+    let zp_bytes = zp_count
+        .checked_mul(4)
+        .ok_or_else(|| anyhow!("zero-point byte count overflow for {}", name))?;
+    let expected = align_up(48 + scale_bytes + zp_bytes, 8);
+    if expected != nbytes {
+        return Err(anyhow!("tensor quant payload size mismatch for {}", name));
+    }
+
+    let scale_start = 48usize;
+    let scale_end = scale_start + scale_bytes;
+    let zp_end = scale_end + zp_bytes;
+    let scale_values = read_f32_vec(&payload[scale_start..scale_end])?;
+    let zp_values = read_i32_vec(&payload[scale_end..zp_end])?;
+
+    let quant_scheme = match scheme {
+        1 => QuantScheme::Symmetric,
+        2 => QuantScheme::Asymmetric,
+        _ => return Err(anyhow!("invalid quant scheme for {}", name)),
+    };
+
+    let scale = match scale_mode {
+        1 => {
+            if scale_axis != 0 || scale_count != 1 {
+                return Err(anyhow!("per-tensor scale requires axis=0,count=1 for {}", name));
+            }
+            QuantScale::PerTensor(*scale_values.first().ok_or_else(|| anyhow!("missing per-tensor scale for {}", name))?)
+        }
+        2 => {
+            if scale_axis >= dims.len() {
+                return Err(anyhow!("per-channel scale axis out of range for {}", name));
+            }
+            if scale_count != dims[scale_axis] {
+                return Err(anyhow!("per-channel scale count mismatch for {}", name));
+            }
+            QuantScale::PerChannel {
+                axis: scale_axis,
+                values: scale_values,
+            }
+        }
+        _ => return Err(anyhow!("invalid quant scale mode for {}", name)),
+    };
+
+    let zero_point = match zp_mode {
+        0 => {
+            if zp_count != 0 {
+                return Err(anyhow!("zero-point none mode requires count=0 for {}", name));
+            }
+            None
+        }
+        1 => {
+            if scale_mode != 1 {
+                return Err(anyhow!("per-tensor zero-point requires per-tensor scale for {}", name));
+            }
+            if zp_axis != 0 || zp_count != 1 {
+                return Err(anyhow!("per-tensor zero-point requires axis=0,count=1 for {}", name));
+            }
+            let value = *zp_values.first().ok_or_else(|| anyhow!("missing per-tensor zero-point for {}", name))?;
+            Some(QuantZeroPoint::PerTensor(value))
+        }
+        2 => {
+            if scale_mode != 2 {
+                return Err(anyhow!("per-channel zero-point requires per-channel scale for {}", name));
+            }
+            if zp_axis >= dims.len() {
+                return Err(anyhow!("per-channel zero-point axis out of range for {}", name));
+            }
+            if zp_axis != scale_axis {
+                return Err(anyhow!("per-channel zero-point axis must match scale axis for {}", name));
+            }
+            if zp_count != dims[zp_axis] {
+                return Err(anyhow!("per-channel zero-point count mismatch for {}", name));
+            }
+            Some(QuantZeroPoint::PerChannel {
+                axis: zp_axis,
+                values: zp_values,
+            })
+        }
+        _ => return Err(anyhow!("invalid quant zero-point mode for {}", name)),
+    };
+
+    if matches!(quant_scheme, QuantScheme::Symmetric) && zero_point.is_some() {
+        return Err(anyhow!("symmetric quantization cannot include zero-point for {}", name));
+    }
+
+    Ok(QuantParams {
+        scheme: quant_scheme,
+        scale,
+        zero_point,
+    })
+}
+
+fn read_f32_vec(bytes: &[u8]) -> Result<Vec<f32>> {
+    if bytes.len() % 4 != 0 {
+        return Err(anyhow!("invalid f32 payload length"));
+    }
+    let mut out = Vec::with_capacity(bytes.len() / 4);
+    let mut cursor = 0usize;
+    while cursor < bytes.len() {
+        out.push(f32::from_le_bytes(bytes[cursor..cursor + 4].try_into().unwrap()));
+        cursor += 4;
+    }
+    Ok(out)
+}
+
+fn read_i32_vec(bytes: &[u8]) -> Result<Vec<i32>> {
+    if bytes.len() % 4 != 0 {
+        return Err(anyhow!("invalid i32 payload length"));
+    }
+    let mut out = Vec::with_capacity(bytes.len() / 4);
+    let mut cursor = 0usize;
+    while cursor < bytes.len() {
+        out.push(i32::from_le_bytes(bytes[cursor..cursor + 4].try_into().unwrap()));
+        cursor += 4;
+    }
+    Ok(out)
 }

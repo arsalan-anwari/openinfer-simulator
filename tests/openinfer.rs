@@ -47,3 +47,5 @@ mod graph_serde;
 mod tensor_layout;
 #[path = "tensor/tensor_dtypes.rs"]
 mod tensor_dtypes;
+#[path = "tensor/model_loader_quant.rs"]
+mod model_loader_quant;
