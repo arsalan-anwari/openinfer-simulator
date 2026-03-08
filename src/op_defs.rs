@@ -13,6 +13,7 @@ use crate::tensor::DType;
 pub enum OpAttrType {
     Scalar,
     DType,
+    DTypeList,
     Tensor,
     String,
     IntList,
@@ -62,6 +63,15 @@ impl OpAttrDef {
 pub struct OpDTypeSupport {
     pub normal: &'static [DType],
     pub accumulate: &'static [(DType, DType)],
+    pub accumulate_tuples: &'static [AccumulateTupleSupport],
+}
+
+/// Full tuple support for accumulate mode.
+#[derive(Debug, Clone, Copy)]
+pub struct AccumulateTupleSupport {
+    pub inputs: &'static [DType],
+    pub acc_list: &'static [DType],
+    pub out: DType,
 }
 
 /// Broadcast support for an op.
@@ -278,12 +288,21 @@ struct DTypeSupportJson {
     normal: Vec<String>,
     #[serde(default)]
     accumulate: Vec<AccumulatePairJson>,
+    #[serde(default)]
+    accumulate_tuples: Vec<AccumulateTupleJson>,
 }
 
 #[derive(Debug, Deserialize)]
 struct AccumulatePairJson {
     input: String,
     acc: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct AccumulateTupleJson {
+    inputs: Vec<String>,
+    acc_list: Vec<String>,
+    out: String,
 }
 
 fn registry() -> &'static OpRegistry {
@@ -352,6 +371,7 @@ fn build_attr_defs(defs: &HashMap<String, AttrDefJson>) -> Result<HashMap<String
         let kind = match def.kind.as_str() {
             "scalar" => OpAttrType::Scalar,
             "dtype" => OpAttrType::DType,
+            "dtype_list" => OpAttrType::DTypeList,
             "tensor" => OpAttrType::Tensor,
             "string" => OpAttrType::String,
             "int_list" => OpAttrType::IntList,
@@ -490,11 +510,48 @@ fn build_dtype_supports(
                 ))
             })
             .collect::<Result<Vec<_>>>()?;
+        let accumulate_tuples = if support.accumulate_tuples.is_empty() {
+            support
+                .accumulate
+                .iter()
+                .map(|pair| {
+                    Ok(AccumulateTupleSupport {
+                        inputs: Box::leak(vec![DType::from_ident(&pair.input)?].into_boxed_slice()),
+                        acc_list: Box::leak(vec![DType::from_ident(&pair.acc)?].into_boxed_slice()),
+                        out: DType::from_ident(&pair.acc)?,
+                    })
+                })
+                .collect::<Result<Vec<_>>>()?
+        } else {
+            support
+                .accumulate_tuples
+                .iter()
+                .map(|tuple| {
+                    let inputs = tuple
+                        .inputs
+                        .iter()
+                        .map(|ident| DType::from_ident(ident))
+                        .collect::<Result<Vec<_>>>()?;
+                    let acc_list = tuple
+                        .acc_list
+                        .iter()
+                        .map(|ident| DType::from_ident(ident))
+                        .collect::<Result<Vec<_>>>()?;
+                    Ok(AccumulateTupleSupport {
+                        inputs: Box::leak(inputs.into_boxed_slice()),
+                        acc_list: Box::leak(acc_list.into_boxed_slice()),
+                        out: DType::from_ident(&tuple.out)?,
+                    })
+                })
+                .collect::<Result<Vec<_>>>()?
+        };
         let normal_static = Box::leak(normal.into_boxed_slice());
         let acc_static = Box::leak(accumulate.into_boxed_slice());
+        let acc_tuples_static = Box::leak(accumulate_tuples.into_boxed_slice());
         let support_static: &'static OpDTypeSupport = Box::leak(Box::new(OpDTypeSupport {
             normal: normal_static,
             accumulate: acc_static,
+            accumulate_tuples: acc_tuples_static,
         }));
         out.insert(name.clone(), support_static);
     }
@@ -530,6 +587,52 @@ pub fn acc_dtype(attrs: &OpAttrs) -> Result<DType> {
             AttrValue::DType(dtype) => Ok(*dtype),
             _ => Err(anyhow!("acc attribute must be a dtype")),
         })
+}
+
+/// Convenience accessor for `acc` as an ordered dtype list.
+pub fn acc_list(attrs: &OpAttrs) -> Result<Vec<DType>> {
+    attrs
+        .items
+        .iter()
+        .find(|attr| attr.name == "acc")
+        .ok_or_else(|| anyhow!("missing acc attribute"))
+        .and_then(|attr| match &attr.value {
+            AttrValue::DTypeList(dtypes) => Ok(dtypes.clone()),
+            _ => Err(anyhow!("acc attribute must be a dtype list")),
+        })
+}
+
+/// Returns true if an op schema supports the provided typing tuple.
+pub fn supports_tuple(
+    schema: &OpSchema,
+    input_dtypes: &[DType],
+    acc_list: &[DType],
+    out_dtype: DType,
+    is_accumulate: bool,
+) -> bool {
+    let Some(support) = schema.dtype_support else {
+        return true;
+    };
+    if is_accumulate {
+        if acc_list.is_empty() {
+            return false;
+        }
+        let exact_match = support.accumulate_tuples.iter().any(|tuple| {
+            tuple.inputs == input_dtypes && tuple.acc_list == acc_list && tuple.out == out_dtype
+        });
+        if exact_match {
+            return true;
+        }
+        if input_dtypes.is_empty() || input_dtypes.windows(2).any(|pair| pair[0] != pair[1]) {
+            return false;
+        }
+        return support
+            .accumulate
+            .iter()
+            .any(|(in_dtype, acc_dtype)| *in_dtype == input_dtypes[0] && *acc_dtype == out_dtype)
+            && acc_list.last().copied() == Some(out_dtype);
+    }
+    input_dtypes.iter().all(|dtype| support.normal.contains(dtype))
 }
 
 /// Lookup the schema for a specific op kind.

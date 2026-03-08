@@ -133,7 +133,26 @@ fn build_attrs(attrs: &[AttrSpec]) -> Result<OpAttrs> {
                     .value
                     .as_str()
                     .ok_or_else(|| anyhow::anyhow!("dtype value must be string"))?;
-                AttrValue::DType(DType::from_ident(dtype)?)
+                let dtype = DType::from_ident(dtype)?;
+                if attr.name == "acc" {
+                    AttrValue::DTypeList(vec![dtype])
+                } else {
+                    AttrValue::DType(dtype)
+                }
+            }
+            "dtype_list" => {
+                let items = attr
+                    .value
+                    .as_array()
+                    .ok_or_else(|| anyhow::anyhow!("dtype_list must be array"))?;
+                let mut out = Vec::new();
+                for item in items {
+                    let dtype = item
+                        .as_str()
+                        .ok_or_else(|| anyhow::anyhow!("dtype_list item must be string"))?;
+                    out.push(DType::from_ident(dtype)?);
+                }
+                AttrValue::DTypeList(out)
             }
             "string" => AttrValue::Str(
                 attr.value

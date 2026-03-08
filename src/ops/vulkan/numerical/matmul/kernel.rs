@@ -3,7 +3,6 @@ use anyhow::{anyhow, Result};
 use crate::graph::{OpAttrs, OpKind};
 use crate::ops::cpu::broadcast::broadcast_shape;
 use crate::ops::registry::{op_supports_dtype, OpKey, OpMode};
-use crate::op_defs::acc_dtype;
 use crate::tensor::{DType, TensorValue};
 
 use bytemuck::{Pod, Zeroable};
@@ -67,10 +66,7 @@ fn dispatch_matmul(
     }
     let output = output.ok_or_else(|| anyhow!("matmul requires an output tensor"))?;
     let input_dtype = inputs[0].dtype();
-    let output_dtype = match mode {
-        OpMode::Accumulate => acc_dtype(attrs)?,
-        _ => input_dtype,
-    };
+    let output_dtype = output.dtype();
 
     let a_shape = inputs[0].shape();
     let b_shape = inputs[1].shape();

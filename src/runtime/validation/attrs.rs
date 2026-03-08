@@ -66,6 +66,7 @@ fn attr_type_matches(kind: OpAttrType, value: &AttrValue) -> bool {
                 | AttrValue::Var(_)
         ),
         OpAttrType::DType => matches!(value, AttrValue::DType(_)),
+        OpAttrType::DTypeList => matches!(value, AttrValue::DTypeList(_)),
         OpAttrType::Tensor => matches!(value, AttrValue::Var(_)),
         OpAttrType::String => matches!(value, AttrValue::Str(_) | AttrValue::Var(_)),
         OpAttrType::IntList => matches!(value, AttrValue::IntList(_)),

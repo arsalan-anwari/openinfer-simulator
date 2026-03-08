@@ -2,7 +2,7 @@
   "version": 1,
   "attr_defs": {
     "acc": {
-      "kind": "dtype"
+      "kind": "dtype_list"
     },
     "alpha": {
       "kind": "scalar",

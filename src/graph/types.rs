@@ -24,6 +24,7 @@ pub enum AttrValue {
     IntList(Vec<i64>),
     Var(String),
     DType(DType),
+    DTypeList(Vec<DType>),
 }
 
 /// Index literal or identifier for cache addressing.

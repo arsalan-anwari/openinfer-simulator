@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 
 use crate::graph::{MemoryKind, OpAttrs, OpKind};
 use crate::ops::OpMode;
-use crate::op_defs::{acc_dtype, op_schema};
+use crate::op_defs::{acc_list, op_schema, supports_tuple};
 use super::attrs;
 use super::context::ValidationContext;
 
@@ -61,13 +61,8 @@ pub fn validate_op(
         return Err(anyhow!("op {} does not allow broadcast inputs", op));
     }
 
-    let output_dtype = if has_acc {
-        acc_dtype(attrs)?
-    } else {
-        schema.type_rule.output_dtype(&input_dtypes, attrs)?
-    };
     let output_decl = ctx.decl_for(output);
-    if let Some(decl) = output_decl {
+    let output_dtype = if let Some(decl) = output_decl {
         match decl.kind {
             MemoryKind::Constant => {
                 return Err(anyhow!("cannot write to constant memory: {}", output));
@@ -80,26 +75,22 @@ pub fn validate_op(
             }
             _ => {}
         }
-        if decl.dtype != output_dtype {
-            return Err(anyhow!(
-                "op {} output dtype mismatch for {}: expected {:?}, got {:?}",
-                op,
-                output,
-                decl.dtype,
-                output_dtype
-            ));
-        }
+        decl.dtype
     } else if !ctx.temps.contains(output) {
         return Err(anyhow!("unknown output variable {}", output));
     } else {
-        let temp_dtype = ctx.var_dtype(output)?;
-        if temp_dtype != output_dtype {
+        ctx.var_dtype(output)?
+    };
+
+    if !has_acc {
+        let inferred = schema.type_rule.output_dtype(&input_dtypes, attrs)?;
+        if inferred != output_dtype {
             return Err(anyhow!(
                 "op {} output dtype mismatch for {}: expected {:?}, got {:?}",
                 op,
                 output,
-                temp_dtype,
-                output_dtype
+                output_dtype,
+                inferred
             ));
         }
     }
@@ -117,24 +108,26 @@ pub fn validate_op(
         } else {
             OpMode::Normal
         };
-        if let Some(support) = schema.dtype_support {
-            let in0 = input_dtypes[0];
-            let supported = match mode {
-                OpMode::Accumulate => support
-                    .accumulate
-                    .iter()
-                    .any(|(in_dtype, out_dtype)| *in_dtype == in0 && *out_dtype == output_dtype),
-                OpMode::Normal | OpMode::Inplace => support.normal.contains(&in0),
-            };
-            if !supported {
-                return Err(anyhow!(
-                    "op {} does not support {:?} -> {:?} for mode {:?}",
-                    op,
-                    in0,
-                    output_dtype,
-                    mode
-                ));
-            }
+        let requested_acc = if mode == OpMode::Accumulate {
+            acc_list(attrs)?
+        } else {
+            Vec::new()
+        };
+        if !supports_tuple(
+            schema,
+            &input_dtypes,
+            &requested_acc,
+            output_dtype,
+            mode == OpMode::Accumulate,
+        ) {
+            return Err(anyhow!(
+                "unsupported op typing tuple for {}: inputs={:?}, acc={:?}, out={:?}, mode={:?}",
+                op,
+                input_dtypes,
+                requested_acc,
+                output_dtype,
+                mode
+            ));
         }
     }
 

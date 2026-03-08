@@ -132,7 +132,7 @@ fn acc_attrs(acc: DType) -> OpAttrs {
     OpAttrs {
         items: vec![OpAttr {
             name: "acc".to_string(),
-            value: AttrValue::DType(acc),
+            value: AttrValue::DTypeList(vec![acc]),
         }],
     }
 }

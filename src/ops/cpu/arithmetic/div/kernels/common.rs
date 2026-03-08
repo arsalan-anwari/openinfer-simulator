@@ -19,7 +19,7 @@ pub fn div_mask_f64(attrs: &OpAttrs) -> Result<f64> {
             AttrValue::Int(v) => Ok(v as f64),
             AttrValue::UInt(v) => Ok(v as f64),
             AttrValue::Bool(v) => Ok(if v { 1.0 } else { 0.0 }),
-            AttrValue::Str(_) | AttrValue::IntList(_) => {
+            AttrValue::Str(_) | AttrValue::IntList(_) | AttrValue::DTypeList(_) => {
                 Err(anyhow!("div_by_zero_mask must be a scalar value"))
             }
             AttrValue::Var(_) | AttrValue::DType(_) => {
@@ -39,7 +39,7 @@ pub fn div_mask_i64(attrs: &OpAttrs) -> Result<i64> {
             AttrValue::Float(_) | AttrValue::Double(_) => {
                 Err(anyhow!("div_by_zero_mask must be integer for signed dtype"))
             }
-            AttrValue::Str(_) | AttrValue::IntList(_) => {
+            AttrValue::Str(_) | AttrValue::IntList(_) | AttrValue::DTypeList(_) => {
                 Err(anyhow!("div_by_zero_mask must be a scalar value"))
             }
             AttrValue::Var(_) | AttrValue::DType(_) => {
@@ -65,7 +65,7 @@ pub fn div_mask_u64(attrs: &OpAttrs) -> Result<u64> {
             AttrValue::Float(_) | AttrValue::Double(_) => {
                 Err(anyhow!("div_by_zero_mask must be integer for unsigned dtype"))
             }
-            AttrValue::Str(_) | AttrValue::IntList(_) => {
+            AttrValue::Str(_) | AttrValue::IntList(_) | AttrValue::DTypeList(_) => {
                 Err(anyhow!("div_by_zero_mask must be a scalar value"))
             }
             AttrValue::Var(_) | AttrValue::DType(_) => {

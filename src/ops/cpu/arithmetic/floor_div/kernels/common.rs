@@ -20,7 +20,7 @@ pub fn floor_div_mask_i64(attrs: &OpAttrs) -> Result<i64> {
             AttrValue::Float(_) | AttrValue::Double(_) => {
                 Err(anyhow!("div_by_zero_mask must be integer for signed dtype"))
             }
-            AttrValue::Str(_) | AttrValue::IntList(_) => {
+            AttrValue::Str(_) | AttrValue::IntList(_) | AttrValue::DTypeList(_) => {
                 Err(anyhow!("div_by_zero_mask must be a scalar value"))
             }
             AttrValue::Var(_) | AttrValue::DType(_) => {
@@ -46,7 +46,7 @@ pub fn floor_div_mask_u64(attrs: &OpAttrs) -> Result<u64> {
             AttrValue::Float(_) | AttrValue::Double(_) => {
                 Err(anyhow!("div_by_zero_mask must be integer for unsigned dtype"))
             }
-            AttrValue::Str(_) | AttrValue::IntList(_) => {
+            AttrValue::Str(_) | AttrValue::IntList(_) | AttrValue::DTypeList(_) => {
                 Err(anyhow!("div_by_zero_mask must be a scalar value"))
             }
             AttrValue::Var(_) | AttrValue::DType(_) => {

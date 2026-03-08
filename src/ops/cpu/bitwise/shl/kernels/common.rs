@@ -17,7 +17,9 @@ pub fn shl_bits(attrs: &OpAttrs) -> Result<u32> {
         AttrValue::Float(_) | AttrValue::Double(_) => {
             Err(anyhow!("shl bits must be int/uint/bool"))
         }
-        AttrValue::Str(_) | AttrValue::IntList(_) => Err(anyhow!("shl bits must be scalar")),
+        AttrValue::Str(_) | AttrValue::IntList(_) | AttrValue::DTypeList(_) => {
+            Err(anyhow!("shl bits must be scalar"))
+        }
         AttrValue::Var(_) | AttrValue::DType(_) => Err(anyhow!("shl bits must be scalar")),
     }
 }

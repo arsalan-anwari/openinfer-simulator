@@ -2,7 +2,6 @@ use anyhow::{anyhow, Result};
 
 use crate::graph::{OpAttrs, OpKind};
 use crate::ops::registry::{op_supports_dtype, OpKey, OpMode};
-use crate::op_defs::acc_dtype;
 use crate::tensor::{DType, TensorValue};
 
 use bytemuck::{Pod, Zeroable};
@@ -66,10 +65,7 @@ fn dispatch_sub(
     }
     let output = output.ok_or_else(|| anyhow!("sub requires an output tensor"))?;
     let input_dtype = inputs[0].dtype();
-    let output_dtype = match mode {
-        OpMode::Accumulate => acc_dtype(attrs)?,
-        _ => input_dtype,
-    };
+    let output_dtype = output.dtype();
 
     let (out_shape, broadcast, exceeds_rank) =
         validate_broadcast_and_rank(inputs, output, MAX_DIMS)?;

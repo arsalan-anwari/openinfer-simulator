@@ -22,7 +22,7 @@ fn main() -> anyhow::Result<()> {
         }
 
         block entry {
-            op matmul(x, w, acc=i32) >> y;
+            op matmul(x, w, acc=[i32]) >> y;
             return;
         }
     };
