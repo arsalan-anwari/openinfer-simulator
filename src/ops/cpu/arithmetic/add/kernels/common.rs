@@ -1,4 +1,4 @@
-use crate::tensor::{Bitset, BF16, F16, F8, I1, I2, I4, U1, U2, U4};
+use crate::tensor::{BF16, F16, F8, I4, U4};
 
 pub trait AddElement: Copy {
     fn add(self, rhs: Self) -> Self;
@@ -87,14 +87,6 @@ impl AddElement for bool {
     }
 }
 
-impl AddElement for Bitset {
-    fn add(self, rhs: Self) -> Self {
-        Bitset {
-            bits: self.bits.wrapping_add(rhs.bits),
-        }
-    }
-}
-
 impl AddElement for F16 {
     fn add(self, rhs: Self) -> Self {
         F16::from_f32(self.to_f32() + rhs.to_f32())
@@ -119,18 +111,6 @@ impl SignedInput for i8 {
     }
 }
 
-impl SignedInput for I1 {
-    fn to_i64(self) -> i64 {
-        self.to_i8() as i64
-    }
-}
-
-impl SignedInput for I2 {
-    fn to_i64(self) -> i64 {
-        self.to_i8() as i64
-    }
-}
-
 impl SignedInput for I4 {
     fn to_i64(self) -> i64 {
         self.to_i8() as i64
@@ -152,18 +132,6 @@ impl SignedInput for i32 {
 impl SignedInput for i64 {
     fn to_i64(self) -> i64 {
         self
-    }
-}
-
-impl UnsignedInput for U1 {
-    fn to_u64(self) -> u64 {
-        self.to_u8() as u64
-    }
-}
-
-impl UnsignedInput for U2 {
-    fn to_u64(self) -> u64 {
-        self.to_u8() as u64
     }
 }
 

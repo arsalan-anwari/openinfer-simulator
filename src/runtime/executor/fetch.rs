@@ -80,14 +80,6 @@ fn tensor_to_f64(value: &TensorValue) -> Result<f64> {
         TensorValue::F8(t) => Ok(t.data[0].to_f32() as f64),
         TensorValue::F32(t) => Ok(t.data[0] as f64),
         TensorValue::F64(t) => Ok(t.data[0]),
-        TensorValue::Bitset(t) => Ok(t.data[0].bits as f64),
-        TensorValue::I4(_)
-        | TensorValue::I2(_)
-        | TensorValue::I1(_)
-        | TensorValue::U4(_)
-        | TensorValue::U2(_)
-        | TensorValue::U1(_)
-        | TensorValue::T2(_)
-        | TensorValue::T1(_) => Err(anyhow!("packed scalars are not supported")),
+        TensorValue::I4(_) | TensorValue::U4(_) => Err(anyhow!("packed scalars are not supported")),
     }
 }

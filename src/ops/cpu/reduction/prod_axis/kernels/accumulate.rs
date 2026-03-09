@@ -7,7 +7,7 @@ use crate::ops::cpu::reduce::{
     axes_from_attrs, keepdims_from_attrs, linear_to_indices, output_offset, output_shape,
     output_strides,
 };
-use crate::tensor::{I1, I2, I4, Tensor, U1, U2, U4};
+use crate::tensor::{I4, Tensor, U4};
 
 fn prod_axis_acc_signed<In, Acc>(
     attrs: &OpAttrs,
@@ -133,30 +133,6 @@ fn prod_axis_acc_packed_unsigned<Acc: UnsignedAcc>(
     Ok(())
 }
 
-pub fn prod_axis_i1_accumulate_i8(attrs: &OpAttrs, a: &Tensor<I1>, out: &mut Tensor<i8>) -> Result<()> {
-    prod_axis_acc_packed_signed(attrs, a, out, 1)
-}
-pub fn prod_axis_i1_accumulate_i16(attrs: &OpAttrs, a: &Tensor<I1>, out: &mut Tensor<i16>) -> Result<()> {
-    prod_axis_acc_packed_signed(attrs, a, out, 1)
-}
-pub fn prod_axis_i1_accumulate_i32(attrs: &OpAttrs, a: &Tensor<I1>, out: &mut Tensor<i32>) -> Result<()> {
-    prod_axis_acc_packed_signed(attrs, a, out, 1)
-}
-pub fn prod_axis_i1_accumulate_i64(attrs: &OpAttrs, a: &Tensor<I1>, out: &mut Tensor<i64>) -> Result<()> {
-    prod_axis_acc_packed_signed(attrs, a, out, 1)
-}
-pub fn prod_axis_i2_accumulate_i8(attrs: &OpAttrs, a: &Tensor<I2>, out: &mut Tensor<i8>) -> Result<()> {
-    prod_axis_acc_packed_signed(attrs, a, out, 2)
-}
-pub fn prod_axis_i2_accumulate_i16(attrs: &OpAttrs, a: &Tensor<I2>, out: &mut Tensor<i16>) -> Result<()> {
-    prod_axis_acc_packed_signed(attrs, a, out, 2)
-}
-pub fn prod_axis_i2_accumulate_i32(attrs: &OpAttrs, a: &Tensor<I2>, out: &mut Tensor<i32>) -> Result<()> {
-    prod_axis_acc_packed_signed(attrs, a, out, 2)
-}
-pub fn prod_axis_i2_accumulate_i64(attrs: &OpAttrs, a: &Tensor<I2>, out: &mut Tensor<i64>) -> Result<()> {
-    prod_axis_acc_packed_signed(attrs, a, out, 2)
-}
 pub fn prod_axis_i4_accumulate_i8(attrs: &OpAttrs, a: &Tensor<I4>, out: &mut Tensor<i8>) -> Result<()> {
     prod_axis_acc_packed_signed(attrs, a, out, 4)
 }
@@ -168,30 +144,6 @@ pub fn prod_axis_i4_accumulate_i32(attrs: &OpAttrs, a: &Tensor<I4>, out: &mut Te
 }
 pub fn prod_axis_i4_accumulate_i64(attrs: &OpAttrs, a: &Tensor<I4>, out: &mut Tensor<i64>) -> Result<()> {
     prod_axis_acc_packed_signed(attrs, a, out, 4)
-}
-pub fn prod_axis_u1_accumulate_u8(attrs: &OpAttrs, a: &Tensor<U1>, out: &mut Tensor<u8>) -> Result<()> {
-    prod_axis_acc_packed_unsigned(attrs, a, out, 1)
-}
-pub fn prod_axis_u1_accumulate_u16(attrs: &OpAttrs, a: &Tensor<U1>, out: &mut Tensor<u16>) -> Result<()> {
-    prod_axis_acc_packed_unsigned(attrs, a, out, 1)
-}
-pub fn prod_axis_u1_accumulate_u32(attrs: &OpAttrs, a: &Tensor<U1>, out: &mut Tensor<u32>) -> Result<()> {
-    prod_axis_acc_packed_unsigned(attrs, a, out, 1)
-}
-pub fn prod_axis_u1_accumulate_u64(attrs: &OpAttrs, a: &Tensor<U1>, out: &mut Tensor<u64>) -> Result<()> {
-    prod_axis_acc_packed_unsigned(attrs, a, out, 1)
-}
-pub fn prod_axis_u2_accumulate_u8(attrs: &OpAttrs, a: &Tensor<U2>, out: &mut Tensor<u8>) -> Result<()> {
-    prod_axis_acc_packed_unsigned(attrs, a, out, 2)
-}
-pub fn prod_axis_u2_accumulate_u16(attrs: &OpAttrs, a: &Tensor<U2>, out: &mut Tensor<u16>) -> Result<()> {
-    prod_axis_acc_packed_unsigned(attrs, a, out, 2)
-}
-pub fn prod_axis_u2_accumulate_u32(attrs: &OpAttrs, a: &Tensor<U2>, out: &mut Tensor<u32>) -> Result<()> {
-    prod_axis_acc_packed_unsigned(attrs, a, out, 2)
-}
-pub fn prod_axis_u2_accumulate_u64(attrs: &OpAttrs, a: &Tensor<U2>, out: &mut Tensor<u64>) -> Result<()> {
-    prod_axis_acc_packed_unsigned(attrs, a, out, 2)
 }
 pub fn prod_axis_u4_accumulate_u8(attrs: &OpAttrs, a: &Tensor<U4>, out: &mut Tensor<u8>) -> Result<()> {
     prod_axis_acc_packed_unsigned(attrs, a, out, 4)

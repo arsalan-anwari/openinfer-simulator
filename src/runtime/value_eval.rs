@@ -37,15 +37,7 @@ pub fn tensor_to_i64(value: &TensorValue) -> Result<i64> {
         TensorValue::F8(t) => Ok(t.data[0].to_f32() as i64),
         TensorValue::F32(t) => Ok(t.data[0] as i64),
         TensorValue::F64(t) => Ok(t.data[0] as i64),
-        TensorValue::I4(_)
-        | TensorValue::I2(_)
-        | TensorValue::I1(_)
-        | TensorValue::U4(_)
-        | TensorValue::U2(_)
-        | TensorValue::U1(_)
-        | TensorValue::T2(_)
-        | TensorValue::T1(_) => Err(anyhow!("packed scalars are not supported")),
-        TensorValue::Bitset(t) => Ok(t.data[0].bits as i64),
+        TensorValue::I4(_) | TensorValue::U4(_) => Err(anyhow!("packed scalars are not supported")),
     }
 }
 
@@ -68,15 +60,7 @@ pub fn tensor_to_bool(value: &TensorValue) -> Result<bool> {
         TensorValue::F8(t) => Ok(t.data[0].to_f32() != 0.0),
         TensorValue::F32(t) => Ok(t.data[0] != 0.0),
         TensorValue::F64(t) => Ok(t.data[0] != 0.0),
-        TensorValue::Bitset(t) => Ok(t.data[0].bits != 0),
-        TensorValue::I4(_)
-        | TensorValue::I2(_)
-        | TensorValue::I1(_)
-        | TensorValue::U4(_)
-        | TensorValue::U2(_)
-        | TensorValue::U1(_)
-        | TensorValue::T2(_)
-        | TensorValue::T1(_) => Err(anyhow!("packed scalars are not supported")),
+        TensorValue::I4(_) | TensorValue::U4(_) => Err(anyhow!("packed scalars are not supported")),
     }
 }
 

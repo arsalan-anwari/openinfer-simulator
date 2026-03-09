@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 
 use crate::ops::cpu::broadcast::{broadcast_shape, broadcast_strides, for_each_broadcast_index};
 use crate::ops::cpu::packed_cpu::{get_bits, sign_extend};
-use crate::tensor::{I1, I2, I4, Tensor, U1, U2, U4};
+use crate::tensor::{I4, Tensor, U4};
 
 use super::common::{SignedAcc, SignedInput, UnsignedAcc, UnsignedInput};
 
@@ -170,97 +170,49 @@ unsigned_acc_fn!(mul_u16_accumulate_u32, u16, u32);
 unsigned_acc_fn!(mul_u16_accumulate_u64, u16, u64);
 unsigned_acc_fn!(mul_u32_accumulate_u64, u32, u64);
 
-pub fn mul_i1_accumulate_i8(a: &Tensor<I1>, b: &Tensor<I1>, out: &mut Tensor<i8>) -> Result<()> {
-    mul_accumulate_packed_signed(a, b, out, 1)
-}
 
-pub fn mul_i2_accumulate_i8(a: &Tensor<I2>, b: &Tensor<I2>, out: &mut Tensor<i8>) -> Result<()> {
-    mul_accumulate_packed_signed(a, b, out, 2)
-}
 
 pub fn mul_i4_accumulate_i8(a: &Tensor<I4>, b: &Tensor<I4>, out: &mut Tensor<i8>) -> Result<()> {
     mul_accumulate_packed_signed(a, b, out, 4)
 }
 
-pub fn mul_i1_accumulate_i16(a: &Tensor<I1>, b: &Tensor<I1>, out: &mut Tensor<i16>) -> Result<()> {
-    mul_accumulate_packed_signed(a, b, out, 1)
-}
 
-pub fn mul_i2_accumulate_i16(a: &Tensor<I2>, b: &Tensor<I2>, out: &mut Tensor<i16>) -> Result<()> {
-    mul_accumulate_packed_signed(a, b, out, 2)
-}
 
 pub fn mul_i4_accumulate_i16(a: &Tensor<I4>, b: &Tensor<I4>, out: &mut Tensor<i16>) -> Result<()> {
     mul_accumulate_packed_signed(a, b, out, 4)
 }
 
-pub fn mul_i1_accumulate_i32(a: &Tensor<I1>, b: &Tensor<I1>, out: &mut Tensor<i32>) -> Result<()> {
-    mul_accumulate_packed_signed(a, b, out, 1)
-}
 
-pub fn mul_i2_accumulate_i32(a: &Tensor<I2>, b: &Tensor<I2>, out: &mut Tensor<i32>) -> Result<()> {
-    mul_accumulate_packed_signed(a, b, out, 2)
-}
 
 pub fn mul_i4_accumulate_i32(a: &Tensor<I4>, b: &Tensor<I4>, out: &mut Tensor<i32>) -> Result<()> {
     mul_accumulate_packed_signed(a, b, out, 4)
 }
 
-pub fn mul_i1_accumulate_i64(a: &Tensor<I1>, b: &Tensor<I1>, out: &mut Tensor<i64>) -> Result<()> {
-    mul_accumulate_packed_signed(a, b, out, 1)
-}
 
-pub fn mul_i2_accumulate_i64(a: &Tensor<I2>, b: &Tensor<I2>, out: &mut Tensor<i64>) -> Result<()> {
-    mul_accumulate_packed_signed(a, b, out, 2)
-}
 
 pub fn mul_i4_accumulate_i64(a: &Tensor<I4>, b: &Tensor<I4>, out: &mut Tensor<i64>) -> Result<()> {
     mul_accumulate_packed_signed(a, b, out, 4)
 }
 
-pub fn mul_u1_accumulate_u8(a: &Tensor<U1>, b: &Tensor<U1>, out: &mut Tensor<u8>) -> Result<()> {
-    mul_accumulate_packed_unsigned(a, b, out, 1)
-}
 
-pub fn mul_u2_accumulate_u8(a: &Tensor<U2>, b: &Tensor<U2>, out: &mut Tensor<u8>) -> Result<()> {
-    mul_accumulate_packed_unsigned(a, b, out, 2)
-}
 
 pub fn mul_u4_accumulate_u8(a: &Tensor<U4>, b: &Tensor<U4>, out: &mut Tensor<u8>) -> Result<()> {
     mul_accumulate_packed_unsigned(a, b, out, 4)
 }
 
-pub fn mul_u1_accumulate_u16(a: &Tensor<U1>, b: &Tensor<U1>, out: &mut Tensor<u16>) -> Result<()> {
-    mul_accumulate_packed_unsigned(a, b, out, 1)
-}
 
-pub fn mul_u2_accumulate_u16(a: &Tensor<U2>, b: &Tensor<U2>, out: &mut Tensor<u16>) -> Result<()> {
-    mul_accumulate_packed_unsigned(a, b, out, 2)
-}
 
 pub fn mul_u4_accumulate_u16(a: &Tensor<U4>, b: &Tensor<U4>, out: &mut Tensor<u16>) -> Result<()> {
     mul_accumulate_packed_unsigned(a, b, out, 4)
 }
 
-pub fn mul_u1_accumulate_u32(a: &Tensor<U1>, b: &Tensor<U1>, out: &mut Tensor<u32>) -> Result<()> {
-    mul_accumulate_packed_unsigned(a, b, out, 1)
-}
 
-pub fn mul_u2_accumulate_u32(a: &Tensor<U2>, b: &Tensor<U2>, out: &mut Tensor<u32>) -> Result<()> {
-    mul_accumulate_packed_unsigned(a, b, out, 2)
-}
 
 pub fn mul_u4_accumulate_u32(a: &Tensor<U4>, b: &Tensor<U4>, out: &mut Tensor<u32>) -> Result<()> {
     mul_accumulate_packed_unsigned(a, b, out, 4)
 }
 
-pub fn mul_u1_accumulate_u64(a: &Tensor<U1>, b: &Tensor<U1>, out: &mut Tensor<u64>) -> Result<()> {
-    mul_accumulate_packed_unsigned(a, b, out, 1)
-}
 
-pub fn mul_u2_accumulate_u64(a: &Tensor<U2>, b: &Tensor<U2>, out: &mut Tensor<u64>) -> Result<()> {
-    mul_accumulate_packed_unsigned(a, b, out, 2)
-}
 
 pub fn mul_u4_accumulate_u64(a: &Tensor<U4>, b: &Tensor<U4>, out: &mut Tensor<u64>) -> Result<()> {
     mul_accumulate_packed_unsigned(a, b, out, 4)

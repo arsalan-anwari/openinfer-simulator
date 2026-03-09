@@ -135,24 +135,6 @@ pub fn cast_normal_dispatch(attrs: &OpAttrs, inputs: &[TensorValue], output: Opt
         (TensorValue::F64(a0), TensorValue::BF16(out)) => normal::cast_to_bf16(a0, out, normal::f64_to_f64),
         (TensorValue::F64(a0), TensorValue::F32(out)) => normal::cast_to_f32(a0, out, normal::f64_to_f64),
         (TensorValue::F64(a0), TensorValue::F64(out)) => normal::cast_to_f64(a0, out, normal::f64_to_f64),
-        (TensorValue::I1(a0), TensorValue::I8(out)) => packed::cast_packed_signed(a0, out, 1, |v| v),
-        (TensorValue::I1(a0), TensorValue::I16(out)) => packed::cast_packed_signed(a0, out, 1, |v| v as i16),
-        (TensorValue::I1(a0), TensorValue::I32(out)) => packed::cast_packed_signed(a0, out, 1, |v| v as i32),
-        (TensorValue::I1(a0), TensorValue::I64(out)) => packed::cast_packed_signed(a0, out, 1, |v| v as i64),
-        (TensorValue::I1(a0), TensorValue::F8(out)) => packed::cast_packed_signed(a0, out, 1, |v| normal::f64_to_f8(v as f64)),
-        (TensorValue::I1(a0), TensorValue::F16(out)) => packed::cast_packed_signed(a0, out, 1, |v| normal::f64_to_f16(v as f64)),
-        (TensorValue::I1(a0), TensorValue::BF16(out)) => packed::cast_packed_signed(a0, out, 1, |v| normal::f64_to_bf16(v as f64)),
-        (TensorValue::I1(a0), TensorValue::F32(out)) => packed::cast_packed_signed(a0, out, 1, |v| v as f32),
-        (TensorValue::I1(a0), TensorValue::F64(out)) => packed::cast_packed_signed(a0, out, 1, |v| v as f64),
-        (TensorValue::I2(a0), TensorValue::I8(out)) => packed::cast_packed_signed(a0, out, 2, |v| v),
-        (TensorValue::I2(a0), TensorValue::I16(out)) => packed::cast_packed_signed(a0, out, 2, |v| v as i16),
-        (TensorValue::I2(a0), TensorValue::I32(out)) => packed::cast_packed_signed(a0, out, 2, |v| v as i32),
-        (TensorValue::I2(a0), TensorValue::I64(out)) => packed::cast_packed_signed(a0, out, 2, |v| v as i64),
-        (TensorValue::I2(a0), TensorValue::F8(out)) => packed::cast_packed_signed(a0, out, 2, |v| normal::f64_to_f8(v as f64)),
-        (TensorValue::I2(a0), TensorValue::F16(out)) => packed::cast_packed_signed(a0, out, 2, |v| normal::f64_to_f16(v as f64)),
-        (TensorValue::I2(a0), TensorValue::BF16(out)) => packed::cast_packed_signed(a0, out, 2, |v| normal::f64_to_bf16(v as f64)),
-        (TensorValue::I2(a0), TensorValue::F32(out)) => packed::cast_packed_signed(a0, out, 2, |v| v as f32),
-        (TensorValue::I2(a0), TensorValue::F64(out)) => packed::cast_packed_signed(a0, out, 2, |v| v as f64),
         (TensorValue::I4(a0), TensorValue::I8(out)) => packed::cast_packed_signed(a0, out, 4, |v| v),
         (TensorValue::I4(a0), TensorValue::I16(out)) => packed::cast_packed_signed(a0, out, 4, |v| v as i16),
         (TensorValue::I4(a0), TensorValue::I32(out)) => packed::cast_packed_signed(a0, out, 4, |v| v as i32),
@@ -162,24 +144,6 @@ pub fn cast_normal_dispatch(attrs: &OpAttrs, inputs: &[TensorValue], output: Opt
         (TensorValue::I4(a0), TensorValue::BF16(out)) => packed::cast_packed_signed(a0, out, 4, |v| normal::f64_to_bf16(v as f64)),
         (TensorValue::I4(a0), TensorValue::F32(out)) => packed::cast_packed_signed(a0, out, 4, |v| v as f32),
         (TensorValue::I4(a0), TensorValue::F64(out)) => packed::cast_packed_signed(a0, out, 4, |v| v as f64),
-        (TensorValue::U1(a0), TensorValue::U8(out)) => packed::cast_packed_unsigned(a0, out, 1, |v| v),
-        (TensorValue::U1(a0), TensorValue::U16(out)) => packed::cast_packed_unsigned(a0, out, 1, |v| v as u16),
-        (TensorValue::U1(a0), TensorValue::U32(out)) => packed::cast_packed_unsigned(a0, out, 1, |v| v as u32),
-        (TensorValue::U1(a0), TensorValue::U64(out)) => packed::cast_packed_unsigned(a0, out, 1, |v| v as u64),
-        (TensorValue::U1(a0), TensorValue::F8(out)) => packed::cast_packed_unsigned(a0, out, 1, |v| normal::f64_to_f8(v as f64)),
-        (TensorValue::U1(a0), TensorValue::F16(out)) => packed::cast_packed_unsigned(a0, out, 1, |v| normal::f64_to_f16(v as f64)),
-        (TensorValue::U1(a0), TensorValue::BF16(out)) => packed::cast_packed_unsigned(a0, out, 1, |v| normal::f64_to_bf16(v as f64)),
-        (TensorValue::U1(a0), TensorValue::F32(out)) => packed::cast_packed_unsigned(a0, out, 1, |v| v as f32),
-        (TensorValue::U1(a0), TensorValue::F64(out)) => packed::cast_packed_unsigned(a0, out, 1, |v| v as f64),
-        (TensorValue::U2(a0), TensorValue::U8(out)) => packed::cast_packed_unsigned(a0, out, 2, |v| v),
-        (TensorValue::U2(a0), TensorValue::U16(out)) => packed::cast_packed_unsigned(a0, out, 2, |v| v as u16),
-        (TensorValue::U2(a0), TensorValue::U32(out)) => packed::cast_packed_unsigned(a0, out, 2, |v| v as u32),
-        (TensorValue::U2(a0), TensorValue::U64(out)) => packed::cast_packed_unsigned(a0, out, 2, |v| v as u64),
-        (TensorValue::U2(a0), TensorValue::F8(out)) => packed::cast_packed_unsigned(a0, out, 2, |v| normal::f64_to_f8(v as f64)),
-        (TensorValue::U2(a0), TensorValue::F16(out)) => packed::cast_packed_unsigned(a0, out, 2, |v| normal::f64_to_f16(v as f64)),
-        (TensorValue::U2(a0), TensorValue::BF16(out)) => packed::cast_packed_unsigned(a0, out, 2, |v| normal::f64_to_bf16(v as f64)),
-        (TensorValue::U2(a0), TensorValue::F32(out)) => packed::cast_packed_unsigned(a0, out, 2, |v| v as f32),
-        (TensorValue::U2(a0), TensorValue::F64(out)) => packed::cast_packed_unsigned(a0, out, 2, |v| v as f64),
         (TensorValue::U4(a0), TensorValue::U8(out)) => packed::cast_packed_unsigned(a0, out, 4, |v| v),
         (TensorValue::U4(a0), TensorValue::U16(out)) => packed::cast_packed_unsigned(a0, out, 4, |v| v as u16),
         (TensorValue::U4(a0), TensorValue::U32(out)) => packed::cast_packed_unsigned(a0, out, 4, |v| v as u32),
@@ -286,9 +250,9 @@ fn is_unsigned_int(dtype: DType) -> bool {
 }
 
 fn is_packed_signed(dtype: DType) -> bool {
-    matches!(dtype, DType::I1 | DType::I2 | DType::I4)
+    matches!(dtype, DType::I4)
 }
 
 fn is_packed_unsigned(dtype: DType) -> bool {
-    matches!(dtype, DType::U1 | DType::U2 | DType::U4)
+    matches!(dtype, DType::U4)
 }

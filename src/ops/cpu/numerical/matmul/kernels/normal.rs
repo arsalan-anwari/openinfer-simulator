@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 
 use crate::ops::cpu::broadcast::{broadcast_shape, broadcast_strides, for_each_broadcast_index};
-use crate::tensor::{Bitset, BF16, F16, F8, Tensor};
+use crate::tensor::{BF16, F16, F8, Tensor};
 
 use super::common::MatmulElement;
 
@@ -213,14 +213,3 @@ pub fn matmul_bool_inplace(a: &mut Tensor<bool>, b: &Tensor<bool>) -> Result<()>
     matmul_inplace(a, b)
 }
 
-pub fn matmul_bitset_normal(
-    a: &Tensor<Bitset>,
-    b: &Tensor<Bitset>,
-    out: &mut Tensor<Bitset>,
-) -> Result<()> {
-    matmul_normal(a, b, out)
-}
-
-pub fn matmul_bitset_inplace(a: &mut Tensor<Bitset>, b: &Tensor<Bitset>) -> Result<()> {
-    matmul_inplace(a, b)
-}

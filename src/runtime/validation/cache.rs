@@ -87,7 +87,7 @@ pub fn validate_cache_bump(
     if !ctx.is_scalar_var(target)? {
         return Err(anyhow!("cache increment expects scalar {}", target));
     }
-    if decl.dtype.is_packed() || matches!(decl.dtype, crate::tensor::DType::Bool | crate::tensor::DType::Bitset) {
+    if decl.dtype.is_packed() || matches!(decl.dtype, crate::tensor::DType::Bool) {
         return Err(anyhow!(
             "cache increment does not support dtype {:?} for {}",
             decl.dtype,

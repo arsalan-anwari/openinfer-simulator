@@ -235,7 +235,12 @@ fn parse_dtype_sets(value: Option<&Value>) -> Result<HashMap<String, DTypeSuppor
                         let pair_obj = pair.as_object().ok_or("accumulate pair must be object")?;
                         let input = get_string(pair_obj.get("input"), "accumulate.input")?;
                         let acc = get_string(pair_obj.get("acc"), "accumulate.acc")?;
-                        Ok((to_dtype_variant(&input)?, to_dtype_variant(&acc)?))
+                        Ok(Some((to_dtype_variant(&input)?, to_dtype_variant(&acc)?)))
+                    })
+                    .filter_map(|pair| match pair {
+                        Ok(Some(pair)) => Some(Ok(pair)),
+                        Ok(None) => None,
+                        Err(err) => Some(Err(err)),
                     })
                     .collect::<Result<Vec<_>, Box<dyn Error>>>()
             })
@@ -287,22 +292,17 @@ fn to_dtype_variant(ident: &str) -> Result<String, Box<dyn Error>> {
         "f16" => "F16",
         "f32" => "F32",
         "f64" => "F64",
-        "i1" => "I1",
-        "i2" => "I2",
         "i4" => "I4",
         "i8" => "I8",
         "i16" => "I16",
         "i32" => "I32",
         "i64" => "I64",
-        "u1" => "U1",
-        "u2" => "U2",
         "u4" => "U4",
         "u8" => "U8",
         "u16" => "U16",
         "u32" => "U32",
         "u64" => "U64",
         "bool" => "Bool",
-        "bitset" => "Bitset",
         other => return Err(format!("unsupported dtype {other}").into()),
     };
     Ok(variant.to_string())
@@ -488,10 +488,10 @@ fn write_cast_kernel_rs(
     out.push_str("    matches!(dtype, DType::U8 | DType::U16 | DType::U32 | DType::U64)\n");
     out.push_str("}\n\n");
     out.push_str("fn is_packed_signed(dtype: DType) -> bool {\n");
-    out.push_str("    matches!(dtype, DType::I1 | DType::I2 | DType::I4)\n");
+    out.push_str("    matches!(dtype, DType::I4)\n");
     out.push_str("}\n\n");
     out.push_str("fn is_packed_unsigned(dtype: DType) -> bool {\n");
-    out.push_str("    matches!(dtype, DType::U1 | DType::U2 | DType::U4)\n");
+    out.push_str("    matches!(dtype, DType::U4)\n");
     out.push_str("}\n");
 
     let out_path = op_dir.join("kernel.rs");
@@ -989,7 +989,11 @@ fn write_kernel_rs(
                 }
             }
         }
-        out.push_str("        _ => Err(anyhow!(\"dtype mismatch\")),\n");
+        let exhaustive_unary_inplace =
+            inputs == 1 && covers_all_tensor_value_variants(&normal_dtypes);
+        if !exhaustive_unary_inplace {
+            out.push_str("        _ => Err(anyhow!(\"dtype mismatch\")),\n");
+        }
         out.push_str("    }\n");
         out.push_str("}\n\n");
     }
@@ -1039,7 +1043,17 @@ fn write_kernel_rs(
 }
 
 fn is_packed(dtype: &str) -> bool {
-    matches!(dtype, "I1" | "I2" | "I4" | "U1" | "U2" | "U4")
+    matches!(dtype, "I4" | "U4")
+}
+
+fn covers_all_tensor_value_variants(dtypes: &[String]) -> bool {
+    const ALL_VARIANTS: [&str; 16] = [
+        "I8", "I16", "F32", "F64", "U8", "U16", "I32", "I64", "U32", "U64", "Bool", "F16",
+        "BF16", "F8", "I4", "U4",
+    ];
+    ALL_VARIANTS
+        .iter()
+        .all(|variant| dtypes.iter().any(|dtype| dtype == variant))
 }
 
 fn dtype_suffix(dtype: &str) -> Result<&'static str, Box<dyn Error>> {
@@ -1049,22 +1063,17 @@ fn dtype_suffix(dtype: &str) -> Result<&'static str, Box<dyn Error>> {
         "F16" => "f16",
         "F32" => "f32",
         "F64" => "f64",
-        "I1" => "i1",
-        "I2" => "i2",
         "I4" => "i4",
         "I8" => "i8",
         "I16" => "i16",
         "I32" => "i32",
         "I64" => "i64",
-        "U1" => "u1",
-        "U2" => "u2",
         "U4" => "u4",
         "U8" => "u8",
         "U16" => "u16",
         "U32" => "u32",
         "U64" => "u64",
         "Bool" => "bool",
-        "Bitset" => "bitset",
         _ => return Err(format!("unsupported dtype {dtype}").into()),
     };
     Ok(suffix)
@@ -1072,8 +1081,6 @@ fn dtype_suffix(dtype: &str) -> Result<&'static str, Box<dyn Error>> {
 
 fn dtype_bit_width(dtype: &str) -> Result<u8, Box<dyn Error>> {
     let width = match dtype {
-        "I1" | "U1" => 1,
-        "I2" | "U2" => 2,
         "I4" | "U4" => 4,
         "I8" | "U8" | "F8" => 8,
         "I16" | "U16" | "F16" | "BF16" => 16,
@@ -1097,12 +1104,13 @@ fn is_unsigned_int_str(dtype: &str) -> bool {
 }
 
 fn is_packed_signed(dtype: &str) -> bool {
-    matches!(dtype, "I1" | "I2" | "I4")
+    matches!(dtype, "I4")
 }
 
 fn is_packed_unsigned(dtype: &str) -> bool {
-    matches!(dtype, "U1" | "U2" | "U4")
+    matches!(dtype, "U4")
 }
+
 
 fn allow_cast_by_rule(
     in_is_packed_signed: bool,

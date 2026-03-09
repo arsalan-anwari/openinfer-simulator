@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 
 use crate::ops::cpu::broadcast::{broadcast_strides, for_each_broadcast_index};
 use crate::ops::cpu::packed_cpu::{get_bits, sign_extend, PackedBits};
-use crate::tensor::{I1, I2, I4, Tensor};
+use crate::tensor::{I4, Tensor};
 
 fn sign_packed<T: PackedBits>(a: &Tensor<T>, out: &mut Tensor<i8>, width: u8) -> Result<()> {
     if a.shape() != out.shape() {
@@ -29,13 +29,7 @@ fn sign_packed<T: PackedBits>(a: &Tensor<T>, out: &mut Tensor<i8>, width: u8) ->
     Ok(())
 }
 
-pub fn sign_i1_packed(a: &Tensor<I1>, out: &mut Tensor<i8>) -> Result<()> {
-    sign_packed(a, out, 1)
-}
 
-pub fn sign_i2_packed(a: &Tensor<I2>, out: &mut Tensor<i8>) -> Result<()> {
-    sign_packed(a, out, 2)
-}
 
 pub fn sign_i4_packed(a: &Tensor<I4>, out: &mut Tensor<i8>) -> Result<()> {
     sign_packed(a, out, 4)

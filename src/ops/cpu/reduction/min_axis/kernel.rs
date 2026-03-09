@@ -21,11 +21,7 @@ pub fn min_axis_normal_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output
         (TensorValue::U16(a0), TensorValue::U16(out)) => super::kernels::normal::min_axis_u16_normal(_attrs, a0, out),
         (TensorValue::U32(a0), TensorValue::U32(out)) => super::kernels::normal::min_axis_u32_normal(_attrs, a0, out),
         (TensorValue::U64(a0), TensorValue::U64(out)) => super::kernels::normal::min_axis_u64_normal(_attrs, a0, out),
-        (TensorValue::I1(a0), TensorValue::I1(out)) => super::kernels::packed::min_axis_i1_packed(_attrs, a0, out),
-        (TensorValue::I2(a0), TensorValue::I2(out)) => super::kernels::packed::min_axis_i2_packed(_attrs, a0, out),
         (TensorValue::I4(a0), TensorValue::I4(out)) => super::kernels::packed::min_axis_i4_packed(_attrs, a0, out),
-        (TensorValue::U1(a0), TensorValue::U1(out)) => super::kernels::packed::min_axis_u1_packed(_attrs, a0, out),
-        (TensorValue::U2(a0), TensorValue::U2(out)) => super::kernels::packed::min_axis_u2_packed(_attrs, a0, out),
         (TensorValue::U4(a0), TensorValue::U4(out)) => super::kernels::packed::min_axis_u4_packed(_attrs, a0, out),
         _ => Err(anyhow!("dtype mismatch")),
     }

@@ -32,8 +32,6 @@ enum DTypeClass {
     Signed,
     Unsigned,
     Bool,
-    Bitset,
-    Ternary,
 }
 
 pub fn collect_scalar_attr_bits(
@@ -114,7 +112,7 @@ fn scalar_bits_from_attr(
             bits.i64_bits = i64_value as u64;
             bits.u8 = i64_value as u8;
         }
-        DTypeClass::Unsigned | DTypeClass::Bitset => {
+        DTypeClass::Unsigned => {
             let u64_value = match value {
                 AttrValue::UInt(v) => *v,
                 AttrValue::Int(v) => {
@@ -160,9 +158,6 @@ fn scalar_bits_from_attr(
             };
             bits.bool_u32 = bool_value as u32;
         }
-        DTypeClass::Ternary => {
-            return Err(anyhow!("ternary packed types not supported in vulkan"));
-        }
     }
     Ok(bits)
 }
@@ -189,18 +184,12 @@ fn dtype_class(dtype: DType) -> DTypeClass {
         | DType::I16
         | DType::I32
         | DType::I64
-        | DType::I1
-        | DType::I2
         | DType::I4 => DTypeClass::Signed,
         DType::U8
         | DType::U16
         | DType::U32
         | DType::U64
-        | DType::U1
-        | DType::U2
         | DType::U4 => DTypeClass::Unsigned,
         DType::Bool => DTypeClass::Bool,
-        DType::Bitset => DTypeClass::Bitset,
-        DType::T1 | DType::T2 => DTypeClass::Ternary,
     }
 }

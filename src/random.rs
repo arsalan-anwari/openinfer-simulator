@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 
-use crate::tensor::{numel, BF16, F8, I1, I2, I4, Tensor, TensorOptions};
+use crate::tensor::{numel, BF16, F8, I4, Tensor, TensorOptions};
 
 /// Random tensor generator for a specific element type.
 pub struct Random<T> {
@@ -199,16 +199,4 @@ impl RandomValue for I4 {
     }
 }
 
-impl RandomValue for I2 {
-    fn sample(rng: &mut StdRng, range: (Self, Self)) -> Result<Self> {
-        let value = rng.gen_range(range.0.to_i8()..=range.1.to_i8());
-        Ok(I2::from_i8(value))
-    }
-}
 
-impl RandomValue for I1 {
-    fn sample(rng: &mut StdRng, range: (Self, Self)) -> Result<Self> {
-        let value = rng.gen_range(range.0.to_i8()..=range.1.to_i8());
-        Ok(I1::from_i8(value))
-    }
-}

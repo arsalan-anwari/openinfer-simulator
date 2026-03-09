@@ -1,4 +1,4 @@
-use crate::tensor::{I1, I2, I4, U1, U2, U4};
+use crate::tensor::{I4, U4};
 
 pub trait SignedInput: Copy {
     fn to_i64(self) -> i64;
@@ -40,17 +40,7 @@ impl SignedInput for i64 {
     }
 }
 
-impl SignedInput for I1 {
-    fn to_i64(self) -> i64 {
-        self.to_i8() as i64
-    }
-}
 
-impl SignedInput for I2 {
-    fn to_i64(self) -> i64 {
-        self.to_i8() as i64
-    }
-}
 
 impl SignedInput for I4 {
     fn to_i64(self) -> i64 {
@@ -82,17 +72,7 @@ impl UnsignedInput for u64 {
     }
 }
 
-impl UnsignedInput for U1 {
-    fn to_u64(self) -> u64 {
-        self.to_u8() as u64
-    }
-}
 
-impl UnsignedInput for U2 {
-    fn to_u64(self) -> u64 {
-        self.to_u8() as u64
-    }
-}
 
 impl UnsignedInput for U4 {
     fn to_u64(self) -> u64 {

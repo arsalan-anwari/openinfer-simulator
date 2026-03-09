@@ -17,8 +17,6 @@ pub fn neg_normal_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output: Opt
         (TensorValue::I16(a0), TensorValue::I16(out)) => super::kernels::normal::neg_i16_normal(a0, out),
         (TensorValue::I32(a0), TensorValue::I32(out)) => super::kernels::normal::neg_i32_normal(a0, out),
         (TensorValue::I64(a0), TensorValue::I64(out)) => super::kernels::normal::neg_i64_normal(a0, out),
-        (TensorValue::I1(a0), TensorValue::I1(out)) => super::kernels::packed::neg_i1_packed(a0, out),
-        (TensorValue::I2(a0), TensorValue::I2(out)) => super::kernels::packed::neg_i2_packed(a0, out),
         (TensorValue::I4(a0), TensorValue::I4(out)) => super::kernels::packed::neg_i4_packed(a0, out),
         _ => Err(anyhow!("dtype mismatch")),
     }
@@ -36,8 +34,6 @@ pub fn neg_inplace_dispatch(_attrs: &OpAttrs, _inputs: &[TensorValue], output: O
         TensorValue::I16(a) => super::kernels::normal::neg_i16_inplace(a),
         TensorValue::I32(a) => super::kernels::normal::neg_i32_inplace(a),
         TensorValue::I64(a) => super::kernels::normal::neg_i64_inplace(a),
-        TensorValue::I1(a) => super::kernels::packed::neg_i1_packed_inplace(a),
-        TensorValue::I2(a) => super::kernels::packed::neg_i2_packed_inplace(a),
         TensorValue::I4(a) => super::kernels::packed::neg_i4_packed_inplace(a),
         _ => Err(anyhow!("dtype mismatch")),
     }

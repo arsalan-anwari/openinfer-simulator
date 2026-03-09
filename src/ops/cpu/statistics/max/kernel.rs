@@ -21,11 +21,7 @@ pub fn max_normal_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output: Opt
         (TensorValue::U16(a0), TensorValue::U16(a1), TensorValue::U16(out)) => super::kernels::normal::max_u16_normal(a0, a1, out),
         (TensorValue::U32(a0), TensorValue::U32(a1), TensorValue::U32(out)) => super::kernels::normal::max_u32_normal(a0, a1, out),
         (TensorValue::U64(a0), TensorValue::U64(a1), TensorValue::U64(out)) => super::kernels::normal::max_u64_normal(a0, a1, out),
-        (TensorValue::I1(a0), TensorValue::I1(a1), TensorValue::I1(out)) => super::kernels::packed::max_i1_packed(a0, a1, out),
-        (TensorValue::I2(a0), TensorValue::I2(a1), TensorValue::I2(out)) => super::kernels::packed::max_i2_packed(a0, a1, out),
         (TensorValue::I4(a0), TensorValue::I4(a1), TensorValue::I4(out)) => super::kernels::packed::max_i4_packed(a0, a1, out),
-        (TensorValue::U1(a0), TensorValue::U1(a1), TensorValue::U1(out)) => super::kernels::packed::max_u1_packed(a0, a1, out),
-        (TensorValue::U2(a0), TensorValue::U2(a1), TensorValue::U2(out)) => super::kernels::packed::max_u2_packed(a0, a1, out),
         (TensorValue::U4(a0), TensorValue::U4(a1), TensorValue::U4(out)) => super::kernels::packed::max_u4_packed(a0, a1, out),
         _ => Err(anyhow!("dtype mismatch")),
     }
@@ -47,11 +43,7 @@ pub fn max_inplace_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output: Op
         (TensorValue::U16(a0), TensorValue::U16(a1)) => super::kernels::normal::max_u16_inplace(a0, a1),
         (TensorValue::U32(a0), TensorValue::U32(a1)) => super::kernels::normal::max_u32_inplace(a0, a1),
         (TensorValue::U64(a0), TensorValue::U64(a1)) => super::kernels::normal::max_u64_inplace(a0, a1),
-        (TensorValue::I1(a0), TensorValue::I1(a1)) => super::kernels::packed::max_i1_packed_inplace(a0, a1),
-        (TensorValue::I2(a0), TensorValue::I2(a1)) => super::kernels::packed::max_i2_packed_inplace(a0, a1),
         (TensorValue::I4(a0), TensorValue::I4(a1)) => super::kernels::packed::max_i4_packed_inplace(a0, a1),
-        (TensorValue::U1(a0), TensorValue::U1(a1)) => super::kernels::packed::max_u1_packed_inplace(a0, a1),
-        (TensorValue::U2(a0), TensorValue::U2(a1)) => super::kernels::packed::max_u2_packed_inplace(a0, a1),
         (TensorValue::U4(a0), TensorValue::U4(a1)) => super::kernels::packed::max_u4_packed_inplace(a0, a1),
         _ => Err(anyhow!("dtype mismatch")),
     }

@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 
 use super::{
-    numel, Bitset, BF16, DType, F16, F8, I1, I2, I4, T1, T2, U1, U2, U4, Tensor, TensorOptions,
+    numel, BF16, DType, F16, F8, I4, U4, Tensor, TensorOptions,
     TensorValue,
 };
 
@@ -23,15 +23,8 @@ pub enum ScalarValue {
     F32(f32),
     F64(f64),
     Bool(bool),
-    Bitset(Bitset),
     I4(I4),
-    I2(I2),
-    I1(I1),
     U4(U4),
-    U2(U2),
-    U1(U1),
-    T2(T2),
-    T1(T1),
 }
 
 impl ScalarValue {
@@ -52,15 +45,8 @@ impl ScalarValue {
             ScalarValue::F32(_) => DType::F32,
             ScalarValue::F64(_) => DType::F64,
             ScalarValue::Bool(_) => DType::Bool,
-            ScalarValue::Bitset(_) => DType::Bitset,
             ScalarValue::I4(_) => DType::I4,
-            ScalarValue::I2(_) => DType::I2,
-            ScalarValue::I1(_) => DType::I1,
             ScalarValue::U4(_) => DType::U4,
-            ScalarValue::U2(_) => DType::U2,
-            ScalarValue::U1(_) => DType::U1,
-            ScalarValue::T2(_) => DType::T2,
-            ScalarValue::T1(_) => DType::T1,
         }
     }
 
@@ -157,12 +143,6 @@ impl ScalarValue {
                     ..TensorOptions::default()
                 })?,
             )),
-            (ScalarValue::Bitset(val), DType::Bitset) => Ok(TensorValue::Bitset(
-                Tensor::from_vec_with_opts(vec![*val; len], TensorOptions {
-                    shape: Some(shape.to_vec()),
-                    ..TensorOptions::default()
-                })?,
-            )),
             (ScalarValue::I4(val), DType::I4) => Ok(TensorValue::I4(
                 Tensor::from_vec_with_opts(
                     pack_repeated_bits(val.bits, 4, len)
@@ -172,65 +152,11 @@ impl ScalarValue {
                     packed_opts,
                 )?,
             )),
-            (ScalarValue::I2(val), DType::I2) => Ok(TensorValue::I2(
-                Tensor::from_vec_with_opts(
-                    pack_repeated_bits(val.bits, 2, len)
-                        .into_iter()
-                        .map(|bits| I2 { bits })
-                        .collect(),
-                    packed_opts,
-                )?,
-            )),
-            (ScalarValue::I1(val), DType::I1) => Ok(TensorValue::I1(
-                Tensor::from_vec_with_opts(
-                    pack_repeated_bits(val.bits, 1, len)
-                        .into_iter()
-                        .map(|bits| I1 { bits })
-                        .collect(),
-                    packed_opts,
-                )?,
-            )),
             (ScalarValue::U4(val), DType::U4) => Ok(TensorValue::U4(
                 Tensor::from_vec_with_opts(
                     pack_repeated_bits(val.bits, 4, len)
                         .into_iter()
                         .map(|bits| U4 { bits })
-                        .collect(),
-                    packed_opts,
-                )?,
-            )),
-            (ScalarValue::U2(val), DType::U2) => Ok(TensorValue::U2(
-                Tensor::from_vec_with_opts(
-                    pack_repeated_bits(val.bits, 2, len)
-                        .into_iter()
-                        .map(|bits| U2 { bits })
-                        .collect(),
-                    packed_opts,
-                )?,
-            )),
-            (ScalarValue::U1(val), DType::U1) => Ok(TensorValue::U1(
-                Tensor::from_vec_with_opts(
-                    pack_repeated_bits(val.bits, 1, len)
-                        .into_iter()
-                        .map(|bits| U1 { bits })
-                        .collect(),
-                    packed_opts,
-                )?,
-            )),
-            (ScalarValue::T2(val), DType::T2) => Ok(TensorValue::T2(
-                Tensor::from_vec_with_opts(
-                    pack_repeated_bits(val.bits, 2, len)
-                        .into_iter()
-                        .map(|bits| T2 { bits })
-                        .collect(),
-                    packed_opts,
-                )?,
-            )),
-            (ScalarValue::T1(val), DType::T1) => Ok(TensorValue::T1(
-                Tensor::from_vec_with_opts(
-                    pack_repeated_bits(val.bits, 1, len)
-                        .into_iter()
-                        .map(|bits| T1 { bits })
                         .collect(),
                     packed_opts,
                 )?,

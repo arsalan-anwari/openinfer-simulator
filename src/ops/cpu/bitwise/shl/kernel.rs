@@ -16,9 +16,7 @@ pub fn shl_normal_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output: Opt
         (TensorValue::U16(a0), TensorValue::U16(out)) => super::kernels::normal::shl_u16_normal(_attrs, a0, out),
         (TensorValue::U32(a0), TensorValue::U32(out)) => super::kernels::normal::shl_u32_normal(_attrs, a0, out),
         (TensorValue::U64(a0), TensorValue::U64(out)) => super::kernels::normal::shl_u64_normal(_attrs, a0, out),
-        (TensorValue::I2(a0), TensorValue::I2(out)) => super::kernels::packed::shl_i2_packed(_attrs, a0, out),
         (TensorValue::I4(a0), TensorValue::I4(out)) => super::kernels::packed::shl_i4_packed(_attrs, a0, out),
-        (TensorValue::U2(a0), TensorValue::U2(out)) => super::kernels::packed::shl_u2_packed(_attrs, a0, out),
         (TensorValue::U4(a0), TensorValue::U4(out)) => super::kernels::packed::shl_u4_packed(_attrs, a0, out),
         _ => Err(anyhow!("dtype mismatch")),
     }
@@ -35,9 +33,7 @@ pub fn shl_inplace_dispatch(_attrs: &OpAttrs, _inputs: &[TensorValue], output: O
         TensorValue::U16(a) => super::kernels::normal::shl_u16_inplace(_attrs, a),
         TensorValue::U32(a) => super::kernels::normal::shl_u32_inplace(_attrs, a),
         TensorValue::U64(a) => super::kernels::normal::shl_u64_inplace(_attrs, a),
-        TensorValue::I2(a) => super::kernels::packed::shl_i2_packed_inplace(_attrs, a),
         TensorValue::I4(a) => super::kernels::packed::shl_i4_packed_inplace(_attrs, a),
-        TensorValue::U2(a) => super::kernels::packed::shl_u2_packed_inplace(_attrs, a),
         TensorValue::U4(a) => super::kernels::packed::shl_u4_packed_inplace(_attrs, a),
         _ => Err(anyhow!("dtype mismatch")),
     }

@@ -1,11 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-/// Packed bitset storage type.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Bitset {
-    pub bits: u8,
-}
-
 /// Brain-float16 (BF16) scalar storage.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct BF16 {
@@ -207,45 +201,9 @@ pub struct I4 {
     pub bits: u8,
 }
 
-/// 2-bit signed integer storage.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct I2 {
-    pub bits: u8,
-}
-
-/// 1-bit signed integer storage.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct I1 {
-    pub bits: u8,
-}
-
 /// 4-bit unsigned integer storage.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct U4 {
-    pub bits: u8,
-}
-
-/// 2-bit unsigned integer storage.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct U2 {
-    pub bits: u8,
-}
-
-/// 1-bit unsigned integer storage.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct U1 {
-    pub bits: u8,
-}
-
-/// 2-bit ternary storage.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct T2 {
-    pub bits: u8,
-}
-
-/// 1-bit ternary storage.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct T1 {
     pub bits: u8,
 }
 
@@ -268,32 +226,6 @@ impl I4 {
     }
 }
 
-impl I2 {
-    /// Create an I2 value from i8.
-    pub fn from_i8(value: i8) -> Self {
-        Self {
-            bits: (value as u8) & 0x03,
-        }
-    }
-
-    /// Convert I2 to i8.
-    pub fn to_i8(self) -> i8 {
-        sign_extend(self.bits & 0x03, 2)
-    }
-}
-
-impl I1 {
-    /// Create an I1 value from i8.
-    pub fn from_i8(value: i8) -> Self {
-        Self { bits: (value as u8) & 0x01 }
-    }
-
-    /// Convert I1 to i8.
-    pub fn to_i8(self) -> i8 {
-        sign_extend(self.bits & 0x01, 1)
-    }
-}
-
 impl U4 {
     /// Create a U4 value from u8.
     pub fn from_u8(value: u8) -> Self {
@@ -306,57 +238,3 @@ impl U4 {
     }
 }
 
-impl U2 {
-    /// Create a U2 value from u8.
-    pub fn from_u8(value: u8) -> Self {
-        Self { bits: value & 0x03 }
-    }
-
-    /// Convert U2 to u8.
-    pub fn to_u8(self) -> u8 {
-        self.bits & 0x03
-    }
-}
-
-impl U1 {
-    /// Create a U1 value from u8.
-    pub fn from_u8(value: u8) -> Self {
-        Self { bits: value & 0x01 }
-    }
-
-    /// Convert U1 to u8.
-    pub fn to_u8(self) -> u8 {
-        self.bits & 0x01
-    }
-}
-
-impl T2 {
-    /// Create a T2 value from i8.
-    pub fn from_i8(value: i8) -> Self {
-        Self {
-            bits: (value as u8) & 0x03,
-        }
-    }
-
-    /// Convert T2 to i8.
-    pub fn to_i8(self) -> i8 {
-        sign_extend(self.bits & 0x03, 2)
-    }
-}
-
-impl T1 {
-    /// Create a T1 value from i8.
-    pub fn from_i8(value: i8) -> Self {
-        let bits = if value < 0 { 0 } else { 1 };
-        Self { bits }
-    }
-
-    /// Convert T1 to i8.
-    pub fn to_i8(self) -> i8 {
-        if (self.bits & 0x01) == 0 {
-            -1
-        } else {
-            1
-        }
-    }
-}

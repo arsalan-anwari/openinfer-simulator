@@ -17,8 +17,6 @@ pub fn sign_normal_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output: Op
         (TensorValue::I16(a0), TensorValue::I8(out)) => super::kernels::normal::sign_i16_normal(a0, out),
         (TensorValue::I32(a0), TensorValue::I8(out)) => super::kernels::normal::sign_i32_normal(a0, out),
         (TensorValue::I64(a0), TensorValue::I8(out)) => super::kernels::normal::sign_i64_normal(a0, out),
-        (TensorValue::I1(a0), TensorValue::I8(out)) => super::kernels::packed::sign_i1_packed(a0, out),
-        (TensorValue::I2(a0), TensorValue::I8(out)) => super::kernels::packed::sign_i2_packed(a0, out),
         (TensorValue::I4(a0), TensorValue::I8(out)) => super::kernels::packed::sign_i4_packed(a0, out),
         _ => Err(anyhow!("dtype mismatch")),
     }

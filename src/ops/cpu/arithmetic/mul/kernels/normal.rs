@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 
 use crate::ops::cpu::broadcast::{broadcast_shape, broadcast_strides, for_each_broadcast_index};
-use crate::tensor::{Bitset, BF16, F16, F8, Tensor};
+use crate::tensor::{BF16, F16, F8, Tensor};
 
 use super::common::MulElement;
 
@@ -166,14 +166,3 @@ pub fn mul_bool_inplace(a: &mut Tensor<bool>, b: &Tensor<bool>) -> Result<()> {
     mul_inplace(a, b)
 }
 
-pub fn mul_bitset_normal(
-    a: &Tensor<Bitset>,
-    b: &Tensor<Bitset>,
-    out: &mut Tensor<Bitset>,
-) -> Result<()> {
-    mul_normal(a, b, out)
-}
-
-pub fn mul_bitset_inplace(a: &mut Tensor<Bitset>, b: &Tensor<Bitset>) -> Result<()> {
-    mul_inplace(a, b)
-}

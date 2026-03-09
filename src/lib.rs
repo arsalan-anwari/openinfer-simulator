@@ -53,9 +53,8 @@ pub use graph::{
 pub use op_defs::{op_schema, TypeRule};
 pub use runtime::ModelLoader;
 pub use tensor::{
-    BF16, Bitset, DType, F16, F8, I1, I2, I4, QuantParams, QuantScale, QuantScheme,
-    QuantZeroPoint, ScalarValue, T1, T2, U1, U2, U4, Tensor, TensorElement, TensorOptions,
-    TensorValue,
+    BF16, DType, F16, F8, I4, QuantParams, QuantScale, QuantScheme, QuantZeroPoint, ScalarValue,
+    Tensor, TensorElement, TensorOptions, TensorValue, U4,
 };
 pub use types::VarInfo;
 pub use timer::Timer;

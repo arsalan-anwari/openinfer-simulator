@@ -1,4 +1,4 @@
-use crate::tensor::{BF16, F16, F8, I1, I2, I4};
+use crate::tensor::{BF16, F16, F8, I4};
 
 pub trait AbsElement: Copy {
     fn abs_value(self) -> Self;
@@ -73,17 +73,7 @@ impl SignedInput for i8 {
     }
 }
 
-impl SignedInput for I1 {
-    fn to_i64(self) -> i64 {
-        self.to_i8() as i64
-    }
-}
 
-impl SignedInput for I2 {
-    fn to_i64(self) -> i64 {
-        self.to_i8() as i64
-    }
-}
 
 impl SignedInput for I4 {
     fn to_i64(self) -> i64 {

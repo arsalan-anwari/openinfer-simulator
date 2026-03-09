@@ -1,4 +1,4 @@
-use crate::tensor::{I1, I2, I4, U1, U2, U4};
+use crate::tensor::{I4, U4};
 
 pub trait PackedBits: Copy {
     fn bits(&self) -> u8;
@@ -32,25 +32,7 @@ pub fn sign_extend(value: u8, width: u8) -> i8 {
     ((value << shift) as i8) >> shift
 }
 
-impl PackedBits for I1 {
-    fn bits(&self) -> u8 {
-        self.bits
-    }
 
-    fn set_bits(&mut self, value: u8) {
-        self.bits = value;
-    }
-}
-
-impl PackedBits for I2 {
-    fn bits(&self) -> u8 {
-        self.bits
-    }
-
-    fn set_bits(&mut self, value: u8) {
-        self.bits = value;
-    }
-}
 
 impl PackedBits for I4 {
     fn bits(&self) -> u8 {
@@ -62,25 +44,7 @@ impl PackedBits for I4 {
     }
 }
 
-impl PackedBits for U1 {
-    fn bits(&self) -> u8 {
-        self.bits
-    }
 
-    fn set_bits(&mut self, value: u8) {
-        self.bits = value;
-    }
-}
-
-impl PackedBits for U2 {
-    fn bits(&self) -> u8 {
-        self.bits
-    }
-
-    fn set_bits(&mut self, value: u8) {
-        self.bits = value;
-    }
-}
 
 impl PackedBits for U4 {
     fn bits(&self) -> u8 {

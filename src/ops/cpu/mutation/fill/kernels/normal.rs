@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 
 use crate::graph::OpAttrs;
-use crate::tensor::{Bitset, BF16, F16, F8, Tensor};
+use crate::tensor::{BF16, F16, F8, Tensor};
 
 use super::common::{fill_value_bool, fill_value_f64, fill_value_i64, fill_value_u64};
 
@@ -260,25 +260,3 @@ pub fn fill_bool_inplace(attrs: &OpAttrs, a: &mut Tensor<bool>) -> Result<()> {
     Ok(())
 }
 
-pub fn fill_bitset_normal(
-    attrs: &OpAttrs,
-    a: &Tensor<Bitset>,
-    out: &mut Tensor<Bitset>,
-) -> Result<()> {
-    ensure_shape(a, out)?;
-    let value = fill_value_u64(attrs)? as u8;
-    let value = Bitset { bits: value };
-    for out_slot in &mut out.data {
-        *out_slot = value;
-    }
-    Ok(())
-}
-
-pub fn fill_bitset_inplace(attrs: &OpAttrs, a: &mut Tensor<Bitset>) -> Result<()> {
-    let value = fill_value_u64(attrs)? as u8;
-    let value = Bitset { bits: value };
-    for out_slot in &mut a.data {
-        *out_slot = value;
-    }
-    Ok(())
-}

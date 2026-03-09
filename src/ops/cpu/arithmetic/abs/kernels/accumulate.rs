@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 
-use crate::tensor::{I1, I2, I4, Tensor};
+use crate::tensor::{I4, Tensor};
 
 use super::common::{SignedAcc, SignedInput};
 
@@ -31,14 +31,6 @@ macro_rules! signed_acc_fn {
     };
 }
 
-signed_acc_fn!(abs_i1_accumulate_i8, I1, i8);
-signed_acc_fn!(abs_i1_accumulate_i16, I1, i16);
-signed_acc_fn!(abs_i1_accumulate_i32, I1, i32);
-signed_acc_fn!(abs_i1_accumulate_i64, I1, i64);
-signed_acc_fn!(abs_i2_accumulate_i8, I2, i8);
-signed_acc_fn!(abs_i2_accumulate_i16, I2, i16);
-signed_acc_fn!(abs_i2_accumulate_i32, I2, i32);
-signed_acc_fn!(abs_i2_accumulate_i64, I2, i64);
 signed_acc_fn!(abs_i4_accumulate_i8, I4, i8);
 signed_acc_fn!(abs_i4_accumulate_i16, I4, i16);
 signed_acc_fn!(abs_i4_accumulate_i32, I4, i32);

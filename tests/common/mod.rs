@@ -92,15 +92,8 @@ pub fn assert_tensor_close(
         (TensorValue::U32(a), TensorValue::U32(b)) => exact_match(&a.data, &b.data),
         (TensorValue::U64(a), TensorValue::U64(b)) => exact_match(&a.data, &b.data),
         (TensorValue::Bool(a), TensorValue::Bool(b)) => exact_match(&a.data, &b.data),
-        (TensorValue::Bitset(a), TensorValue::Bitset(b)) => exact_match(&a.data, &b.data),
         (TensorValue::I4(a), TensorValue::I4(b)) => exact_match(&a.data, &b.data),
-        (TensorValue::I2(a), TensorValue::I2(b)) => exact_match(&a.data, &b.data),
-        (TensorValue::I1(a), TensorValue::I1(b)) => exact_match(&a.data, &b.data),
         (TensorValue::U4(a), TensorValue::U4(b)) => exact_match(&a.data, &b.data),
-        (TensorValue::U2(a), TensorValue::U2(b)) => exact_match(&a.data, &b.data),
-        (TensorValue::U1(a), TensorValue::U1(b)) => exact_match(&a.data, &b.data),
-        (TensorValue::T1(a), TensorValue::T1(b)) => exact_match(&a.data, &b.data),
-        (TensorValue::T2(a), TensorValue::T2(b)) => exact_match(&a.data, &b.data),
         _ => Err(anyhow!("unsupported tensor comparison")),
     }
 }

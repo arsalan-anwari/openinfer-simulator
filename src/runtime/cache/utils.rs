@@ -32,14 +32,9 @@ pub fn scalar_to_i64(value: &TensorValue) -> Result<i64> {
         TensorValue::U32(t) => Ok(t.data[0] as i64),
         TensorValue::U64(t) => Ok(t.data[0] as i64),
         TensorValue::Bool(t) => Ok(if t.data[0] { 1 } else { 0 }),
-        TensorValue::I4(_)
-        | TensorValue::I2(_)
-        | TensorValue::I1(_)
-        | TensorValue::U4(_)
-        | TensorValue::U2(_)
-        | TensorValue::U1(_)
-        | TensorValue::T2(_)
-        | TensorValue::T1(_) => Err(anyhow!("cache index packed dtypes are not supported")),
+        TensorValue::I4(_) | TensorValue::U4(_) => {
+            Err(anyhow!("cache index packed dtypes are not supported"))
+        }
         _ => Err(anyhow!("cache index must be integer")),
     }
 }
@@ -109,14 +104,9 @@ pub fn increment_scalar(value: TensorValue, amount: i64, decrement: bool) -> Res
             t.data[0] += signed_amount as f64;
             Ok(TensorValue::F64(t))
         }
-        TensorValue::I4(_)
-        | TensorValue::I2(_)
-        | TensorValue::I1(_)
-        | TensorValue::U4(_)
-        | TensorValue::U2(_)
-        | TensorValue::U1(_)
-        | TensorValue::T2(_)
-        | TensorValue::T1(_) => Err(anyhow!("cache increment unsupported for packed dtype")),
+        TensorValue::I4(_) | TensorValue::U4(_) => {
+            Err(anyhow!("cache increment unsupported for packed dtype"))
+        }
         _ => Err(anyhow!("cache increment unsupported for dtype")),
     }
 }
@@ -149,7 +139,6 @@ pub fn slice_tensor_value(
         TensorValue::F32(t) => make_slice(out_shape, t.strides(), selections, &t.data, TensorValue::F32),
         TensorValue::F64(t) => make_slice(out_shape, t.strides(), selections, &t.data, TensorValue::F64),
         TensorValue::Bool(t) => make_slice(out_shape, t.strides(), selections, &t.data, TensorValue::Bool),
-        TensorValue::Bitset(t) => make_slice(out_shape, t.strides(), selections, &t.data, TensorValue::Bitset),
         _ => Err(anyhow!("slice not supported for packed tensors")),
     }
 }
@@ -234,10 +223,8 @@ pub fn expand_tensor_value(value: &TensorValue, shape: &[usize]) -> Result<Tenso
         (TensorValue::F32(src), TensorValue::F32(dst)) => expand_copy(src, dst),
         (TensorValue::F64(src), TensorValue::F64(dst)) => expand_copy(src, dst),
         (TensorValue::Bool(src), TensorValue::Bool(dst)) => expand_copy(src, dst),
-        (TensorValue::Bitset(src), TensorValue::Bitset(dst)) => expand_copy(src, dst),
         (TensorValue::I4(src), TensorValue::I4(dst)) => expand_copy(src, dst),
-        (TensorValue::I2(src), TensorValue::I2(dst)) => expand_copy(src, dst),
-        (TensorValue::I1(src), TensorValue::I1(dst)) => expand_copy(src, dst),
+        (TensorValue::U4(src), TensorValue::U4(dst)) => expand_copy(src, dst),
         _ => return Err(anyhow!("expand tensor dtype mismatch")),
     }
     Ok(expanded)

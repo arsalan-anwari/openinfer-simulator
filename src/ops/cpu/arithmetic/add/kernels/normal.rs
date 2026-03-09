@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 
 use crate::ops::cpu::broadcast::{broadcast_shape, broadcast_strides, for_each_broadcast_index};
-use crate::tensor::{Bitset, BF16, F16, F8, Tensor};
+use crate::tensor::{BF16, F16, F8, Tensor};
 
 use super::common::AddElement;
 
@@ -166,10 +166,3 @@ pub fn add_bool_inplace(a: &mut Tensor<bool>, b: &Tensor<bool>) -> Result<()> {
     add_inplace(a, b)
 }
 
-pub fn add_bitset_normal(a: &Tensor<Bitset>, b: &Tensor<Bitset>, out: &mut Tensor<Bitset>) -> Result<()> {
-    add_normal(a, b, out)
-}
-
-pub fn add_bitset_inplace(a: &mut Tensor<Bitset>, b: &Tensor<Bitset>) -> Result<()> {
-    add_inplace(a, b)
-}

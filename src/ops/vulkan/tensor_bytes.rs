@@ -16,19 +16,11 @@ pub fn tensor_to_bytes(value: &TensorValue) -> Result<Vec<u8>> {
         TensorValue::U32(tensor) => bytemuck::cast_slice(&tensor.data).to_vec(),
         TensorValue::U64(tensor) => bytemuck::cast_slice(&tensor.data).to_vec(),
         TensorValue::Bool(tensor) => tensor.data.iter().map(|v| if *v { 1 } else { 0 }).collect(),
-        TensorValue::Bitset(tensor) => tensor.data.iter().map(|v| v.bits).collect(),
         TensorValue::F16(tensor) => tensor.data.iter().flat_map(|v| v.bits.to_le_bytes()).collect(),
         TensorValue::BF16(tensor) => tensor.data.iter().flat_map(|v| v.bits.to_le_bytes()).collect(),
         TensorValue::F8(tensor) => tensor.data.iter().map(|v| v.bits).collect(),
         TensorValue::I4(tensor) => tensor.data.iter().map(|v| v.bits).collect(),
-        TensorValue::I2(tensor) => tensor.data.iter().map(|v| v.bits).collect(),
-        TensorValue::I1(tensor) => tensor.data.iter().map(|v| v.bits).collect(),
         TensorValue::U4(tensor) => tensor.data.iter().map(|v| v.bits).collect(),
-        TensorValue::U2(tensor) => tensor.data.iter().map(|v| v.bits).collect(),
-        TensorValue::U1(tensor) => tensor.data.iter().map(|v| v.bits).collect(),
-        TensorValue::T1(_) | TensorValue::T2(_) => {
-            return Err(anyhow!("ternary packed types not supported in vulkan"))
-        }
     })
 }
 
@@ -45,19 +37,11 @@ pub fn tensor_append_bytes(value: &TensorValue, out: &mut Vec<u8>) -> Result<()>
         TensorValue::U32(tensor) => out.extend_from_slice(bytemuck::cast_slice(&tensor.data)),
         TensorValue::U64(tensor) => out.extend_from_slice(bytemuck::cast_slice(&tensor.data)),
         TensorValue::Bool(tensor) => out.extend(tensor.data.iter().map(|v| if *v { 1 } else { 0 })),
-        TensorValue::Bitset(tensor) => out.extend(tensor.data.iter().map(|v| v.bits)),
         TensorValue::F16(tensor) => out.extend(tensor.data.iter().flat_map(|v| v.bits.to_le_bytes())),
         TensorValue::BF16(tensor) => out.extend(tensor.data.iter().flat_map(|v| v.bits.to_le_bytes())),
         TensorValue::F8(tensor) => out.extend(tensor.data.iter().map(|v| v.bits)),
         TensorValue::I4(tensor) => out.extend(tensor.data.iter().map(|v| v.bits)),
-        TensorValue::I2(tensor) => out.extend(tensor.data.iter().map(|v| v.bits)),
-        TensorValue::I1(tensor) => out.extend(tensor.data.iter().map(|v| v.bits)),
         TensorValue::U4(tensor) => out.extend(tensor.data.iter().map(|v| v.bits)),
-        TensorValue::U2(tensor) => out.extend(tensor.data.iter().map(|v| v.bits)),
-        TensorValue::U1(tensor) => out.extend(tensor.data.iter().map(|v| v.bits)),
-        TensorValue::T1(_) | TensorValue::T2(_) => {
-            return Err(anyhow!("ternary packed types not supported in vulkan"))
-        }
     }
     Ok(())
 }
@@ -103,9 +87,6 @@ pub fn write_tensor_from_bytes(output: &mut TensorValue, bytes: &[u8]) -> Result
         TensorValue::Bool(tensor) => {
             tensor.data = bytes.iter().map(|v| *v != 0).collect();
         }
-        TensorValue::Bitset(tensor) => {
-            tensor.data = bytes.iter().map(|v| crate::tensor::Bitset { bits: *v }).collect();
-        }
         TensorValue::F16(tensor) => {
             let mut out = Vec::new();
             for chunk in bytes.chunks_exact(2) {
@@ -128,23 +109,8 @@ pub fn write_tensor_from_bytes(output: &mut TensorValue, bytes: &[u8]) -> Result
         TensorValue::I4(tensor) => {
             tensor.data = bytes.iter().map(|v| crate::tensor::I4 { bits: *v }).collect();
         }
-        TensorValue::I2(tensor) => {
-            tensor.data = bytes.iter().map(|v| crate::tensor::I2 { bits: *v }).collect();
-        }
-        TensorValue::I1(tensor) => {
-            tensor.data = bytes.iter().map(|v| crate::tensor::I1 { bits: *v }).collect();
-        }
         TensorValue::U4(tensor) => {
             tensor.data = bytes.iter().map(|v| crate::tensor::U4 { bits: *v }).collect();
-        }
-        TensorValue::U2(tensor) => {
-            tensor.data = bytes.iter().map(|v| crate::tensor::U2 { bits: *v }).collect();
-        }
-        TensorValue::U1(tensor) => {
-            tensor.data = bytes.iter().map(|v| crate::tensor::U1 { bits: *v }).collect();
-        }
-        TensorValue::T1(_) | TensorValue::T2(_) => {
-            return Err(anyhow!("ternary packed types not supported in vulkan"))
         }
     }
     Ok(())

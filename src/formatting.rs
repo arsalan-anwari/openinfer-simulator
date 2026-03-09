@@ -1,4 +1,4 @@
-use crate::tensor::{BF16, Bitset, F16, F8, I1, I2, I4, T1, T2, U1, U2, U4};
+use crate::tensor::{BF16, F16, F8, I4, U4};
 /// Format a value for compact human-readable output.
 pub trait FormatValue {
     fn format_value(&self) -> String;
@@ -28,12 +28,6 @@ macro_rules! impl_format_display {
 
 impl_format_display!(i8, i16, i32, i64, u8, u16, u32, u64, bool);
 
-impl FormatValue for Bitset {
-    fn format_value(&self) -> String {
-        format!("{:?}", self)
-    }
-}
-
 impl FormatValue for F16 {
     fn format_value(&self) -> String {
         format!("{:?}", self)
@@ -58,43 +52,7 @@ impl FormatValue for I4 {
     }
 }
 
-impl FormatValue for I2 {
-    fn format_value(&self) -> String {
-        format!("0x{:02x}", self.bits)
-    }
-}
-
-impl FormatValue for I1 {
-    fn format_value(&self) -> String {
-        format!("0x{:02x}", self.bits)
-    }
-}
-
 impl FormatValue for U4 {
-    fn format_value(&self) -> String {
-        format!("0x{:02x}", self.bits)
-    }
-}
-
-impl FormatValue for U2 {
-    fn format_value(&self) -> String {
-        format!("0x{:02x}", self.bits)
-    }
-}
-
-impl FormatValue for U1 {
-    fn format_value(&self) -> String {
-        format!("0x{:02x}", self.bits)
-    }
-}
-
-impl FormatValue for T2 {
-    fn format_value(&self) -> String {
-        format!("0x{:02x}", self.bits)
-    }
-}
-
-impl FormatValue for T1 {
     fn format_value(&self) -> String {
         format!("0x{:02x}", self.bits)
     }

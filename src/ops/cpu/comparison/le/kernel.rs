@@ -21,11 +21,7 @@ pub fn le_normal_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output: Opti
         (TensorValue::U16(a0), TensorValue::U16(a1), TensorValue::Bool(out)) => super::kernels::normal::le_u16_normal(a0, a1, out),
         (TensorValue::U32(a0), TensorValue::U32(a1), TensorValue::Bool(out)) => super::kernels::normal::le_u32_normal(a0, a1, out),
         (TensorValue::U64(a0), TensorValue::U64(a1), TensorValue::Bool(out)) => super::kernels::normal::le_u64_normal(a0, a1, out),
-        (TensorValue::I1(a0), TensorValue::I1(a1), TensorValue::Bool(out)) => super::kernels::packed::le_i1_packed(a0, a1, out),
-        (TensorValue::I2(a0), TensorValue::I2(a1), TensorValue::Bool(out)) => super::kernels::packed::le_i2_packed(a0, a1, out),
         (TensorValue::I4(a0), TensorValue::I4(a1), TensorValue::Bool(out)) => super::kernels::packed::le_i4_packed(a0, a1, out),
-        (TensorValue::U1(a0), TensorValue::U1(a1), TensorValue::Bool(out)) => super::kernels::packed::le_u1_packed(a0, a1, out),
-        (TensorValue::U2(a0), TensorValue::U2(a1), TensorValue::Bool(out)) => super::kernels::packed::le_u2_packed(a0, a1, out),
         (TensorValue::U4(a0), TensorValue::U4(a1), TensorValue::Bool(out)) => super::kernels::packed::le_u4_packed(a0, a1, out),
         _ => Err(anyhow!("dtype mismatch")),
     }

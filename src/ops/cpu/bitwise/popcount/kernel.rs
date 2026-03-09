@@ -16,9 +16,7 @@ pub fn popcount_normal_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output
         (TensorValue::U16(a0), TensorValue::U8(out)) => super::kernels::normal::popcount_u16_normal(a0, out),
         (TensorValue::U32(a0), TensorValue::U8(out)) => super::kernels::normal::popcount_u32_normal(a0, out),
         (TensorValue::U64(a0), TensorValue::U8(out)) => super::kernels::normal::popcount_u64_normal(a0, out),
-        (TensorValue::I2(a0), TensorValue::U8(out)) => super::kernels::packed::popcount_i2_packed(a0, out),
         (TensorValue::I4(a0), TensorValue::U8(out)) => super::kernels::packed::popcount_i4_packed(a0, out),
-        (TensorValue::U2(a0), TensorValue::U8(out)) => super::kernels::packed::popcount_u2_packed(a0, out),
         (TensorValue::U4(a0), TensorValue::U8(out)) => super::kernels::packed::popcount_u4_packed(a0, out),
         _ => Err(anyhow!("dtype mismatch")),
     }

@@ -6,7 +6,7 @@ use crate::ops::cpu::reduce::{
     axes_from_attrs, keepdims_from_attrs, linear_to_indices, output_offset, output_shape,
     output_strides,
 };
-use crate::tensor::{I1, I2, I4, U1, U2, U4, Tensor};
+use crate::tensor::{I4, U4, Tensor};
 
 fn prod_axis_packed_signed<T: PackedBits>(
     attrs: &OpAttrs,
@@ -68,25 +68,13 @@ fn prod_axis_packed_unsigned<T: PackedBits>(
     Ok(())
 }
 
-pub fn prod_axis_i1_packed(attrs: &OpAttrs, a: &Tensor<I1>, out: &mut Tensor<I1>) -> Result<()> {
-    prod_axis_packed_signed(attrs, a, out, 1)
-}
 
-pub fn prod_axis_i2_packed(attrs: &OpAttrs, a: &Tensor<I2>, out: &mut Tensor<I2>) -> Result<()> {
-    prod_axis_packed_signed(attrs, a, out, 2)
-}
 
 pub fn prod_axis_i4_packed(attrs: &OpAttrs, a: &Tensor<I4>, out: &mut Tensor<I4>) -> Result<()> {
     prod_axis_packed_signed(attrs, a, out, 4)
 }
 
-pub fn prod_axis_u1_packed(attrs: &OpAttrs, a: &Tensor<U1>, out: &mut Tensor<U1>) -> Result<()> {
-    prod_axis_packed_unsigned(attrs, a, out, 1)
-}
 
-pub fn prod_axis_u2_packed(attrs: &OpAttrs, a: &Tensor<U2>, out: &mut Tensor<U2>) -> Result<()> {
-    prod_axis_packed_unsigned(attrs, a, out, 2)
-}
 
 pub fn prod_axis_u4_packed(attrs: &OpAttrs, a: &Tensor<U4>, out: &mut Tensor<U4>) -> Result<()> {
     prod_axis_packed_unsigned(attrs, a, out, 4)

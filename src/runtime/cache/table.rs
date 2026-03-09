@@ -233,16 +233,7 @@ pub fn read_table_selection(
         DType::F32 => read_table_values::<f32, _>(table, selections, entry_shape, entry_len, init, output_shape, TensorValue::F32),
         DType::F64 => read_table_values::<f64, _>(table, selections, entry_shape, entry_len, init, output_shape, TensorValue::F64),
         DType::Bool => read_table_values::<bool, _>(table, selections, entry_shape, entry_len, init, output_shape, TensorValue::Bool),
-        DType::Bitset => read_table_values::<crate::tensor::Bitset, _>(
-            table,
-            selections,
-            entry_shape,
-            entry_len,
-            init,
-            output_shape,
-            TensorValue::Bitset,
-        ),
-        DType::I4 | DType::I2 | DType::I1 | DType::U4 | DType::U2 | DType::U1 | DType::T2 | DType::T1 => {
+        DType::I4 | DType::U4 => {
             Err(anyhow!("cache table packed dtypes not supported"))
         }
     }
@@ -332,7 +323,6 @@ fn get_table_entry<T: Copy>(
             TensorValue::F32(t) => unsafe_cast::<f32, T>(&t.data)?,
             TensorValue::F64(t) => unsafe_cast::<f64, T>(&t.data)?,
             TensorValue::Bool(t) => unsafe_cast::<bool, T>(&t.data)?,
-            TensorValue::Bitset(t) => unsafe_cast::<crate::tensor::Bitset, T>(&t.data)?,
             _ => return Err(anyhow!("cache table entry dtype mismatch")),
         };
         if entry.len() != entry_len {
@@ -360,7 +350,6 @@ fn get_table_entry<T: Copy>(
         TensorValue::F32(t) => unsafe_cast::<f32, T>(&t.data)?,
         TensorValue::F64(t) => unsafe_cast::<f64, T>(&t.data)?,
         TensorValue::Bool(t) => unsafe_cast::<bool, T>(&t.data)?,
-        TensorValue::Bitset(t) => unsafe_cast::<crate::tensor::Bitset, T>(&t.data)?,
         _ => return Err(anyhow!("cache table entry dtype mismatch")),
     };
     if entry.len() != entry_len {

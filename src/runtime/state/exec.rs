@@ -141,25 +141,11 @@ impl RuntimeState {
             TensorValue::U32(t) => AttrValue::UInt(t.data[0] as u64),
             TensorValue::U64(t) => AttrValue::UInt(t.data[0]),
             TensorValue::Bool(t) => AttrValue::Bool(t.data[0]),
-            TensorValue::Bitset(t) => AttrValue::UInt(t.data[0].bits as u64),
-            TensorValue::I1(t) => {
-                let value = sign_extend(get_bits(&t.data, 0, 1), 1) as i64;
-                AttrValue::Int(value)
-            }
-            TensorValue::I2(t) => {
-                let value = sign_extend(get_bits(&t.data, 0, 2), 2) as i64;
-                AttrValue::Int(value)
-            }
             TensorValue::I4(t) => {
                 let value = sign_extend(get_bits(&t.data, 0, 4), 4) as i64;
                 AttrValue::Int(value)
             }
-            TensorValue::U1(t) => AttrValue::UInt(get_bits(&t.data, 0, 1) as u64),
-            TensorValue::U2(t) => AttrValue::UInt(get_bits(&t.data, 0, 2) as u64),
             TensorValue::U4(t) => AttrValue::UInt(get_bits(&t.data, 0, 4) as u64),
-            TensorValue::T1(_) | TensorValue::T2(_) => {
-                return Err(anyhow!("attr {} cannot reference tensor type", name))
-            }
         };
         Ok(value)
     }

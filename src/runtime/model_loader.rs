@@ -12,8 +12,8 @@ use memmap2::Mmap;
 
 use crate::runtime::tensor_store::{MappedSlice, TensorRef, TensorStore};
 use crate::tensor::{
-    BF16, Bitset, DType, F16, F8, I1, I2, I4, QuantParams, QuantScale, QuantScheme,
-    QuantZeroPoint, T1, T2, U1, U2, U4, Tensor, TensorValue,
+    BF16, DType, F16, F8, I4, QuantParams, QuantScale, QuantScheme, QuantZeroPoint, U4, Tensor,
+    TensorValue,
 };
 use crate::types::VarInfo;
 
@@ -384,23 +384,6 @@ impl ModelLoader {
             return Err(anyhow!("metadata {} is a string, not a tensor", name));
         }
 
-        if info.value_type == ValueType::BITSET {
-            if info.value_nbytes < 8 {
-                return Err(anyhow!("bitset metadata too small for {}", name));
-            }
-            let bits = read_u32_at(data, start)? as usize;
-            let packed_len = read_u32_at(data, start + 4)? as usize;
-            if start + 8 + packed_len > end {
-                return Err(anyhow!("bitset metadata payload out of bounds for {}", name));
-            }
-            let packed = &data[start + 8..start + 8 + packed_len];
-            let first = packed.first().copied().unwrap_or(0);
-            if bits > 8 {
-                return Err(anyhow!("bitset metadata too large for {}", name));
-            }
-            return Ok(Some(TensorValue::from(Bitset { bits: first })));
-        }
-
         if info.value_type == ValueType::NDARRAY {
             let mut cursor = start;
             let element_type = read_u32(data, &mut cursor)?;
@@ -607,15 +590,8 @@ fn tensor_value_from_bytes(info: &VarInfo, bytes: &[u8]) -> Result<TensorValue> 
         DType::F32 => tensor_from_bytes::<f32>(info, bytes).map(TensorValue::F32),
         DType::F64 => tensor_from_bytes::<f64>(info, bytes).map(TensorValue::F64),
         DType::Bool => tensor_from_bytes::<bool>(info, bytes).map(TensorValue::Bool),
-        DType::Bitset => tensor_from_bits::<u8, Bitset>(info, bytes, |bits| Bitset { bits }).map(TensorValue::Bitset),
         DType::I4 => tensor_from_bits::<u8, I4>(info, bytes, |bits| I4 { bits }).map(TensorValue::I4),
-        DType::I2 => tensor_from_bits::<u8, I2>(info, bytes, |bits| I2 { bits }).map(TensorValue::I2),
-        DType::I1 => tensor_from_bits::<u8, I1>(info, bytes, |bits| I1 { bits }).map(TensorValue::I1),
         DType::U4 => tensor_from_bits::<u8, U4>(info, bytes, |bits| U4 { bits }).map(TensorValue::U4),
-        DType::U2 => tensor_from_bits::<u8, U2>(info, bytes, |bits| U2 { bits }).map(TensorValue::U2),
-        DType::U1 => tensor_from_bits::<u8, U1>(info, bytes, |bits| U1 { bits }).map(TensorValue::U1),
-        DType::T2 => tensor_from_bits::<u8, T2>(info, bytes, |bits| T2 { bits }).map(TensorValue::T2),
-        DType::T1 => tensor_from_bits::<u8, T1>(info, bytes, |bits| T1 { bits }).map(TensorValue::T1),
     }
 }
 
@@ -726,16 +702,10 @@ impl ValueType {
     const BF16: u32 = 16;
     const F8: u32 = 17;
     const I4: u32 = 18;
-    const I2: u32 = 19;
-    const I1: u32 = 20;
     const U4: u32 = 21;
-    const U2: u32 = 22;
-    const U1: u32 = 23;
-    const T2: u32 = 24;
-    const T1: u32 = 25;
 
     fn is_scalar(value_type: u32) -> bool {
-        value_type >= Self::I8 && value_type <= Self::T1
+        value_type >= Self::I8 && value_type <= Self::U4
     }
 
     fn to_dtype(value_type: u32) -> Result<DType> {
@@ -752,17 +722,11 @@ impl ValueType {
             Self::F32 => DType::F32,
             Self::F64 => DType::F64,
             Self::BOOL => DType::Bool,
-            Self::BITSET => DType::Bitset,
+            Self::BITSET => return Err(anyhow!("unsupported tensor dtype {}", value_type)),
             Self::BF16 => DType::BF16,
             Self::F8 => DType::F8,
             Self::I4 => DType::I4,
-            Self::I2 => DType::I2,
-            Self::I1 => DType::I1,
             Self::U4 => DType::U4,
-            Self::U2 => DType::U2,
-            Self::U1 => DType::U1,
-            Self::T2 => DType::T2,
-            Self::T1 => DType::T1,
             _ => return Err(anyhow!("unknown tensor dtype {}", value_type)),
         })
     }

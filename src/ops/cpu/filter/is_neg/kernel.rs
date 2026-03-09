@@ -21,8 +21,6 @@ pub fn is_neg_normal_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output: 
         (TensorValue::U16(a0), TensorValue::Bool(out)) => super::kernels::normal::is_neg_u16_normal(a0, out),
         (TensorValue::U32(a0), TensorValue::Bool(out)) => super::kernels::normal::is_neg_u32_normal(a0, out),
         (TensorValue::U64(a0), TensorValue::Bool(out)) => super::kernels::normal::is_neg_u64_normal(a0, out),
-        (TensorValue::I1(a0), TensorValue::Bool(out)) => super::kernels::packed::is_neg_i1_packed(a0, out),
-        (TensorValue::I2(a0), TensorValue::Bool(out)) => super::kernels::packed::is_neg_i2_packed(a0, out),
         (TensorValue::I4(a0), TensorValue::Bool(out)) => super::kernels::packed::is_neg_i4_packed(a0, out),
         _ => Err(anyhow!("dtype mismatch")),
     }

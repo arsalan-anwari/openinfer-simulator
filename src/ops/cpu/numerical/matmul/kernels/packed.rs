@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 
 use crate::ops::cpu::broadcast::{broadcast_shape, broadcast_strides, for_each_broadcast_index};
 use crate::ops::cpu::packed_cpu::{get_bits, set_bits, sign_extend, PackedBits};
-use crate::tensor::{I1, I2, I4, Tensor, U1, U2, U4};
+use crate::tensor::{I4, Tensor, U4};
 
 #[inline]
 fn add_scaled(base: usize, idx: usize, stride: isize) -> usize {
@@ -128,49 +128,25 @@ fn matmul_packed_inplace<T: PackedBits>(
     matmul_packed_with_data(&a_data, &shape, &strides, b, a, width, signed)
 }
 
-pub fn matmul_i1_packed(a: &Tensor<I1>, b: &Tensor<I1>, out: &mut Tensor<I1>) -> Result<()> {
-    matmul_packed(a, b, out, 1, true)
-}
 
-pub fn matmul_i2_packed(a: &Tensor<I2>, b: &Tensor<I2>, out: &mut Tensor<I2>) -> Result<()> {
-    matmul_packed(a, b, out, 2, true)
-}
 
 pub fn matmul_i4_packed(a: &Tensor<I4>, b: &Tensor<I4>, out: &mut Tensor<I4>) -> Result<()> {
     matmul_packed(a, b, out, 4, true)
 }
 
-pub fn matmul_u1_packed(a: &Tensor<U1>, b: &Tensor<U1>, out: &mut Tensor<U1>) -> Result<()> {
-    matmul_packed(a, b, out, 1, false)
-}
 
-pub fn matmul_u2_packed(a: &Tensor<U2>, b: &Tensor<U2>, out: &mut Tensor<U2>) -> Result<()> {
-    matmul_packed(a, b, out, 2, false)
-}
 
 pub fn matmul_u4_packed(a: &Tensor<U4>, b: &Tensor<U4>, out: &mut Tensor<U4>) -> Result<()> {
     matmul_packed(a, b, out, 4, false)
 }
 
-pub fn matmul_i1_packed_inplace(a: &mut Tensor<I1>, b: &Tensor<I1>) -> Result<()> {
-    matmul_packed_inplace(a, b, 1, true)
-}
 
-pub fn matmul_i2_packed_inplace(a: &mut Tensor<I2>, b: &Tensor<I2>) -> Result<()> {
-    matmul_packed_inplace(a, b, 2, true)
-}
 
 pub fn matmul_i4_packed_inplace(a: &mut Tensor<I4>, b: &Tensor<I4>) -> Result<()> {
     matmul_packed_inplace(a, b, 4, true)
 }
 
-pub fn matmul_u1_packed_inplace(a: &mut Tensor<U1>, b: &Tensor<U1>) -> Result<()> {
-    matmul_packed_inplace(a, b, 1, false)
-}
 
-pub fn matmul_u2_packed_inplace(a: &mut Tensor<U2>, b: &Tensor<U2>) -> Result<()> {
-    matmul_packed_inplace(a, b, 2, false)
-}
 
 pub fn matmul_u4_packed_inplace(a: &mut Tensor<U4>, b: &Tensor<U4>) -> Result<()> {
     matmul_packed_inplace(a, b, 4, false)

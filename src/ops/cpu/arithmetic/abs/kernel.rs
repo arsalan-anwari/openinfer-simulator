@@ -13,8 +13,6 @@ pub fn abs_normal_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output: Opt
         (TensorValue::F16(a0), TensorValue::F16(out)) => super::kernels::normal::abs_f16_normal(a0, out),
         (TensorValue::F32(a0), TensorValue::F32(out)) => super::kernels::normal::abs_f32_normal(a0, out),
         (TensorValue::F64(a0), TensorValue::F64(out)) => super::kernels::normal::abs_f64_normal(a0, out),
-        (TensorValue::I1(a0), TensorValue::I1(out)) => super::kernels::packed::abs_i1_packed(a0, out),
-        (TensorValue::I2(a0), TensorValue::I2(out)) => super::kernels::packed::abs_i2_packed(a0, out),
         (TensorValue::I4(a0), TensorValue::I4(out)) => super::kernels::packed::abs_i4_packed(a0, out),
         (TensorValue::I8(a0), TensorValue::I8(out)) => super::kernels::normal::abs_i8_normal(a0, out),
         (TensorValue::I16(a0), TensorValue::I16(out)) => super::kernels::normal::abs_i16_normal(a0, out),
@@ -32,8 +30,6 @@ pub fn abs_inplace_dispatch(_attrs: &OpAttrs, _inputs: &[TensorValue], output: O
         TensorValue::F16(a) => super::kernels::normal::abs_f16_inplace(a),
         TensorValue::F32(a) => super::kernels::normal::abs_f32_inplace(a),
         TensorValue::F64(a) => super::kernels::normal::abs_f64_inplace(a),
-        TensorValue::I1(a) => super::kernels::packed::abs_i1_packed_inplace(a),
-        TensorValue::I2(a) => super::kernels::packed::abs_i2_packed_inplace(a),
         TensorValue::I4(a) => super::kernels::packed::abs_i4_packed_inplace(a),
         TensorValue::I8(a) => super::kernels::normal::abs_i8_inplace(a),
         TensorValue::I16(a) => super::kernels::normal::abs_i16_inplace(a),
@@ -46,14 +42,6 @@ pub fn abs_inplace_dispatch(_attrs: &OpAttrs, _inputs: &[TensorValue], output: O
 pub fn abs_accumulate_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output: Option<&mut TensorValue>) -> Result<()> {
     let out = expect_output(output)?;
     match (&inputs[0], out) {
-        (TensorValue::I1(a0), TensorValue::I8(out)) => super::kernels::accumulate::abs_i1_accumulate_i8(a0, out),
-        (TensorValue::I1(a0), TensorValue::I16(out)) => super::kernels::accumulate::abs_i1_accumulate_i16(a0, out),
-        (TensorValue::I1(a0), TensorValue::I32(out)) => super::kernels::accumulate::abs_i1_accumulate_i32(a0, out),
-        (TensorValue::I1(a0), TensorValue::I64(out)) => super::kernels::accumulate::abs_i1_accumulate_i64(a0, out),
-        (TensorValue::I2(a0), TensorValue::I8(out)) => super::kernels::accumulate::abs_i2_accumulate_i8(a0, out),
-        (TensorValue::I2(a0), TensorValue::I16(out)) => super::kernels::accumulate::abs_i2_accumulate_i16(a0, out),
-        (TensorValue::I2(a0), TensorValue::I32(out)) => super::kernels::accumulate::abs_i2_accumulate_i32(a0, out),
-        (TensorValue::I2(a0), TensorValue::I64(out)) => super::kernels::accumulate::abs_i2_accumulate_i64(a0, out),
         (TensorValue::I4(a0), TensorValue::I8(out)) => super::kernels::accumulate::abs_i4_accumulate_i8(a0, out),
         (TensorValue::I4(a0), TensorValue::I16(out)) => super::kernels::accumulate::abs_i4_accumulate_i16(a0, out),
         (TensorValue::I4(a0), TensorValue::I32(out)) => super::kernels::accumulate::abs_i4_accumulate_i32(a0, out),
