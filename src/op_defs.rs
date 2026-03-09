@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use anyhow::{anyhow, Result};
 use once_cell::sync::OnceCell;
 use serde::Deserialize;
@@ -7,21 +5,39 @@ use serde::Deserialize;
 use crate::graph::{AttrValue, OpAttrs, OpKind};
 use crate::tensor::DType;
 
-/// Attribute type used in op schemas.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)]
-pub enum OpAttrType {
-    Scalar,
-    DType,
-    DTypeList,
-    Tensor,
-    String,
-    IntList,
+/// Output type rule for an op.
+#[derive(Debug, Clone)]
+pub enum OutputType {
+    Same,
+    Fixed(DType),
+    FromAttr(&'static str),
 }
 
-/// Allowed scalar kinds for scalar attributes.
+/// Parameter kind for op attributes.
+#[derive(Debug, Clone)]
+pub enum ParamKind {
+    /// Scalar or DType param with allowed dtypes.
+    DTypes(&'static [DType]),
+    /// IntList (e.g. axes).
+    IntList,
+    /// Boolean param.
+    Bool,
+    /// String param.
+    String,
+    /// Single scalar type (e.g. u64 for bits).
+    Scalar(DType),
+}
+
+impl ParamKind {
+    /// True if this param is a scalar (for Vulkan push constants).
+    pub fn is_scalar(&self) -> bool {
+        matches!(self, ParamKind::DTypes(_) | ParamKind::Bool | ParamKind::Scalar(_))
+    }
+}
+
+/// Scalar attribute value kind (for Vulkan validation).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)]
+#[allow(dead_code)] // used when vulkan feature is enabled
 pub enum ScalarAttrKind {
     Float,
     Int,
@@ -29,192 +45,40 @@ pub enum ScalarAttrKind {
     Bool,
 }
 
-/// Definition of a single op attribute.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct OpAttrDef {
+/// Definition of a single op parameter.
+#[derive(Debug, Clone)]
+pub struct ParamDef {
     pub name: &'static str,
-    pub kind: OpAttrType,
-    pub scalar_kinds: &'static [ScalarAttrKind],
-}
-
-impl OpAttrDef {
-    /// Create a non-scalar attribute definition.
-    pub const fn new(name: &'static str, kind: OpAttrType) -> Self {
-        Self {
-            name,
-            kind,
-            scalar_kinds: &[],
-        }
-    }
-
-    /// Create a scalar attribute definition.
-    pub const fn scalar(name: &'static str, scalar_kinds: &'static [ScalarAttrKind]) -> Self {
-        Self {
-            name,
-            kind: OpAttrType::Scalar,
-            scalar_kinds,
-        }
-    }
-}
-
-/// Supported dtypes for an op (normal/accumulate modes).
-#[derive(Debug, Clone, Copy)]
-#[allow(dead_code)]
-pub struct OpDTypeSupport {
-    pub normal: &'static [DType],
-    pub accumulate: &'static [(DType, DType)],
-    pub accumulate_tuples: &'static [AccumulateTupleSupport],
-}
-
-/// Full tuple support for accumulate mode.
-#[derive(Debug, Clone, Copy)]
-pub struct AccumulateTupleSupport {
-    pub inputs: &'static [DType],
-    pub acc_list: &'static [DType],
-    pub out: DType,
-}
-
-/// Broadcast support for an op.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)]
-pub enum BroadcastSupport {
-    Deny,
-    Allow,
-}
-
-impl BroadcastSupport {
-    /// True if broadcasting is allowed.
-    pub fn allow(self) -> bool {
-        matches!(self, BroadcastSupport::Allow)
-    }
-}
-
-/// In-place support for an op.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)]
-pub enum InplaceSupport {
-    Deny,
-    Allow,
-}
-
-impl InplaceSupport {
-    /// True if in-place execution is allowed.
-    pub fn allow(self) -> bool {
-        matches!(self, InplaceSupport::Allow)
-    }
-}
-
-/// Accumulate support for an op.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)]
-pub enum AccumulateSupport {
-    Deny,
-    Allow,
-}
-
-impl AccumulateSupport {
-    /// True if accumulate mode is allowed.
-    pub fn allow(self) -> bool {
-        matches!(self, AccumulateSupport::Allow)
-    }
+    pub kind: ParamKind,
 }
 
 /// Static schema definition for an op.
-#[derive(Debug, Clone, Copy)]
-#[allow(dead_code)]
+#[derive(Debug, Clone)]
 pub struct OpSchema {
     pub kind: OpKind,
-    pub inputs: InputArity,
-    pub outputs: OutputArity,
-    pub attrs: &'static [OpAttrDef],
-    pub broadcast: BroadcastSupport,
-    pub inplace: InplaceSupport,
-    pub accumulate: AccumulateSupport,
-    pub type_rule: TypeRule,
-    pub dtype_support: Option<&'static OpDTypeSupport>,
-    pub output_dtypes: Option<&'static [DType]>,
+    pub name: &'static str,
+    pub input_count: usize,
+    pub output_count: usize,
+    pub input_tensor_types: &'static [DType],
+    pub output_type: OutputType,
+    pub parameter_types: &'static [ParamDef],
+    pub supports_broadcast: bool,
+    pub supports_inplace: bool,
 }
 
-/// Type inference rule for op outputs.
-#[derive(Debug, Clone, Copy)]
-#[allow(dead_code)]
-pub enum TypeRule {
-    SameAsInput(usize),
-    Fixed(DType),
-    AccFromAttr { attr: &'static str },
-}
-
-/// Input arity constraints for an op.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)]
-pub enum InputArity {
-    Fixed(usize),
-    AtLeast(usize),
-    Any,
-}
-
-impl InputArity {
-    /// True if the provided count satisfies the arity.
-    pub fn allows(self, count: usize) -> bool {
-        match self {
-            InputArity::Fixed(expected) => count == expected,
-            InputArity::AtLeast(min) => count >= min,
-            InputArity::Any => true,
-        }
-    }
-
-    /// Return the fixed input count if applicable.
-    pub fn fixed(self) -> Option<usize> {
-        match self {
-            InputArity::Fixed(count) => Some(count),
-            _ => None,
-        }
-    }
-}
-
-/// Output arity constraints for an op.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)]
-pub enum OutputArity {
-    Fixed(usize),
-    AtLeast(usize),
-    Any,
-}
-
-#[allow(dead_code)]
-impl OutputArity {
-    /// True if the provided count satisfies the arity.
-    pub fn allows(self, count: usize) -> bool {
-        match self {
-            OutputArity::Fixed(expected) => count == expected,
-            OutputArity::AtLeast(min) => count >= min,
-            OutputArity::Any => true,
-        }
-    }
-
-    #[allow(dead_code)]
-    /// Return the fixed output count if applicable.
-    pub fn fixed(self) -> Option<usize> {
-        match self {
-            OutputArity::Fixed(count) => Some(count),
-            _ => None,
-        }
-    }
-}
-
-impl TypeRule {
-    /// Infer an output dtype from inputs and attributes.
-    pub fn output_dtype(self, inputs: &[DType], attrs: &OpAttrs) -> Result<DType> {
-        match self {
-            TypeRule::SameAsInput(index) => inputs
-                .get(index)
+impl OpSchema {
+    /// Infer output dtype from inputs and attributes.
+    pub fn output_dtype(&self, input_dtypes: &[DType], attrs: &OpAttrs) -> Result<DType> {
+        match &self.output_type {
+            OutputType::Same => input_dtypes
+                .first()
                 .copied()
-                .ok_or_else(|| anyhow!("missing input dtype at {}", index)),
-            TypeRule::Fixed(dtype) => Ok(dtype),
-            TypeRule::AccFromAttr { attr } => attrs
+                .ok_or_else(|| anyhow!("missing input dtype")),
+            OutputType::Fixed(dtype) => Ok(*dtype),
+            OutputType::FromAttr(attr) => attrs
                 .items
                 .iter()
-                .find(|item| item.name == attr)
+                .find(|item| item.name == *attr)
                 .ok_or_else(|| anyhow!("missing {} attribute", attr))
                 .and_then(|item| match &item.value {
                     AttrValue::DType(dtype) => Ok(*dtype),
@@ -222,14 +86,26 @@ impl TypeRule {
                 }),
         }
     }
+
+    /// For output_type FromAttr, return the allowed output dtypes from the attr's parameter_types.
+    pub fn output_dtypes_from_attr(&self) -> Option<&'static [DType]> {
+        match &self.output_type {
+            OutputType::FromAttr(attr_name) => self
+                .parameter_types
+                .iter()
+                .find(|p| p.name == *attr_name)
+                .and_then(|p| match &p.kind {
+                    ParamKind::DTypes(dtypes) => Some(*dtypes),
+                    _ => None,
+                }),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Debug)]
-#[allow(dead_code)]
 struct OpRegistry {
     schemas: Vec<OpSchema>,
-    dtype_supports: HashMap<String, &'static OpDTypeSupport>,
-    output_dtype_sets: HashMap<String, &'static [DType]>,
 }
 
 static REGISTRY: OnceCell<OpRegistry> = OnceCell::new();
@@ -237,72 +113,30 @@ static REGISTRY: OnceCell<OpRegistry> = OnceCell::new();
 #[derive(Debug, Deserialize)]
 struct OpsFile {
     version: u32,
-    attr_defs: HashMap<String, AttrDefJson>,
-    dtype_sets: HashMap<String, DTypeSupportJson>,
-    output_dtype_sets: Option<HashMap<String, Vec<String>>>,
     ops: Vec<OpSchemaJson>,
 }
 
 #[derive(Debug, Deserialize)]
-struct AttrDefJson {
-    kind: String,
-    #[serde(default)]
-    scalar_kinds: Vec<String>,
-}
-
-#[derive(Debug, Deserialize)]
-#[allow(dead_code)]
 struct OpSchemaJson {
     name: String,
-    kind: OpKind,
-    inputs: ArityJson,
-    outputs: ArityJson,
     #[serde(default)]
-    attrs: Vec<String>,
-    broadcast: String,
-    inplace: String,
-    accumulate: String,
-    type_rule: TypeRuleJson,
-    dtype_support_ref: Option<String>,
-    output_dtypes_ref: Option<String>,
+    #[allow(dead_code)]
+    category: String,
+    input_count: usize,
+    output_count: usize,
+    input_tensor_types: Vec<String>,
+    parameter_types: Vec<ParamTypeJson>,
+    output_type: String,
     #[serde(default)]
-    devices: Option<serde_json::Value>,
-}
-
-#[derive(Debug, Deserialize)]
-struct ArityJson {
-    arity: String,
-    count: Option<usize>,
-}
-
-#[derive(Debug, Deserialize)]
-struct TypeRuleJson {
-    kind: String,
-    index: Option<usize>,
-    dtype: Option<String>,
-    attr: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
-struct DTypeSupportJson {
-    normal: Vec<String>,
+    supports_broadcast: bool,
     #[serde(default)]
-    accumulate: Vec<AccumulatePairJson>,
-    #[serde(default)]
-    accumulate_tuples: Vec<AccumulateTupleJson>,
+    supports_inplace: bool,
 }
 
 #[derive(Debug, Deserialize)]
-struct AccumulatePairJson {
-    input: String,
-    acc: String,
-}
-
-#[derive(Debug, Deserialize)]
-struct AccumulateTupleJson {
-    inputs: Vec<String>,
-    acc_list: Vec<String>,
-    out: String,
+struct ParamTypeJson {
+    name: String,
+    kind: serde_json::Value,
 }
 
 fn registry() -> &'static OpRegistry {
@@ -318,269 +152,134 @@ fn load_registry() -> Result<OpRegistry> {
         return Err(anyhow!("unsupported ops.json version {}", file.version));
     }
 
-    let attr_defs = build_attr_defs(&file.attr_defs)?;
-    let dtype_supports = build_dtype_supports(&file.dtype_sets)?;
-    let output_dtype_sets = build_output_dtype_sets(file.output_dtype_sets.as_ref())?;
     let mut schemas = Vec::with_capacity(file.ops.len());
     for op in file.ops {
-        let attrs = build_attr_list(&attr_defs, &op.attrs)?;
-        let inputs = parse_input_arity(&op.inputs)?;
-        let outputs = parse_output_arity(&op.outputs)?;
-        let broadcast = parse_broadcast(&op.broadcast)?;
-        let inplace = parse_inplace(&op.inplace)?;
-        let accumulate = parse_accumulate(&op.accumulate)?;
-        let type_rule = parse_type_rule(op.type_rule)?;
-        let dtype_support = op
-            .dtype_support_ref
-            .as_deref()
-            .and_then(|name| dtype_supports.get(name).copied())
-            .ok_or_else(|| anyhow!("unknown dtype_support_ref for {}", op.name))?;
-        let output_dtypes = match op.output_dtypes_ref.as_deref() {
-            Some(name) => Some(
-                output_dtype_sets
-                    .get(name)
-                    .copied()
-                    .ok_or_else(|| anyhow!("unknown output_dtypes_ref for {}", op.name))?,
-            ),
-            None => None,
+        let kind = match OpKind::from_name(&op.name) {
+            Ok(k) => k,
+            Err(_) => continue,
         };
+
+        let input_tensor_types: Vec<DType> = op
+            .input_tensor_types
+            .iter()
+            .map(|s| DType::from_ident(s))
+            .collect::<Result<Vec<_>>>()?;
+        let input_tensor_types: &'static [DType] =
+            Box::leak(input_tensor_types.into_boxed_slice());
+
+        let output_type = parse_output_type(&op.output_type, &op.parameter_types)?;
+
+        let param_defs: Vec<ParamDef> = op
+            .parameter_types
+            .iter()
+            .map(|p| parse_param_def(p))
+            .collect::<Result<Vec<_>>>()?;
+        let parameter_types: &'static [ParamDef] =
+            Box::leak(param_defs.into_boxed_slice());
+
+        let name_static: &'static str = Box::leak(op.name.into_boxed_str());
+
         schemas.push(OpSchema {
-            kind: op.kind,
-            inputs,
-            outputs,
-            attrs,
-            broadcast,
-            inplace,
-            accumulate,
-            type_rule,
-            dtype_support: Some(dtype_support),
-            output_dtypes,
+            kind,
+            name: name_static,
+            input_count: op.input_count,
+            output_count: op.output_count,
+            input_tensor_types,
+            output_type,
+            parameter_types,
+            supports_broadcast: op.supports_broadcast,
+            supports_inplace: op.supports_inplace,
         });
     }
-    Ok(OpRegistry {
-        schemas,
-        dtype_supports,
-        output_dtype_sets,
+    Ok(OpRegistry { schemas })
+}
+
+fn parse_output_type(
+    output_type: &str,
+    parameter_types: &[ParamTypeJson],
+) -> Result<OutputType> {
+    match output_type {
+        "same" => Ok(OutputType::Same),
+        "from_attr" => {
+            let attr = parameter_types
+                .iter()
+                .find(|p| {
+                    if let Some(arr) = p.kind.as_array() {
+                        arr.iter().any(|v| v.as_str().is_some())
+                    } else {
+                        false
+                    }
+                })
+                .map(|p| p.name.as_str())
+                .ok_or_else(|| anyhow!("from_attr requires parameter with dtype array (e.g. cast 'to')"))?;
+            Ok(OutputType::FromAttr(Box::leak(attr.to_string().into_boxed_str())))
+        }
+        dtype_str => {
+            let dtype = DType::from_ident(dtype_str)?;
+            Ok(OutputType::Fixed(dtype))
+        }
+    }
+}
+
+fn parse_param_def(p: &ParamTypeJson) -> Result<ParamDef> {
+    let name_static: &'static str = Box::leak(p.name.clone().into_boxed_str());
+    let kind = match &p.kind {
+        serde_json::Value::Array(arr) => {
+            let dtypes: Vec<DType> = arr
+                .iter()
+                .filter_map(|v| v.as_str())
+                .map(|s| DType::from_ident(s))
+                .collect::<Result<Vec<_>>>()?;
+            ParamKind::DTypes(Box::leak(dtypes.into_boxed_slice()))
+        }
+        serde_json::Value::String(s) => match s.as_str() {
+            "i64[]" | "i32[]" => ParamKind::IntList,
+            "bool" => ParamKind::Bool,
+            "string" => ParamKind::String,
+            scalar => ParamKind::Scalar(DType::from_ident(scalar)?),
+        },
+        _ => return Err(anyhow!("invalid parameter kind for {}", p.name)),
+    };
+    Ok(ParamDef {
+        name: name_static,
+        kind,
     })
 }
 
-fn build_attr_defs(defs: &HashMap<String, AttrDefJson>) -> Result<HashMap<String, OpAttrDef>> {
-    let mut out = HashMap::new();
-    for (name, def) in defs {
-        let name_static: &'static str = Box::leak(name.clone().into_boxed_str());
-        let kind = match def.kind.as_str() {
-            "scalar" => OpAttrType::Scalar,
-            "dtype" => OpAttrType::DType,
-            "dtype_list" => OpAttrType::DTypeList,
-            "tensor" => OpAttrType::Tensor,
-            "string" => OpAttrType::String,
-            "int_list" => OpAttrType::IntList,
-            other => return Err(anyhow!("unknown attr kind {other} for {name}")),
-        };
-        let scalar_kinds = if matches!(kind, OpAttrType::Scalar) {
-            let kinds = def
-                .scalar_kinds
-                .iter()
-                .map(|kind| match kind.as_str() {
-                    "float" => Ok(ScalarAttrKind::Float),
-                    "int" => Ok(ScalarAttrKind::Int),
-                    "uint" => Ok(ScalarAttrKind::UInt),
-                    "bool" => Ok(ScalarAttrKind::Bool),
-                    other => Err(anyhow!("unknown scalar kind {other} for {name}")),
-                })
-                .collect::<Result<Vec<_>>>()?;
-            Box::leak(kinds.into_boxed_slice()) as &'static [ScalarAttrKind]
-        } else {
-            &[]
-        };
-        out.insert(
-            name.clone(),
-            OpAttrDef {
-                name: name_static,
-                kind,
-                scalar_kinds,
-            },
-        );
-    }
-    Ok(out)
-}
-
-fn build_attr_list(
-    defs: &HashMap<String, OpAttrDef>,
-    attrs: &[String],
-) -> Result<&'static [OpAttrDef]> {
-    let mut out = Vec::with_capacity(attrs.len());
-    for attr in attrs {
-        let def = defs
-            .get(attr)
-            .copied()
-            .ok_or_else(|| anyhow!("unknown attr {attr} in ops.json"))?;
-        out.push(def);
-    }
-    Ok(Box::leak(out.into_boxed_slice()))
-}
-
-fn parse_input_arity(arity: &ArityJson) -> Result<InputArity> {
-    match arity.arity.as_str() {
-        "fixed" => Ok(InputArity::Fixed(required_count(arity, "fixed")?)),
-        "at_least" => Ok(InputArity::AtLeast(required_count(arity, "at_least")?)),
-        "any" => Ok(InputArity::Any),
-        other => Err(anyhow!("unknown input arity {other}")),
-    }
-}
-
-fn parse_output_arity(arity: &ArityJson) -> Result<OutputArity> {
-    match arity.arity.as_str() {
-        "fixed" => Ok(OutputArity::Fixed(required_count(arity, "fixed")?)),
-        "at_least" => Ok(OutputArity::AtLeast(required_count(arity, "at_least")?)),
-        "any" => Ok(OutputArity::Any),
-        other => Err(anyhow!("unknown output arity {other}")),
-    }
-}
-
-fn required_count(arity: &ArityJson, label: &str) -> Result<usize> {
-    arity
-        .count
-        .ok_or_else(|| anyhow!("missing count for {label} arity"))
-}
-
-fn parse_broadcast(value: &str) -> Result<BroadcastSupport> {
-    match value {
-        "allow" => Ok(BroadcastSupport::Allow),
-        "deny" => Ok(BroadcastSupport::Deny),
-        other => Err(anyhow!("unknown broadcast support {other}")),
-    }
-}
-
-fn parse_inplace(value: &str) -> Result<InplaceSupport> {
-    match value {
-        "allow" => Ok(InplaceSupport::Allow),
-        "deny" => Ok(InplaceSupport::Deny),
-        other => Err(anyhow!("unknown inplace support {other}")),
-    }
-}
-
-fn parse_accumulate(value: &str) -> Result<AccumulateSupport> {
-    match value {
-        "allow" => Ok(AccumulateSupport::Allow),
-        "deny" => Ok(AccumulateSupport::Deny),
-        other => Err(anyhow!("unknown accumulate support {other}")),
-    }
-}
-
-fn parse_type_rule(rule: TypeRuleJson) -> Result<TypeRule> {
-    match rule.kind.as_str() {
-        "same_as_input" => Ok(TypeRule::SameAsInput(
-            rule.index.ok_or_else(|| anyhow!("missing index for same_as_input"))?,
-        )),
-        "fixed" => {
-            let dtype = rule
-                .dtype
-                .ok_or_else(|| anyhow!("missing dtype for fixed type_rule"))?;
-            Ok(TypeRule::Fixed(DType::from_ident(&dtype)?))
-        }
-        "acc_from_attr" => {
-            let attr = rule
-                .attr
-                .ok_or_else(|| anyhow!("missing attr for acc_from_attr"))?;
-            let attr_static: &'static str = Box::leak(attr.into_boxed_str());
-            Ok(TypeRule::AccFromAttr { attr: attr_static })
-        }
-        other => Err(anyhow!("unknown type_rule {other}")),
-    }
-}
-
-fn build_dtype_supports(
-    dtype_sets: &HashMap<String, DTypeSupportJson>,
-) -> Result<HashMap<String, &'static OpDTypeSupport>> {
-    let mut out = HashMap::new();
-    for (name, support) in dtype_sets {
-        let normal = support
-            .normal
-            .iter()
-            .map(|ident| DType::from_ident(ident))
-            .collect::<Result<Vec<_>>>()?;
-        let accumulate = support
-            .accumulate
-            .iter()
-            .map(|pair| {
-                Ok((
-                    DType::from_ident(&pair.input)?,
-                    DType::from_ident(&pair.acc)?,
-                ))
-            })
-            .collect::<Result<Vec<_>>>()?;
-        let accumulate_tuples = if support.accumulate_tuples.is_empty() {
-            support
-                .accumulate
-                .iter()
-                .map(|pair| {
-                    Ok(AccumulateTupleSupport {
-                        inputs: Box::leak(vec![DType::from_ident(&pair.input)?].into_boxed_slice()),
-                        acc_list: Box::leak(vec![DType::from_ident(&pair.acc)?].into_boxed_slice()),
-                        out: DType::from_ident(&pair.acc)?,
-                    })
-                })
-                .collect::<Result<Vec<_>>>()?
-        } else {
-            support
-                .accumulate_tuples
-                .iter()
-                .map(|tuple| {
-                    let inputs = tuple
-                        .inputs
-                        .iter()
-                        .map(|ident| DType::from_ident(ident))
-                        .collect::<Result<Vec<_>>>()?;
-                    let acc_list = tuple
-                        .acc_list
-                        .iter()
-                        .map(|ident| DType::from_ident(ident))
-                        .collect::<Result<Vec<_>>>()?;
-                    Ok(AccumulateTupleSupport {
-                        inputs: Box::leak(inputs.into_boxed_slice()),
-                        acc_list: Box::leak(acc_list.into_boxed_slice()),
-                        out: DType::from_ident(&tuple.out)?,
-                    })
-                })
-                .collect::<Result<Vec<_>>>()?
-        };
-        let normal_static = Box::leak(normal.into_boxed_slice());
-        let acc_static = Box::leak(accumulate.into_boxed_slice());
-        let acc_tuples_static = Box::leak(accumulate_tuples.into_boxed_slice());
-        let support_static: &'static OpDTypeSupport = Box::leak(Box::new(OpDTypeSupport {
-            normal: normal_static,
-            accumulate: acc_static,
-            accumulate_tuples: acc_tuples_static,
-        }));
-        out.insert(name.clone(), support_static);
-    }
-    Ok(out)
-}
-
-fn build_output_dtype_sets(
-    output_sets: Option<&HashMap<String, Vec<String>>>,
-) -> Result<HashMap<String, &'static [DType]>> {
-    let mut out = HashMap::new();
-    if let Some(output_sets) = output_sets {
-        for (name, dtypes) in output_sets {
-            let converted = dtypes
-                .iter()
-                .map(|ident| DType::from_ident(ident))
-                .collect::<Result<Vec<_>>>()?;
-            let leaked: &'static [DType] = Box::leak(converted.into_boxed_slice());
-            out.insert(name.clone(), leaked);
-        }
-    }
-    Ok(out)
-}
-
 /// Returns true if an op schema supports the provided typing tuple.
-pub fn supports_tuple(schema: &OpSchema, input_dtypes: &[DType], _out_dtype: DType) -> bool {
-    let Some(support) = schema.dtype_support else {
-        return true;
-    };
-    input_dtypes.iter().all(|dtype| support.normal.contains(dtype))
+pub fn supports_pattern(
+    schema: &OpSchema,
+    input_dtypes: &[DType],
+    output_dtype: DType,
+    attrs: &OpAttrs,
+) -> bool {
+    if input_dtypes.len() != schema.input_count {
+        return false;
+    }
+    if !input_dtypes
+        .iter()
+        .all(|d| schema.input_tensor_types.contains(d))
+    {
+        return false;
+    }
+    match &schema.output_type {
+        OutputType::Same => {
+            input_dtypes.first().map_or(false, |d| *d == output_dtype)
+        }
+        OutputType::Fixed(d) => output_dtype == *d,
+        OutputType::FromAttr(attr) => attrs
+            .items
+            .iter()
+            .find(|item| item.name == *attr)
+            .and_then(|item| {
+                if let AttrValue::DType(d) = &item.value {
+                    Some(*d == output_dtype)
+                } else {
+                    None
+                }
+            })
+            .unwrap_or(false),
+    }
 }
 
 /// Lookup the schema for a specific op kind.

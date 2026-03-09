@@ -1,52 +1,45 @@
+//! Clean SPIR-V binaries using hardcoded path convention.
+//!
+//! Scans `src/ops/vulkan/{category}/{name}/bin/*.spv` and deletes all .spv files.
+//! No ops.json devices.vulkan needed.
 use std::fs;
 use std::path::Path;
 
-use anyhow::{anyhow, Context, Result};
-use serde_json::Value;
+const VULKAN_OPS_BASE: &str = "src/ops/vulkan";
 
-fn main() -> Result<()> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .expect("missing workspace root");
-    let ops_json = workspace_root.join("ops.json");
-    let contents =
-        fs::read_to_string(&ops_json).with_context(|| format!("read {}", ops_json.display()))?;
-    let value: Value = serde_json::from_str(&contents)?;
-    let ops = value
-        .get("ops")
-        .and_then(|ops| ops.as_array())
-        .ok_or_else(|| anyhow!("ops.json missing ops array"))?;
+    let vulkan_base = workspace_root.join(VULKAN_OPS_BASE);
 
     let mut deleted = 0usize;
-    for op in ops {
-        let op_name = op
-            .get("name")
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| anyhow!("ops.json op missing name"))?;
-        let vulkan = match op
-            .get("devices")
-            .and_then(|v| v.as_object())
-            .and_then(|v| v.get("vulkan"))
-            .and_then(|v| v.as_object())
-        {
-            Some(vulkan) => vulkan,
-            None => continue,
-        };
-        let spv_dir = vulkan
-            .get("spv_dir")
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| anyhow!("{op_name} missing spv_dir"))?;
-        let spv_dir = workspace_root.join(spv_dir);
-        if !spv_dir.exists() {
-            continue;
-        }
-        for entry in fs::read_dir(&spv_dir)? {
-            let entry = entry?;
-            let path = entry.path();
-            if path.extension().and_then(|ext| ext.to_str()) == Some("spv") {
-                fs::remove_file(&path)
-                    .with_context(|| format!("remove {}", path.display()))?;
-                deleted += 1;
+
+    if vulkan_base.exists() {
+        for category_entry in fs::read_dir(&vulkan_base)? {
+            let category_entry = category_entry?;
+            let category_path = category_entry.path();
+            if !category_path.is_dir() {
+                continue;
+            }
+            for op_entry in fs::read_dir(&category_path)? {
+                let op_entry = op_entry?;
+                let op_path = op_entry.path();
+                if !op_path.is_dir() {
+                    continue;
+                }
+                let bin_dir = op_path.join("bin");
+                if !bin_dir.exists() || !bin_dir.is_dir() {
+                    continue;
+                }
+                for spv_entry in fs::read_dir(&bin_dir)? {
+                    let spv_entry = spv_entry?;
+                    let spv_path = spv_entry.path();
+                    if spv_path.extension().and_then(|e| e.to_str()) == Some("spv") {
+                        fs::remove_file(&spv_path)?;
+                        deleted += 1;
+                    }
+                }
             }
         }
     }

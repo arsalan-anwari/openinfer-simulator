@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 
 use crate::graph::{MemoryKind, OpAttrs, OpKind};
-use crate::op_defs::{op_schema, supports_tuple};
+use crate::op_defs::{op_schema, supports_pattern};
 use super::attrs;
 use super::context::ValidationContext;
 
@@ -13,20 +13,19 @@ pub fn validate_op(
     output: &str,
 ) -> Result<()> {
     let schema = op_schema(op).ok_or_else(|| anyhow!("unsupported op {}", op))?;
-    if !schema.inputs.allows(inputs.len()) {
+    if inputs.len() != schema.input_count {
         return Err(anyhow!(
-            "op {} expects {:?} inputs, got {}",
+            "op {} expects {} inputs, got {}",
             op,
-            schema.inputs,
+            schema.input_count,
             inputs.len()
         ));
     }
-    if !schema.outputs.allows(1) {
+    if schema.output_count != 1 {
         return Err(anyhow!(
-            "op {} expects {:?} outputs, got {}",
+            "op {} expects {} outputs, got 1",
             op,
-            schema.outputs,
-            1
+            schema.output_count
         ));
     }
     if output.trim().is_empty() {
@@ -51,7 +50,7 @@ pub fn validate_op(
         input_shapes.push(ctx.var_shape(input)?);
     }
 
-    if !schema.broadcast.allow() && input_shapes.windows(2).any(|pair| pair[0] != pair[1]) {
+    if !schema.supports_broadcast && input_shapes.windows(2).any(|pair| pair[0] != pair[1]) {
         return Err(anyhow!("op {} does not allow broadcast inputs", op));
     }
 
@@ -76,7 +75,7 @@ pub fn validate_op(
         ctx.var_dtype(output)?
     };
 
-    let inferred = schema.type_rule.output_dtype(&input_dtypes, attrs)?;
+    let inferred = schema.output_dtype(&input_dtypes, attrs)?;
     if inferred != output_dtype {
         return Err(anyhow!(
             "op {} output dtype mismatch for {}: expected {:?}, got {:?}",
@@ -88,12 +87,12 @@ pub fn validate_op(
     }
 
     let is_inplace = inputs.iter().any(|name| name == output);
-    if is_inplace && !schema.inplace.allow() {
+    if is_inplace && !schema.supports_inplace {
         return Err(anyhow!("op {} does not support inplace writes", op));
     }
 
     if !input_dtypes.is_empty() {
-        if !supports_tuple(schema, &input_dtypes, output_dtype) {
+        if !supports_pattern(schema, &input_dtypes, output_dtype, attrs) {
             return Err(anyhow!(
                 "unsupported op typing tuple for {}: inputs={:?}, out={:?}",
                 op,
@@ -103,7 +102,7 @@ pub fn validate_op(
         }
     }
 
-    attrs::validate_attrs(ctx, op, attrs, schema.attrs)?;
+    attrs::validate_attrs(ctx, op, attrs, schema.parameter_types)?;
     Ok(())
 }
 

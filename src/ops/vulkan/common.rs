@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use anyhow::{anyhow, Result};
 
 use crate::graph::{AttrValue, OpAttrs, OpKind};
-use crate::op_defs::{op_schema, OpAttrType, ScalarAttrKind};
+use crate::op_defs::{op_schema, ParamKind, ScalarAttrKind};
 use crate::tensor::DType;
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -42,16 +42,43 @@ pub fn collect_scalar_attr_bits(
     let schema = op_schema(op).ok_or_else(|| anyhow!("missing schema for {}", op))?;
     let dtype_class = dtype_class(dtype);
     let mut map = HashMap::new();
-    for def in schema.attrs {
-        if def.kind != OpAttrType::Scalar {
+    for def in schema.parameter_types {
+        if !def.kind.is_scalar() {
             continue;
         }
         if let Some(attr) = attrs.items.iter().find(|attr| attr.name == def.name) {
-            let bits = scalar_bits_from_attr(def.scalar_kinds, dtype_class, &attr.value)?;
+            let allowed = allowed_scalar_kinds(&def.kind);
+            let bits = scalar_bits_from_attr(allowed, dtype_class, &attr.value)?;
             map.insert(def.name.to_string(), bits);
         }
     }
     Ok(map)
+}
+
+fn allowed_scalar_kinds(kind: &ParamKind) -> &'static [ScalarAttrKind] {
+    const ALL: &[ScalarAttrKind] = &[
+        ScalarAttrKind::Float,
+        ScalarAttrKind::Int,
+        ScalarAttrKind::UInt,
+        ScalarAttrKind::Bool,
+    ];
+    match kind {
+        ParamKind::DTypes(_) => ALL,
+        ParamKind::Bool => &[ScalarAttrKind::Bool],
+        ParamKind::Scalar(d) => match d {
+            DType::F8 | DType::BF16 | DType::F16 | DType::F32 | DType::F64 => {
+                &[ScalarAttrKind::Float]
+            }
+            DType::I8 | DType::I16 | DType::I32 | DType::I64 | DType::I4 => {
+                &[ScalarAttrKind::Int]
+            }
+            DType::U8 | DType::U16 | DType::U32 | DType::U64 | DType::U4 => {
+                &[ScalarAttrKind::UInt]
+            }
+            DType::Bool => &[ScalarAttrKind::Bool],
+        },
+        _ => &[],
+    }
 }
 
 fn scalar_bits_from_attr(

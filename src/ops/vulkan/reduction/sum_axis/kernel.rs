@@ -88,7 +88,7 @@ fn dispatch_sum_axis(
         );
         return cpu_fallback(mode, attrs, inputs, Some(output), output_dtype);
     }
-    if !op_supports_dtype(OpKind::SumAxis, mode, input_dtype, output_dtype) {
+    if !op_supports_dtype(OpKind::SumAxis, mode, input_dtype, output_dtype, attrs) {
         crate::vk_trace!(
             "vulkan target unsupported (mode={:?}, in={:?}, out={:?}), cpu fallback",
             mode,
@@ -133,7 +133,7 @@ fn dispatch_sum_axis(
     let push_bytes = bytemuck::bytes_of(&push).to_vec();
     let spec = VulkanOpSpec {
         entry: &target,
-        spv_dir: "src/ops/vulkan/sum_axis/bin",
+        spv_dir: crate::ops::vulkan::spv::spv_dir_for_op(OpKind::SumAxis.as_str()),
         workgroup_size: [256, 1, 1],
         push_constant_size: std::mem::size_of::<SumAxisPush>() as u32,
     };

@@ -9,7 +9,7 @@ use super::kernel;
 pub static ENTRIES: Lazy<Vec<(OpKey, KernelFn)>> = Lazy::new(|| {
     let schema = op_schema(OpKind::Cast).expect("missing cast schema");
     let output_dtypes = schema
-        .output_dtypes
+        .output_dtypes_from_attr()
         .expect("missing cast output dtypes");
     build_op_entries_with_outputs(OpKind::Cast, output_dtypes, |mode| match mode {
         OpMode::Normal => Some(kernel::cast_normal_dispatch),

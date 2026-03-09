@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 
-use crate::graph::{OpAttrs, OpKind};
-use crate::op_defs::{op_schema, TypeRule};
+use crate::graph::OpAttrs;
+use crate::op_defs::{op_schema, OutputType};
 use crate::simulator::Device;
 use crate::tensor::{DType, TensorValue};
 
@@ -13,7 +13,7 @@ pub enum OpMode {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct OpKey {
-    pub kind: OpKind,
+    pub kind: crate::graph::OpKind,
     pub mode: OpMode,
     pub broadcast: bool,
     pub inputs: Vec<DType>,
@@ -23,49 +23,41 @@ pub struct OpKey {
 pub type KernelFn = fn(&OpAttrs, &[TensorValue], Option<&mut TensorValue>) -> Result<()>;
 
 #[allow(unused)]
-pub fn op_supports_dtype(kind: OpKind, mode: OpMode, in0: DType, out0: DType) -> bool {
+pub fn op_supports_dtype(
+    kind: crate::graph::OpKind,
+    _mode: OpMode,
+    in0: DType,
+    out0: DType,
+    attrs: &OpAttrs,
+) -> bool {
     let schema = match op_schema(kind) {
         Some(schema) => schema,
         None => return false,
     };
-    let support = match schema.dtype_support {
-        Some(support) => support,
-        None => return true,
-    };
-    match mode {
-        OpMode::Normal | OpMode::Inplace => support.normal.contains(&in0),
-    }
+    let input_dtypes = vec![in0; schema.input_count];
+    crate::op_defs::supports_pattern(schema, &input_dtypes, out0, attrs)
 }
 
 pub fn build_op_entries_same_input(
-    kind: OpKind,
+    kind: crate::graph::OpKind,
     kernel_for_mode: impl Fn(OpMode) -> Option<KernelFn>,
 ) -> Result<Vec<(OpKey, KernelFn)>> {
     let schema = op_schema(kind).ok_or_else(|| anyhow!("missing op schema {:?}", kind))?;
-    let support = schema
-        .dtype_support
-        .ok_or_else(|| anyhow!("op {:?} has no dtype support", kind))?;
-    let inputs = schema.inputs.fixed().ok_or_else(|| {
-        anyhow!(
-            "op {:?} has non-fixed input arity {:?}",
-            kind,
-            schema.inputs
-        )
-    })?;
-    let broadcast_flags: &[bool] = if schema.broadcast.allow() {
+    let input_count = schema.input_count;
+    let broadcast_flags: &[bool] = if schema.supports_broadcast {
         &[false, true]
     } else {
         &[false]
     };
 
     let mut entries = Vec::new();
-    for in_dtype in support.normal {
-        let out_dtype = match schema.type_rule {
-            TypeRule::SameAsInput(0) => *in_dtype,
-            TypeRule::Fixed(dtype) => dtype,
-            _ => {
+    for in_dtype in schema.input_tensor_types {
+        let out_dtype = match &schema.output_type {
+            OutputType::Same => *in_dtype,
+            OutputType::Fixed(dtype) => *dtype,
+            OutputType::FromAttr(_) => {
                 return Err(anyhow!(
-                    "op {:?} has unsupported type rule for entry build",
+                    "op {:?} has from_attr output, use build_op_entries_with_outputs",
                     kind
                 ))
             }
@@ -75,18 +67,18 @@ pub fn build_op_entries_same_input(
                 kind,
                 mode: OpMode::Normal,
                 broadcast,
-                inputs: vec![*in_dtype; inputs],
+                inputs: vec![*in_dtype; input_count],
                 out0: out_dtype,
             };
             if let Some(kernel) = kernel_for_mode(OpMode::Normal) {
                 entries.push((normal_key, kernel));
             }
-            if schema.inplace.allow() {
+            if schema.supports_inplace {
                 let inplace_key = OpKey {
                     kind,
                     mode: OpMode::Inplace,
                     broadcast,
-                    inputs: vec![*in_dtype; inputs],
+                    inputs: vec![*in_dtype; input_count],
                     out0: out_dtype,
                 };
                 if let Some(kernel) = kernel_for_mode(OpMode::Inplace) {
@@ -100,47 +92,38 @@ pub fn build_op_entries_same_input(
 
 #[allow(unused)]
 pub fn build_op_entries_with_outputs(
-    kind: OpKind,
+    kind: crate::graph::OpKind,
     output_dtypes: &[DType],
     kernel_for_mode: impl Fn(OpMode) -> Option<KernelFn>,
 ) -> Result<Vec<(OpKey, KernelFn)>> {
     let schema = op_schema(kind).ok_or_else(|| anyhow!("missing op schema {:?}", kind))?;
-    let support = schema
-        .dtype_support
-        .ok_or_else(|| anyhow!("op {:?} has no dtype support", kind))?;
-    let inputs = schema.inputs.fixed().ok_or_else(|| {
-        anyhow!(
-            "op {:?} has non-fixed input arity {:?}",
-            kind,
-            schema.inputs
-        )
-    })?;
-    let broadcast_flags: &[bool] = if schema.broadcast.allow() {
+    let input_count = schema.input_count;
+    let broadcast_flags: &[bool] = if schema.supports_broadcast {
         &[false, true]
     } else {
         &[false]
     };
 
     let mut entries = Vec::new();
-    for in_dtype in support.normal {
+    for in_dtype in schema.input_tensor_types {
         for &out_dtype in output_dtypes {
             for &broadcast in broadcast_flags {
                 let normal_key = OpKey {
                     kind,
                     mode: OpMode::Normal,
                     broadcast,
-                    inputs: vec![*in_dtype; inputs],
+                    inputs: vec![*in_dtype; input_count],
                     out0: out_dtype,
                 };
                 if let Some(kernel) = kernel_for_mode(OpMode::Normal) {
                     entries.push((normal_key, kernel));
                 }
-                if schema.inplace.allow() {
+                if schema.supports_inplace {
                     let inplace_key = OpKey {
                         kind,
                         mode: OpMode::Inplace,
                         broadcast,
-                        inputs: vec![*in_dtype; inputs],
+                        inputs: vec![*in_dtype; input_count],
                         out0: out_dtype,
                     };
                     if let Some(kernel) = kernel_for_mode(OpMode::Inplace) {

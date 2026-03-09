@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use anyhow::{anyhow, Result};
 
 use crate::graph::{AttrValue, OpAttrs, OpKind};
-use crate::op_defs::{OpAttrDef, OpAttrType};
+use crate::op_defs::{ParamDef, ParamKind};
 
 use super::context::ValidationContext;
 
@@ -11,7 +11,7 @@ pub fn validate_attrs(
     ctx: &ValidationContext,
     op: OpKind,
     attrs: &OpAttrs,
-    allowed: &[OpAttrDef],
+    allowed: &[ParamDef],
 ) -> Result<()> {
     let mut seen = HashSet::new();
     for attr in &attrs.items {
@@ -22,15 +22,15 @@ pub fn validate_attrs(
             .iter()
             .find(|def| def.name == attr.name)
             .ok_or_else(|| anyhow!("unsupported {} setting: {}", op, attr.name))?;
-        if !attr_type_matches(def.kind, &attr.value) {
+        if !param_kind_matches(&def.kind, &attr.value) {
             return Err(anyhow!(
                 "unsupported {} setting type: {}",
                 op,
                 attr.name
             ));
         }
-        match (def.kind, &attr.value) {
-            (OpAttrType::Scalar, AttrValue::Var(name)) => {
+        match (&def.kind, &attr.value) {
+            (ParamKind::DTypes(_), AttrValue::Var(name)) => {
                 if !ctx.has_var(name) {
                     return Err(anyhow!("unknown attribute variable: {}", name));
                 }
@@ -38,12 +38,7 @@ pub fn validate_attrs(
                     return Err(anyhow!("attribute {} must be scalar", name));
                 }
             }
-            (OpAttrType::Tensor, AttrValue::Var(name)) => {
-                if !ctx.has_var(name) {
-                    return Err(anyhow!("unknown attribute tensor: {}", name));
-                }
-            }
-            (OpAttrType::String, AttrValue::Var(name)) => {
+            (ParamKind::String, AttrValue::Var(name)) => {
                 if !ctx.model.has_metadata_string(name) {
                     return Err(anyhow!("unknown attribute string: {}", name));
                 }
@@ -54,9 +49,22 @@ pub fn validate_attrs(
     Ok(())
 }
 
-fn attr_type_matches(kind: OpAttrType, value: &AttrValue) -> bool {
+fn param_kind_matches(kind: &ParamKind, value: &AttrValue) -> bool {
     match kind {
-        OpAttrType::Scalar => matches!(
+        ParamKind::DTypes(_) => matches!(
+            value,
+            AttrValue::Float(_)
+                | AttrValue::Double(_)
+                | AttrValue::Int(_)
+                | AttrValue::UInt(_)
+                | AttrValue::Bool(_)
+                | AttrValue::Var(_)
+                | AttrValue::DType(_)
+        ),
+        ParamKind::IntList => matches!(value, AttrValue::IntList(_)),
+        ParamKind::Bool => matches!(value, AttrValue::Bool(_) | AttrValue::Var(_)),
+        ParamKind::String => matches!(value, AttrValue::Str(_) | AttrValue::Var(_)),
+        ParamKind::Scalar(_) => matches!(
             value,
             AttrValue::Float(_)
                 | AttrValue::Double(_)
@@ -65,10 +73,5 @@ fn attr_type_matches(kind: OpAttrType, value: &AttrValue) -> bool {
                 | AttrValue::Bool(_)
                 | AttrValue::Var(_)
         ),
-        OpAttrType::DType => matches!(value, AttrValue::DType(_)),
-        OpAttrType::DTypeList => matches!(value, AttrValue::DTypeList(_)),
-        OpAttrType::Tensor => matches!(value, AttrValue::Var(_)),
-        OpAttrType::String => matches!(value, AttrValue::Str(_) | AttrValue::Var(_)),
-        OpAttrType::IntList => matches!(value, AttrValue::IntList(_)),
     }
 }

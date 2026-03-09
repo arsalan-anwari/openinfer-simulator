@@ -1,62 +1,65 @@
-//! Generate embedded SPIR-V shader maps from `ops.json`.
+//! Generate embedded SPIR-V shader maps using hardcoded path convention.
+//!
+//! Scans `src/ops/vulkan/{category}/{name}/bin/*.spv` for SPV binaries
+//! and builds `embedded_spv()` match arms. Also emits `spv_dir_for_op(name)`.
+//! No ops.json devices.vulkan needed.
 use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+/// Vulkan SPV path convention: src/ops/vulkan/{category}/{name}/bin/{entrypoint}.spv
+const VULKAN_OPS_BASE: &str = "src/ops/vulkan";
+
 /// Generate a Rust map that embeds available SPIR-V binaries.
+/// Scans the filesystem for .spv files under the hardcoded path convention.
+/// Also emits spv_dir_for_op(op_name) for use by Vulkan kernels.
 pub fn generate_spv_map(manifest_dir: &Path) -> Result<(), Box<dyn Error>> {
-    let ops_json = manifest_dir.join("ops.json");
-    println!("cargo:rerun-if-changed={}", ops_json.display());
-    let contents = fs::read_to_string(&ops_json)?;
-    let value: serde_json::Value = serde_json::from_str(&contents)?;
-    let ops = value
-        .get("ops")
-        .and_then(|ops| ops.as_array())
-        .ok_or("ops.json missing ops array")?;
+    let vulkan_base = manifest_dir.join(VULKAN_OPS_BASE);
+    println!("cargo:rerun-if-changed={}", vulkan_base.display());
 
     let mut entries: Vec<(String, PathBuf)> = Vec::new();
+    let mut spv_dirs: Vec<(String, String)> = Vec::new();
 
-    for op in ops {
-        let op_name = op
-            .get("name")
-            .and_then(|v| v.as_str())
-            .ok_or("ops.json op missing name")?;
-        let vulkan = match op
-            .get("devices")
-            .and_then(|v| v.as_object())
-            .and_then(|v| v.get("vulkan"))
-            .and_then(|v| v.as_object())
-        {
-            Some(vulkan) => vulkan,
-            None => continue,
-        };
-        let shader_dir = vulkan
-            .get("shader_dir")
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| format!("{op_name} missing shader_dir"))?;
-        let spv_dir = vulkan
-            .get("spv_dir")
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| format!("{op_name} missing spv_dir"))?;
-        let shader_files = vulkan
-            .get("shader_files")
-            .and_then(|v| v.as_array())
-            .ok_or_else(|| format!("{op_name} missing shader_files"))?;
-
-        let shader_dir = manifest_dir.join(shader_dir);
-        let spv_dir = manifest_dir.join(spv_dir);
-
-        for file in shader_files {
-            let file = file
-                .as_str()
-                .ok_or_else(|| format!("{op_name} shader_files must be strings"))?;
-            let shader_path = shader_dir.join(file);
-            println!("cargo:rerun-if-changed={}", shader_path.display());
-            let entrypoints = parse_entrypoints(&shader_path)?;
-            for entry in entrypoints {
-                let spv_path = spv_dir.join(format!("{entry}.spv"));
-                if spv_path.exists() {
-                    entries.push((entry, spv_path));
+    if vulkan_base.exists() {
+        for category_entry in fs::read_dir(&vulkan_base)? {
+            let category_entry = category_entry?;
+            let category_path = category_entry.path();
+            if !category_path.is_dir() {
+                continue;
+            }
+            let category = category_path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("")
+                .to_string();
+            for op_entry in fs::read_dir(&category_path)? {
+                let op_entry = op_entry?;
+                let op_path = op_entry.path();
+                if !op_path.is_dir() {
+                    continue;
+                }
+                let op_name = op_path
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .unwrap_or("")
+                    .to_string();
+                let bin_dir = op_path.join("bin");
+                if !bin_dir.exists() || !bin_dir.is_dir() {
+                    continue;
+                }
+                let spv_dir_str = format!("{}/{}/{}/bin", VULKAN_OPS_BASE, category, op_name);
+                spv_dirs.push((op_name, spv_dir_str));
+                for spv_entry in fs::read_dir(&bin_dir)? {
+                    let spv_entry = spv_entry?;
+                    let spv_path = spv_entry.path();
+                    if spv_path.extension().and_then(|e| e.to_str()) == Some("spv") {
+                        let entrypoint = spv_path
+                            .file_stem()
+                            .and_then(|s| s.to_str())
+                            .map(|s| s.to_string())
+                            .ok_or_else(|| format!("invalid spv filename {:?}", spv_path))?;
+                        entries.push((entrypoint, spv_path));
+                    }
                 }
             }
         }
@@ -67,13 +70,22 @@ pub fn generate_spv_map(manifest_dir: &Path) -> Result<(), Box<dyn Error>> {
     let mut output = String::new();
     output.push_str("pub fn embedded_spv(name: &str) -> Option<&'static [u8]> {\n");
     output.push_str("    match name {\n");
-    for (name, path) in entries {
+    for (name, path) in &entries {
         let path = path.to_string_lossy().replace('\\', "/");
         output.push_str(&format!(
             "        \"{name}\" => Some(include_bytes!(r#\"{path}\"#)),\n"
         ));
     }
     output.push_str("        _ => None,\n");
+    output.push_str("    }\n");
+    output.push_str("}\n\n");
+    output.push_str("/// Returns spv_dir for Vulkan kernels. Use spv_dir_for_op(OpKind::X.as_str()).\n");
+    output.push_str("pub fn spv_dir_for_op(op_name: &str) -> &'static str {\n");
+    output.push_str("    match op_name {\n");
+    for (op_name, spv_dir) in &spv_dirs {
+        output.push_str(&format!("        \"{op_name}\" => \"{spv_dir}\",\n"));
+    }
+    output.push_str("        _ => \"src/ops/vulkan/unknown/bin\",\n");
     output.push_str("    }\n");
     output.push_str("}\n");
     fs::write(out_file, output)?;
@@ -84,43 +96,8 @@ pub fn generate_spv_map(manifest_dir: &Path) -> Result<(), Box<dyn Error>> {
 pub fn write_empty_map() -> Result<(), Box<dyn Error>> {
     let out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
     let out_file = out_dir.join("spv_embedded.rs");
-    let output = "pub fn embedded_spv(_: &str) -> Option<&'static [u8]> { None }\n";
+    let output = "pub fn embedded_spv(_: &str) -> Option<&'static [u8]> { None }\n\n\
+        pub fn spv_dir_for_op(_: &str) -> &'static str { \"src/ops/vulkan/unknown/bin\" }\n";
     fs::write(out_file, output)?;
     Ok(())
-}
-
-fn parse_entrypoints(path: &Path) -> Result<Vec<String>, Box<dyn Error>> {
-    let contents = fs::read_to_string(path)?;
-    let mut entrypoints = Vec::new();
-    let mut expect_entry = false;
-    for line in contents.lines() {
-        let trimmed = line.trim();
-        if trimmed.contains("[shader(\"compute\")]") {
-            expect_entry = true;
-            continue;
-        }
-        if expect_entry {
-            if let Some(name) = parse_void_name(trimmed) {
-                entrypoints.push(name);
-                expect_entry = false;
-            } else if !trimmed.is_empty() && !trimmed.starts_with('[') {
-                expect_entry = false;
-            }
-        }
-    }
-    Ok(entrypoints)
-}
-
-fn parse_void_name(line: &str) -> Option<String> {
-    let line = line.trim_start();
-    if !line.starts_with("void ") {
-        return None;
-    }
-    let rest = &line[5..];
-    let name = rest
-        .split('(')
-        .next()
-        .map(str::trim)
-        .filter(|s| !s.is_empty())?;
-    Some(name.to_string())
 }

@@ -12,7 +12,6 @@ struct OpSpecInfo {
     name: String,
     inplace: bool,
     broadcast: bool,
-    accumulate: bool,
 }
 
 fn main() {
@@ -35,13 +34,12 @@ fn main() {
         .max(40);
     for (idx, spec) in specs.iter().enumerate() {
         let line = format!(
-            "[{}/{}] -- generating opspec for {}[inplace={}, broadcast={}, accumulate={}]",
+            "[{}/{}] -- generating opspec for {}[inplace={}, broadcast={}]",
             idx + 1,
             total,
             spec.name,
             spec.inplace,
-            spec.broadcast,
-            spec.accumulate
+            spec.broadcast
         );
         let line = truncate_to_width(&line, term_width.saturating_sub(1));
         print!("\r{line:<width$}", width = term_width);
@@ -72,25 +70,21 @@ fn parse_opspecs(path: &Path) -> Result<Vec<OpSpecInfo>, String> {
             .and_then(|v| v.as_str())
             .ok_or_else(|| "op missing name".to_string())?
             .to_string();
-        let inplace = parse_allow(obj.get("inplace")).map_err(|err| err.to_string())?;
-        let broadcast = parse_allow(obj.get("broadcast")).map_err(|err| err.to_string())?;
-        let accumulate = parse_allow(obj.get("accumulate")).map_err(|err| err.to_string())?;
+        let inplace = obj
+            .get("supports_inplace")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+        let broadcast = obj
+            .get("supports_broadcast")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
         specs.push(OpSpecInfo {
             name,
             inplace,
             broadcast,
-            accumulate,
         });
     }
     Ok(specs)
-}
-
-fn parse_allow(value: Option<&Value>) -> Result<bool, &'static str> {
-    match value.and_then(|v| v.as_str()) {
-        Some("allow") => Ok(true),
-        Some("deny") => Ok(false),
-        _ => Err("unsupported allow/deny value"),
-    }
 }
 
 fn truncate_to_width(text: &str, width: usize) -> String {

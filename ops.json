@@ -1,2555 +1,1589 @@
 {
   "version": 1,
-  "attr_defs": {
-    "alpha": {
-      "kind": "scalar",
-      "scalar_kinds": [
-        "float",
-        "int",
-        "uint",
-        "bool"
-      ]
-    },
-    "clamp_max": {
-      "kind": "scalar",
-      "scalar_kinds": [
-        "float",
-        "int",
-        "uint",
-        "bool"
-      ]
-    },
-    "value": {
-      "kind": "scalar",
-      "scalar_kinds": [
-        "float",
-        "int",
-        "uint",
-        "bool"
-      ]
-    },
-    "div_by_zero_mask": {
-      "kind": "scalar",
-      "scalar_kinds": [
-        "float",
-        "int",
-        "uint",
-        "bool"
-      ]
-    },
-    "min": {
-      "kind": "scalar",
-      "scalar_kinds": [
-        "float",
-        "int",
-        "uint",
-        "bool"
-      ]
-    },
-    "max": {
-      "kind": "scalar",
-      "scalar_kinds": [
-        "float",
-        "int",
-        "uint",
-        "bool"
-      ]
-    },
-    "bits": {
-      "kind": "scalar",
-      "scalar_kinds": [
-        "float",
-        "int",
-        "uint",
-        "bool"
-      ]
-    },
-    "keepdims": {
-      "kind": "scalar",
-      "scalar_kinds": [
-        "bool"
-      ]
-    },
-    "axis": {
-      "kind": "scalar",
-      "scalar_kinds": [
-        "float",
-        "int",
-        "uint",
-        "bool"
-      ]
-    },
-    "select_first": {
-      "kind": "scalar",
-      "scalar_kinds": [
-        "bool"
-      ]
-    },
-    "saturate": {
-      "kind": "scalar",
-      "scalar_kinds": [
-        "bool"
-      ]
-    },
-    "axes": {
-      "kind": "int_list"
-    },
-    "rounding_mode": {
-      "kind": "string"
-    },
-    "to": {
-      "kind": "dtype"
-    }
-  },
-  "dtype_sets": {
-    "ABS_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "bf16",
-        "f16",
-        "f32",
-        "f64",
-        "i4",
-        "i8",
-        "i16",
-        "i32",
-        "i64"
-      ]
-    },
-    "ADD_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "bf16",
-        "f16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "bool",
-        "i4",
-        "u4"
-      ]
-    },
-    "AND_DTYPE_SUPPORT": {
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4",
-        "bool"
-      ]
-    },
-    "ARGMAX_AXIS_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "ARGMIN_AXIS_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "CAST_DTYPE_SUPPORT": {
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i4",
-        "u4"
-      ]
-    },
-    "CEIL_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64"
-      ]
-    },
-    "CLAMP_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "DIV_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "bf16",
-        "f16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "EQ_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4",
-        "bool"
-      ]
-    },
-    "FILL_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "bf16",
-        "f16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "bool",
-        "i4",
-        "u4"
-      ]
-    },
-    "FILTER_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4",
-        "bool"
-      ]
-    },
-    "FLOOR_DIV_DTYPE_SUPPORT": {
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "FLOOR_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64"
-      ]
-    },
-    "FMA_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64"
-      ]
-    },
-    "GE_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "GT_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "IS_FINITE_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "bf16",
-        "f16",
-        "f32",
-        "f64"
-      ]
-    },
-    "IS_INF_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64"
-      ]
-    },
-    "IS_NAN_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64"
-      ]
-    },
-    "IS_NEG_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4"
-      ]
-    },
-    "LE_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "LT_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "MATMUL_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "bf16",
-        "f16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "bool",
-        "i4",
-        "u4"
-      ]
-    },
-    "MAX_AXIS_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "MAX_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "MEAN_AXIS_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "MIN_AXIS_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "MIN_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "MUL_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "bf16",
-        "f16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "bool",
-        "i4",
-        "u4"
-      ]
-    },
-    "NEG_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "i4"
-      ]
-    },
-    "NE_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4",
-        "bool"
-      ]
-    },
-    "NOT_DTYPE_SUPPORT": {
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4",
-        "bool"
-      ]
-    },
-    "OR_DTYPE_SUPPORT": {
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4",
-        "bool"
-      ]
-    },
-    "POPCOUNT_DTYPE_SUPPORT": {
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "PROD_AXIS_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "RECIP_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64"
-      ]
-    },
-    "RELU_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "bf16",
-        "f16",
-        "f32",
-        "f64",
-        "i4",
-        "i8",
-        "i16",
-        "i32",
-        "i64"
-      ]
-    },
-    "REM_DTYPE_SUPPORT": {
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "ROUND_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64"
-      ]
-    },
-    "SHL_DTYPE_SUPPORT": {
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "SHR_DTYPE_SUPPORT": {
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "SIGN_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "i4"
-      ]
-    },
-    "SUB_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "bf16",
-        "f16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "SUM_AXIS_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ]
-    },
-    "TRUNC_DTYPE_SUPPORT": {
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64"
-      ]
-    },
-    "XOR_DTYPE_SUPPORT": {
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4",
-        "bool"
-      ]
-    }
-  },
-  "output_dtype_sets": {
-    "CAST_OUTPUT_DTYPES": [
-      "i8",
-      "i16",
-      "i32",
-      "i64",
-      "u8",
-      "u16",
-      "u32",
-      "u64",
-      "f8",
-      "f16",
-      "bf16",
-      "f32",
-      "f64"
-    ]
-  },
+  "dtype_catalog": [
+    "f8",
+    "bf16",
+    "f16",
+    "f32",
+    "f64",
+    "i4",
+    "i8",
+    "i16",
+    "i32",
+    "i64",
+    "u4",
+    "u8",
+    "u16",
+    "u32",
+    "u64",
+    "bool"
+  ],
   "ops": [
     {
-      "name": "add",
-      "kind": "add",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "allow",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "ADD_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/arithmetic/add/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/arithmetic/add/bin"
-        }
-      },
-      "category": "arithmetic"
-    },
-    {
-      "name": "mul",
-      "kind": "mul",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "allow",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "MUL_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/arithmetic/mul/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/arithmetic/mul/bin"
-        }
-      },
-      "category": "arithmetic"
-    },
-    {
       "name": "abs",
-      "kind": "abs",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "ABS_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/arithmetic/abs/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/arithmetic/abs/bin"
-        }
-      },
-      "category": "arithmetic"
-    },
-    {
-      "name": "relu",
-      "kind": "relu",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "alpha",
-        "clamp_max"
+      "category": "arithmetic",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "bf16",
+        "f16",
+        "f32",
+        "f64",
+        "i4",
+        "i8",
+        "i16",
+        "i32",
+        "i64"
       ],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "RELU_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/numerical/relu/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/numerical/relu/bin"
-        }
-      },
-      "category": "numerical"
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
     },
     {
-      "name": "matmul",
-      "kind": "matmul",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "allow",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "MATMUL_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/numerical/matmul/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/numerical/matmul/bin"
-        }
-      },
-      "category": "numerical"
-    },
-    {
-      "name": "is_finite",
-      "kind": "is_finite",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "fixed",
-        "dtype": "bool"
-      },
-      "dtype_support_ref": "IS_FINITE_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/filtering/is_finite/shaders",
-          "shader_files": [
-            "normal.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/filtering/is_finite/bin"
-        }
-      },
-      "category": "filter"
-    },
-    {
-      "name": "fill",
-      "kind": "fill",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "value"
+      "name": "add",
+      "category": "arithmetic",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "bf16",
+        "f16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "bool",
+        "i4",
+        "u4"
       ],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "FILL_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/mutation/fill/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/mutation/fill/bin"
-        }
-      },
-      "category": "mutation"
-    },
-    {
-      "name": "sub",
-      "kind": "sub",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "allow",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "SUB_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/arithmetic/sub/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/arithmetic/sub/bin"
-        }
-      },
-      "category": "arithmetic"
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": true,
+      "supports_inplace": true
     },
     {
       "name": "div",
-      "kind": "div",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "div_by_zero_mask"
+      "category": "arithmetic",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "bf16",
+        "f16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
       ],
-      "broadcast": "allow",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "DIV_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/arithmetic/div/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/arithmetic/div/bin"
+      "parameter_types": [
+        {
+          "name": "div_by_zero_mask",
+          "kind": [
+            "f8",
+            "bf16",
+            "f16",
+            "f32",
+            "f64",
+            "i4",
+            "i8",
+            "i16",
+            "i32",
+            "i64",
+            "u4",
+            "u8",
+            "u16",
+            "u32",
+            "u64",
+            "bool"
+          ]
         }
-      },
-      "category": "arithmetic"
+      ],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": true,
+      "supports_inplace": true
     },
     {
       "name": "floor_div",
-      "kind": "floor_div",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "div_by_zero_mask"
+      "category": "arithmetic",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
       ],
-      "broadcast": "allow",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "FLOOR_DIV_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/arithmetic/floor_div/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/arithmetic/floor_div/bin"
+      "parameter_types": [
+        {
+          "name": "div_by_zero_mask",
+          "kind": [
+            "f8",
+            "bf16",
+            "f16",
+            "f32",
+            "f64",
+            "i4",
+            "i8",
+            "i16",
+            "i32",
+            "i64",
+            "u4",
+            "u8",
+            "u16",
+            "u32",
+            "u64",
+            "bool"
+          ]
         }
-      },
-      "category": "arithmetic"
-    },
-    {
-      "name": "rem",
-      "kind": "rem",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "allow",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "REM_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/arithmetic/rem/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/arithmetic/rem/bin"
-        }
-      },
-      "category": "arithmetic"
+      ],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": true,
+      "supports_inplace": true
     },
     {
       "name": "fma",
-      "kind": "fma",
-      "inputs": {
-        "arity": "fixed",
-        "count": 3
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "FMA_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/arithmetic/fma/shaders",
-          "shader_files": [
-            "normal.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/arithmetic/fma/bin"
-        }
-      },
-      "category": "arithmetic"
+      "category": "arithmetic",
+      "input_count": 3,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
+    },
+    {
+      "name": "mul",
+      "category": "arithmetic",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "bf16",
+        "f16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "bool",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": true,
+      "supports_inplace": true
     },
     {
       "name": "neg",
-      "kind": "neg",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "NEG_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/arithmetic/neg/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/arithmetic/neg/bin"
-        }
-      },
-      "category": "arithmetic"
-    },
-    {
-      "name": "sign",
-      "kind": "sign",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "fixed",
-        "dtype": "i8"
-      },
-      "dtype_support_ref": "SIGN_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/statistics/sign/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/statistics/sign/bin"
-        }
-      },
-      "category": "statistics"
+      "category": "arithmetic",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "i4"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
     },
     {
       "name": "recip",
-      "kind": "recip",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "div_by_zero_mask"
+      "category": "arithmetic",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64"
       ],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "RECIP_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/arithmetic/recip/shaders",
-          "shader_files": [
-            "normal.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/arithmetic/recip/bin"
+      "parameter_types": [
+        {
+          "name": "div_by_zero_mask",
+          "kind": [
+            "f8",
+            "bf16",
+            "f16",
+            "f32",
+            "f64",
+            "i4",
+            "i8",
+            "i16",
+            "i32",
+            "i64",
+            "u4",
+            "u8",
+            "u16",
+            "u32",
+            "u64",
+            "bool"
+          ]
         }
-      },
-      "category": "arithmetic"
-    },
-    {
-      "name": "min",
-      "kind": "min",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "MIN_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/statistics/min/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/statistics/min/bin"
-        }
-      },
-      "category": "statistics"
-    },
-    {
-      "name": "max",
-      "kind": "max",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "MAX_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/statistics/max/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/statistics/max/bin"
-        }
-      },
-      "category": "statistics"
-    },
-    {
-      "name": "clamp",
-      "kind": "clamp",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "min",
-        "max"
       ],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "CLAMP_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/rounding/clamp/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/rounding/clamp/bin"
-        }
-      },
-      "category": "rounding"
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
     },
     {
-      "name": "floor",
-      "kind": "floor",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "FLOOR_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/rounding/floor/shaders",
-          "shader_files": [
-            "normal.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/rounding/floor/bin"
-        }
-      },
-      "category": "rounding"
+      "name": "rem",
+      "category": "arithmetic",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": true,
+      "supports_inplace": true
     },
     {
-      "name": "ceil",
-      "kind": "ceil",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "CEIL_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/rounding/ceil/shaders",
-          "shader_files": [
-            "normal.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/rounding/ceil/bin"
-        }
-      },
-      "category": "rounding"
-    },
-    {
-      "name": "round",
-      "kind": "round",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "ROUND_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/rounding/round/shaders",
-          "shader_files": [
-            "normal.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/rounding/round/bin"
-        }
-      },
-      "category": "rounding"
-    },
-    {
-      "name": "trunc",
-      "kind": "trunc",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "TRUNC_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/rounding/trunc/shaders",
-          "shader_files": [
-            "normal.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/rounding/trunc/bin"
-        }
-      },
-      "category": "rounding"
+      "name": "sub",
+      "category": "arithmetic",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "bf16",
+        "f16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": true,
+      "supports_inplace": true
     },
     {
       "name": "and",
-      "kind": "and",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "AND_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/bitwise/and/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/bitwise/and/bin"
-        }
-      },
-      "category": "bitwise"
-    },
-    {
-      "name": "or",
-      "kind": "or",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "OR_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/bitwise/or/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/bitwise/or/bin"
-        }
-      },
-      "category": "bitwise"
-    },
-    {
-      "name": "xor",
-      "kind": "xor",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "XOR_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/bitwise/xor/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/bitwise/xor/bin"
-        }
-      },
-      "category": "bitwise"
+      "category": "bitwise",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4",
+        "bool"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
     },
     {
       "name": "not",
-      "kind": "not",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "NOT_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/bitwise/not/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/bitwise/not/bin"
-        }
-      },
-      "category": "bitwise"
+      "category": "bitwise",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4",
+        "bool"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
     },
     {
-      "name": "shl",
-      "kind": "shl",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "bits"
+      "name": "or",
+      "category": "bitwise",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4",
+        "bool"
       ],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "SHL_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/bitwise/shl/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/bitwise/shl/bin"
-        }
-      },
-      "category": "bitwise"
-    },
-    {
-      "name": "shr",
-      "kind": "shr",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "bits"
-      ],
-      "broadcast": "deny",
-      "inplace": "allow",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "SHR_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/bitwise/shr/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/bitwise/shr/bin"
-        }
-      },
-      "category": "bitwise"
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
     },
     {
       "name": "popcount",
-      "kind": "popcount",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "fixed",
-        "dtype": "u8"
-      },
-      "dtype_support_ref": "POPCOUNT_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/bitwise/popcount/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/bitwise/popcount/bin"
-        }
-      },
-      "category": "bitwise"
-    },
-    {
-      "name": "eq",
-      "kind": "eq",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "fixed",
-        "dtype": "bool"
-      },
-      "dtype_support_ref": "EQ_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/comparison/eq/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/comparison/eq/bin"
-        }
-      },
-      "category": "comparison"
-    },
-    {
-      "name": "ne",
-      "kind": "ne",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "fixed",
-        "dtype": "bool"
-      },
-      "dtype_support_ref": "NE_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/comparison/ne/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/comparison/ne/bin"
-        }
-      },
-      "category": "comparison"
-    },
-    {
-      "name": "lt",
-      "kind": "lt",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "fixed",
-        "dtype": "bool"
-      },
-      "dtype_support_ref": "LT_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/comparison/lt/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/comparison/lt/bin"
-        }
-      },
-      "category": "comparison"
-    },
-    {
-      "name": "le",
-      "kind": "le",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "fixed",
-        "dtype": "bool"
-      },
-      "dtype_support_ref": "LE_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/comparison/le/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/comparison/le/bin"
-        }
-      },
-      "category": "comparison"
-    },
-    {
-      "name": "gt",
-      "kind": "gt",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "fixed",
-        "dtype": "bool"
-      },
-      "dtype_support_ref": "GT_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/comparison/gt/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/comparison/gt/bin"
-        }
-      },
-      "category": "comparison"
-    },
-    {
-      "name": "ge",
-      "kind": "ge",
-      "inputs": {
-        "arity": "fixed",
-        "count": 2
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "fixed",
-        "dtype": "bool"
-      },
-      "dtype_support_ref": "GE_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/comparison/ge/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/comparison/ge/bin"
-        }
-      },
-      "category": "comparison"
-    },
-    {
-      "name": "filter",
-      "kind": "filter",
-      "inputs": {
-        "arity": "fixed",
-        "count": 3
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "FILTER_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/filtering/filter/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/filtering/filter/bin"
-        }
-      },
-      "category": "filter"
-    },
-    {
-      "name": "is_nan",
-      "kind": "is_nan",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "fixed",
-        "dtype": "bool"
-      },
-      "dtype_support_ref": "IS_NAN_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/filtering/is_nan/shaders",
-          "shader_files": [
-            "normal.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/filtering/is_nan/bin"
-        }
-      },
-      "category": "filter"
-    },
-    {
-      "name": "is_inf",
-      "kind": "is_inf",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "fixed",
-        "dtype": "bool"
-      },
-      "dtype_support_ref": "IS_INF_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/filtering/is_inf/shaders",
-          "shader_files": [
-            "normal.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/filtering/is_inf/bin"
-        }
-      },
-      "category": "filter"
-    },
-    {
-      "name": "is_neg",
-      "kind": "is_neg",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "fixed",
-        "dtype": "bool"
-      },
-      "dtype_support_ref": "IS_NEG_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/filtering/is_neg/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/filtering/is_neg/bin"
-        }
-      },
-      "category": "filter"
-    },
-    {
-      "name": "sum_axis",
-      "kind": "sum_axis",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "axes",
-        "keepdims"
+      "category": "bitwise",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
       ],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "SUM_AXIS_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/reduction/sum_axis/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/reduction/sum_axis/bin"
-        }
-      },
-      "category": "reduction"
+      "parameter_types": [],
+      "output_type": "u8",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
     },
     {
-      "name": "mean_axis",
-      "kind": "mean_axis",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "axes",
-        "keepdims"
+      "name": "shl",
+      "category": "bitwise",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
       ],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "MEAN_AXIS_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/reduction/mean_axis/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/reduction/mean_axis/bin"
+      "parameter_types": [
+        {
+          "name": "bits",
+          "kind": "u64"
         }
-      },
-      "category": "reduction"
+      ],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
     },
     {
-      "name": "prod_axis",
-      "kind": "prod_axis",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "axes",
-        "keepdims"
+      "name": "shr",
+      "category": "bitwise",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
       ],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "PROD_AXIS_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/reduction/prod_axis/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/reduction/prod_axis/bin"
+      "parameter_types": [
+        {
+          "name": "bits",
+          "kind": "u64"
         }
-      },
-      "category": "reduction"
+      ],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
     },
     {
-      "name": "max_axis",
-      "kind": "max_axis",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "axes",
-        "keepdims"
+      "name": "xor",
+      "category": "bitwise",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4",
+        "bool"
       ],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "MAX_AXIS_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/reduction/max_axis/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/reduction/max_axis/bin"
-        }
-      },
-      "category": "reduction"
-    },
-    {
-      "name": "min_axis",
-      "kind": "min_axis",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "axes",
-        "keepdims"
-      ],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "same_as_input",
-        "index": 0
-      },
-      "dtype_support_ref": "MIN_AXIS_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/reduction/min_axis/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/reduction/min_axis/bin"
-        }
-      },
-      "category": "reduction"
-    },
-    {
-      "name": "argmax_axis",
-      "kind": "argmax_axis",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "axis",
-        "keepdims",
-        "select_first"
-      ],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "fixed",
-        "dtype": "i64"
-      },
-      "dtype_support_ref": "ARGMAX_AXIS_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/reduction/argmax_axis/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/reduction/argmax_axis/bin"
-        }
-      },
-      "category": "reduction"
-    },
-    {
-      "name": "argmin_axis",
-      "kind": "argmin_axis",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "axis",
-        "keepdims",
-        "select_first"
-      ],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "fixed",
-        "dtype": "i64"
-      },
-      "dtype_support_ref": "ARGMIN_AXIS_DTYPE_SUPPORT",
-      "devices": {
-        "cpu": {
-          "enabled": true
-        },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/reduction/argmin_axis/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/reduction/argmin_axis/bin"
-        }
-      },
-      "category": "reduction"
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
     },
     {
       "name": "cast",
-      "kind": "cast",
-      "inputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "outputs": {
-        "arity": "fixed",
-        "count": 1
-      },
-      "attrs": [
-        "to",
-        "rounding_mode",
-        "saturate"
+      "category": "casting",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i4",
+        "u4"
       ],
-      "broadcast": "deny",
-      "inplace": "deny",
-      "accumulate": "deny",
-      "type_rule": {
-        "kind": "acc_from_attr",
-        "attr": "to"
-      },
-      "dtype_support_ref": "CAST_DTYPE_SUPPORT",
-      "output_dtypes_ref": "CAST_OUTPUT_DTYPES",
-      "devices": {
-        "cpu": {
-          "enabled": true
+      "parameter_types": [
+        {
+          "name": "to",
+          "kind": [
+            "f8",
+            "bf16",
+            "f16",
+            "f32",
+            "f64",
+            "i8",
+            "i16",
+            "i32",
+            "i64",
+            "u8",
+            "u16",
+            "u32",
+            "u64",
+            "bool"
+          ]
         },
-        "vulkan": {
-          "shader_dir": "src/ops/vulkan/casting/cast/shaders",
-          "shader_files": [
-            "normal.slang",
-            "packed.slang"
-          ],
-          "spv_dir": "src/ops/vulkan/casting/cast/bin"
+        {
+          "name": "rounding_mode",
+          "kind": "string"
+        },
+        {
+          "name": "saturate",
+          "kind": "bool"
         }
-      },
-      "category": "casting"
+      ],
+      "output_type": "from_attr",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "eq",
+      "category": "comparison",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4",
+        "bool"
+      ],
+      "parameter_types": [],
+      "output_type": "bool",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "ge",
+      "category": "comparison",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [],
+      "output_type": "bool",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "gt",
+      "category": "comparison",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [],
+      "output_type": "bool",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "le",
+      "category": "comparison",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [],
+      "output_type": "bool",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "lt",
+      "category": "comparison",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [],
+      "output_type": "bool",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "ne",
+      "category": "comparison",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4",
+        "bool"
+      ],
+      "parameter_types": [],
+      "output_type": "bool",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "filter",
+      "category": "filtering",
+      "input_count": 3,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4",
+        "bool"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "is_finite",
+      "category": "filtering",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "bf16",
+        "f16",
+        "f32",
+        "f64"
+      ],
+      "parameter_types": [],
+      "output_type": "bool",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "is_inf",
+      "category": "filtering",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64"
+      ],
+      "parameter_types": [],
+      "output_type": "bool",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "is_nan",
+      "category": "filtering",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64"
+      ],
+      "parameter_types": [],
+      "output_type": "bool",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "is_neg",
+      "category": "filtering",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4"
+      ],
+      "parameter_types": [],
+      "output_type": "bool",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "fill",
+      "category": "mutation",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "bf16",
+        "f16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "bool",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [
+        {
+          "name": "value",
+          "kind": [
+            "f8",
+            "bf16",
+            "f16",
+            "f32",
+            "f64",
+            "i4",
+            "i8",
+            "i16",
+            "i32",
+            "i64",
+            "u4",
+            "u8",
+            "u16",
+            "u32",
+            "u64",
+            "bool"
+          ]
+        }
+      ],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
+    },
+    {
+      "name": "matmul",
+      "category": "numerical",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "bf16",
+        "f16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "bool",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [
+        [
+          "i32",
+          "i32"
+        ],
+        [
+          "i32",
+          "i64"
+        ],
+        [
+          "i64",
+          "i64"
+        ],
+        [
+          "u32",
+          "u32"
+        ],
+        [
+          "u32",
+          "u64"
+        ],
+        [
+          "u64",
+          "u64"
+        ],
+        [
+          "f32",
+          "f32"
+        ],
+        [
+          "f32",
+          "f64"
+        ],
+        [
+          "f64",
+          "f64"
+        ]
+      ],
+      "supports_broadcast": true,
+      "supports_inplace": true
+    },
+    {
+      "name": "relu",
+      "category": "numerical",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "bf16",
+        "f16",
+        "f32",
+        "f64",
+        "i4",
+        "i8",
+        "i16",
+        "i32",
+        "i64"
+      ],
+      "parameter_types": [
+        {
+          "name": "alpha",
+          "kind": [
+            "f8",
+            "bf16",
+            "f16",
+            "f32",
+            "f64",
+            "i4",
+            "i8",
+            "i16",
+            "i32",
+            "i64",
+            "u4",
+            "u8",
+            "u16",
+            "u32",
+            "u64",
+            "bool"
+          ]
+        },
+        {
+          "name": "clamp_max",
+          "kind": [
+            "f8",
+            "bf16",
+            "f16",
+            "f32",
+            "f64",
+            "i4",
+            "i8",
+            "i16",
+            "i32",
+            "i64",
+            "u4",
+            "u8",
+            "u16",
+            "u32",
+            "u64",
+            "bool"
+          ]
+        }
+      ],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
+    },
+    {
+      "name": "argmax_axis",
+      "category": "reduction",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [
+        {
+          "name": "axis",
+          "kind": "i64"
+        },
+        {
+          "name": "keepdims",
+          "kind": "bool"
+        },
+        {
+          "name": "select_first",
+          "kind": "bool"
+        }
+      ],
+      "output_type": "i64",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "argmin_axis",
+      "category": "reduction",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [
+        {
+          "name": "axis",
+          "kind": "i64"
+        },
+        {
+          "name": "keepdims",
+          "kind": "bool"
+        },
+        {
+          "name": "select_first",
+          "kind": "bool"
+        }
+      ],
+      "output_type": "i64",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "max_axis",
+      "category": "reduction",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [
+        {
+          "name": "axes",
+          "kind": "i64[]"
+        },
+        {
+          "name": "keepdims",
+          "kind": "bool"
+        }
+      ],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "mean_axis",
+      "category": "reduction",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [
+        {
+          "name": "axes",
+          "kind": "i64[]"
+        },
+        {
+          "name": "keepdims",
+          "kind": "bool"
+        }
+      ],
+      "output_type": "same",
+      "accumulation_rules": [
+        [
+          "f32",
+          "f32"
+        ],
+        [
+          "f64",
+          "f64"
+        ],
+        [
+          "i32",
+          "f32"
+        ],
+        [
+          "i64",
+          "f64"
+        ],
+        [
+          "u32",
+          "f32"
+        ],
+        [
+          "u64",
+          "f64"
+        ]
+      ],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "min_axis",
+      "category": "reduction",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [
+        {
+          "name": "axes",
+          "kind": "i64[]"
+        },
+        {
+          "name": "keepdims",
+          "kind": "bool"
+        }
+      ],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "prod_axis",
+      "category": "reduction",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [
+        {
+          "name": "axes",
+          "kind": "i64[]"
+        },
+        {
+          "name": "keepdims",
+          "kind": "bool"
+        }
+      ],
+      "output_type": "same",
+      "accumulation_rules": [
+        [
+          "i32",
+          "i32"
+        ],
+        [
+          "i64",
+          "i64"
+        ],
+        [
+          "u32",
+          "u32"
+        ],
+        [
+          "u64",
+          "u64"
+        ],
+        [
+          "f32",
+          "f32"
+        ],
+        [
+          "f64",
+          "f64"
+        ]
+      ],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "sum_axis",
+      "category": "reduction",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [
+        {
+          "name": "axes",
+          "kind": "i64[]"
+        },
+        {
+          "name": "keepdims",
+          "kind": "bool"
+        }
+      ],
+      "output_type": "same",
+      "accumulation_rules": [
+        [
+          "i32",
+          "i32"
+        ],
+        [
+          "i64",
+          "i64"
+        ],
+        [
+          "u32",
+          "u32"
+        ],
+        [
+          "u64",
+          "u64"
+        ],
+        [
+          "f32",
+          "f32"
+        ],
+        [
+          "f64",
+          "f64"
+        ]
+      ],
+      "supports_broadcast": false,
+      "supports_inplace": false
+    },
+    {
+      "name": "ceil",
+      "category": "rounding",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
+    },
+    {
+      "name": "clamp",
+      "category": "rounding",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [
+        {
+          "name": "min",
+          "kind": [
+            "f8",
+            "bf16",
+            "f16",
+            "f32",
+            "f64",
+            "i4",
+            "i8",
+            "i16",
+            "i32",
+            "i64",
+            "u4",
+            "u8",
+            "u16",
+            "u32",
+            "u64",
+            "bool"
+          ]
+        },
+        {
+          "name": "max",
+          "kind": [
+            "f8",
+            "bf16",
+            "f16",
+            "f32",
+            "f64",
+            "i4",
+            "i8",
+            "i16",
+            "i32",
+            "i64",
+            "u4",
+            "u8",
+            "u16",
+            "u32",
+            "u64",
+            "bool"
+          ]
+        }
+      ],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
+    },
+    {
+      "name": "floor",
+      "category": "rounding",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
+    },
+    {
+      "name": "round",
+      "category": "rounding",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
+    },
+    {
+      "name": "trunc",
+      "category": "rounding",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
+    },
+    {
+      "name": "max",
+      "category": "statistics",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
+    },
+    {
+      "name": "min",
+      "category": "statistics",
+      "input_count": 2,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "parameter_types": [],
+      "output_type": "same",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
+    },
+    {
+      "name": "sign",
+      "category": "statistics",
+      "input_count": 1,
+      "output_count": 1,
+      "input_tensor_types": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "i4"
+      ],
+      "parameter_types": [],
+      "output_type": "i8",
+      "accumulation_rules": [],
+      "supports_broadcast": false,
+      "supports_inplace": true
     }
   ]
 }

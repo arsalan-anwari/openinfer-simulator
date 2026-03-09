@@ -81,7 +81,7 @@ fn dispatch_rem(
         );
         return cpu_fallback(mode, attrs, inputs, Some(output), output_dtype, broadcast);
     }
-    if !op_supports_dtype(OpKind::Rem, mode, input_dtype, output_dtype) {
+    if !op_supports_dtype(OpKind::Rem, mode, input_dtype, output_dtype, attrs) {
         crate::vk_trace!(
             "vulkan target unsupported (mode={:?}, in={:?}, out={:?}), cpu fallback",
             mode,
@@ -122,7 +122,7 @@ fn dispatch_rem(
     let push_bytes = bytemuck::bytes_of(&push).to_vec();
     let spec = VulkanOpSpec {
         entry: &target,
-        spv_dir: "src/ops/vulkan/rem/bin",
+        spv_dir: crate::ops::vulkan::spv::spv_dir_for_op(OpKind::Rem.as_str()),
         workgroup_size: [256, 1, 1],
         push_constant_size: std::mem::size_of::<RemPush>() as u32,
     };

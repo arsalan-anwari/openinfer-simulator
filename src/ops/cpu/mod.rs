@@ -2,7 +2,6 @@ pub mod arithmetic;
 pub mod bitwise;
 pub mod casting;
 pub mod comparison;
-#[path = "filter/mod.rs"]
 pub mod filtering;
 pub mod mutation;
 pub mod numerical;

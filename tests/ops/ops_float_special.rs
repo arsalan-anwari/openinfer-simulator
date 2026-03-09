@@ -77,10 +77,7 @@ fn op_supports_dtype(op: OpKind, dtype: DType) -> bool {
     let Some(schema) = op_schema(op) else {
         return false;
     };
-    let Some(support) = schema.dtype_support else {
-        return false;
-    };
-    support.normal.iter().any(|&d| d == dtype)
+    schema.input_tensor_types.contains(&dtype)
 }
 
 fn run_case(model: &ModelLoader, device: Device, case: &FloatCase) -> Result<()> {

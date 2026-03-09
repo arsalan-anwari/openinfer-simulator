@@ -175,7 +175,7 @@ impl<T> Tensor<T> {
     ///
     /// # Example
     /// ```no_run
-    /// # use openinfer::tensor::Tensor;
+    /// # use openinfer::Tensor;
     /// # fn main() -> anyhow::Result<()> {
     /// let t = Tensor::from_vec(vec![1.0f32, 2.0, 3.0])?;
     /// # Ok(()) }
@@ -188,7 +188,7 @@ impl<T> Tensor<T> {
     ///
     /// # Example
     /// ```no_run
-    /// # use openinfer::tensor::{Tensor, TensorOptions};
+    /// # use openinfer::{Tensor, TensorOptions};
     /// # fn main() -> anyhow::Result<()> {
     /// let t = Tensor::from_vec_with_opts(
     ///     vec![1.0f32, 2.0, 3.0, 4.0],
@@ -265,7 +265,7 @@ impl<T> Tensor<T> {
     ///
     /// # Example
     /// ```no_run
-    /// # use openinfer::tensor::Tensor;
+    /// # use openinfer::Tensor;
     /// let t = Tensor::from_scalar(3.14f32);
     /// ```
     pub fn from_scalar(value: T) -> Self {

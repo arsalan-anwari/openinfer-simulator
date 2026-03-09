@@ -8,7 +8,7 @@
 //! ```no_run
 //! use openinfer::{graph, Device, ModelLoader, Simulator};
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
-//! let model = ModelLoader::default();
+//! let model = ModelLoader::open("model.oinf")?;
 //! let g = graph! {
 //!     block main {
 //!         // ... graph nodes ...
@@ -50,7 +50,7 @@ pub use graph::{
     AttrValue, Block, CacheAccess, CacheIndexExpr, CacheIndexValue, Graph, GraphDeserialize,
     GraphSerialize, MemoryKind, Node, NodeKind, OpAttr, OpAttrs, OpKind, VarDecl,
 };
-pub use op_defs::{op_schema, TypeRule};
+pub use op_defs::{op_schema, OutputType, ParamDef, ParamKind};
 pub use runtime::ModelLoader;
 pub use tensor::{
     BF16, DType, F16, F8, I4, QuantParams, QuantScale, QuantScheme, QuantZeroPoint, ScalarValue,

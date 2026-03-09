@@ -17,31 +17,35 @@ use syn::{
 struct OpSchemaInfo {
     name: String,
     category: String,
-    inputs: InputArityInfo,
-    inplace: bool,
-    accumulate: bool,
-    dtype_support_ref: String,
-    uses_attrs: bool,
-    fixed_output: Option<String>,
-    output_from_attr: bool,
-    output_dtypes_ref: Option<String>,
+    input_count: usize,
+    output_count: usize,
+    input_tensor_types: Vec<String>,
+    output_type: OutputType,
+    parameter_types: Vec<ParamDef>,
+    supports_broadcast: bool,
+    supports_inplace: bool,
 }
 
-#[derive(Debug, Clone, Copy)]
-#[allow(dead_code)]
-enum InputArityInfo {
-    Fixed(usize),
-    AtLeast(usize),
-    Any,
+#[derive(Debug, Clone)]
+enum OutputType {
+    Same,
+    Fixed(String),
+    FromAttr(String), // attr name for output dtype (e.g. "to" for cast)
 }
 
-impl InputArityInfo {
-    fn fixed(self) -> Option<usize> {
-        match self {
-            InputArityInfo::Fixed(count) => Some(count),
-            _ => None,
-        }
-    }
+#[derive(Debug)]
+struct ParamDef {
+    name: String,
+    kind: ParamKind,
+}
+
+#[derive(Debug)]
+enum ParamKind {
+    DTypes(Vec<String>),
+    String,
+    Bool,
+    I64,
+    I64Array,
 }
 
 /// Generate CPU kernel Rust sources based on `ops.json`.
@@ -49,71 +53,76 @@ pub fn generate_cpu_kernels(manifest_dir: &Path) -> Result<(), Box<dyn Error>> {
     let ops_json = load_ops_json(manifest_dir)?;
 
     for schema in ops_json.ops {
-        let dtype_support = ops_json
-            .dtype_sets
-            .get(&schema.dtype_support_ref)
-            .ok_or_else(|| format!("missing dtype support {}", schema.dtype_support_ref))?;
-        let inputs = schema
-            .inputs
-            .fixed()
-            .ok_or_else(|| format!("non-fixed input arity for op {}", schema.name))?;
-        let normal_dtypes = &dtype_support.normal;
-        let acc_pairs = &dtype_support.accumulate;
         let op_dir = cpu_op_dir(manifest_dir, &schema.category, &schema.name)?;
-        if schema.output_from_attr {
-            let output_ref = schema.output_dtypes_ref.as_deref().ok_or_else(|| {
-                format!("missing output_dtypes_ref for op {}", schema.name)
-            })?;
-            let output_dtypes = ops_json
-                .output_dtype_sets
-                .get(output_ref)
-                .ok_or_else(|| format!("missing output dtype set {output_ref}"))?;
-            write_cast_kernel_rs(&op_dir, &schema.name, normal_dtypes, output_dtypes)?;
-            continue;
+        let inplace = schema.supports_inplace;
+        let uses_attrs = !schema.parameter_types.is_empty();
+
+        match &schema.output_type {
+            OutputType::FromAttr(attr_name) => {
+                let output_dtypes = get_output_dtypes_from_param(&schema.parameter_types, attr_name)?;
+                write_cast_kernel_rs(&op_dir, &schema.name, &schema.input_tensor_types, &output_dtypes)?;
+            }
+            OutputType::Fixed(dtype) => {
+                let fixed_output = Some(to_dtype_variant(dtype)?);
+                write_kernel_rs(
+                    &op_dir,
+                    &schema.name,
+                    &schema.input_tensor_types,
+                    &[],
+                    schema.input_count,
+                    inplace,
+                    false,
+                    uses_attrs,
+                    fixed_output.as_deref(),
+                )?;
+            }
+            OutputType::Same => {
+                write_kernel_rs(
+                    &op_dir,
+                    &schema.name,
+                    &schema.input_tensor_types,
+                    &[],
+                    schema.input_count,
+                    inplace,
+                    false,
+                    uses_attrs,
+                    None,
+                )?;
+            }
         }
-        write_kernel_rs(
-            &op_dir,
-            &schema.name,
-            normal_dtypes,
-            acc_pairs,
-            inputs,
-            schema.inplace,
-            schema.accumulate,
-            schema.uses_attrs,
-            schema.fixed_output.as_deref(),
-        )?;
     }
 
     Ok(())
 }
 
-#[derive(Debug)]
-struct DTypeSupportSet {
-    normal: Vec<String>,
-    accumulate: Vec<(String, String)>,
+fn get_output_dtypes_from_param(
+    params: &[ParamDef],
+    attr_name: &str,
+) -> Result<Vec<String>, Box<dyn Error>> {
+    let param = params
+        .iter()
+        .find(|p| p.name == attr_name)
+        .ok_or_else(|| format!("missing {attr_name} in parameter_types for from_attr output"))?;
+    match &param.kind {
+        ParamKind::DTypes(dtypes) => dtypes
+            .iter()
+            .map(|s| to_dtype_variant(s))
+            .collect::<Result<Vec<_>, _>>(),
+        _ => Err(format!("{attr_name} must have kind array of dtypes for from_attr").into()),
+    }
 }
 
 #[derive(Debug)]
 struct OpsJsonInfo {
     ops: Vec<OpSchemaInfo>,
-    dtype_sets: HashMap<String, DTypeSupportSet>,
-    output_dtype_sets: HashMap<String, Vec<String>>,
 }
 
 fn load_ops_json(manifest_dir: &Path) -> Result<OpsJsonInfo, Box<dyn Error>> {
     let ops_path = manifest_dir.join("ops.json");
     let contents = fs::read_to_string(&ops_path)?;
     let root: Value = serde_json::from_str(&contents)?;
-
-    let dtype_sets = parse_dtype_sets(root.get("dtype_sets"))?;
-    let output_dtype_sets = parse_output_dtype_sets(root.get("output_dtype_sets"))?;
     let ops = parse_ops_from_json(root.get("ops"))?;
-
-    Ok(OpsJsonInfo {
-        ops,
-        dtype_sets,
-        output_dtype_sets,
-    })
+    Ok(OpsJsonInfo { ops })
 }
 
 fn parse_ops_from_json(value: Option<&Value>) -> Result<Vec<OpSchemaInfo>, Box<dyn Error>> {
@@ -127,155 +136,111 @@ fn parse_ops_from_json(value: Option<&Value>) -> Result<Vec<OpSchemaInfo>, Box<d
             .ok_or_else(|| "ops.json op must be an object".to_string())?;
         let name = get_string(obj.get("name"), "op name")?;
         let category = get_string(obj.get("category"), "op category")?;
-        let inputs = parse_input_arity_json(obj.get("inputs"))?;
-        let inplace = parse_allow(obj.get("inplace"), "inplace")?;
-        let accumulate = parse_allow(obj.get("accumulate"), "accumulate")?;
-        let dtype_support_ref = get_string(obj.get("dtype_support_ref"), "dtype_support_ref")?;
-        let uses_attrs = obj
-            .get("attrs")
-            .and_then(|v| v.as_array())
-            .map(|attrs| attrs.iter().any(|attr| attr.as_str() != Some("acc")))
+        let input_count = obj
+            .get("input_count")
+            .and_then(|v| v.as_u64())
+            .ok_or_else(|| format!("op {name} missing input_count"))? as usize;
+        let output_count = obj
+            .get("output_count")
+            .and_then(|v| v.as_u64())
+            .ok_or_else(|| format!("op {name} missing output_count"))? as usize;
+        let input_tensor_types = parse_input_tensor_types(obj.get("input_tensor_types"))?;
+        let output_type = parse_output_type(obj.get("output_type"))?;
+        let parameter_types = parse_parameter_types(obj.get("parameter_types"))?;
+        let supports_broadcast = obj
+            .get("supports_broadcast")
+            .and_then(|v| v.as_bool())
             .unwrap_or(false);
-        let (fixed_output, output_from_attr) = parse_type_rule_json(obj.get("type_rule"))?;
-        let output_dtypes_ref = obj
-            .get("output_dtypes_ref")
-            .and_then(|v| v.as_str())
-            .map(|s| s.to_string());
+        let supports_inplace = obj
+            .get("supports_inplace")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
         out.push(OpSchemaInfo {
             name,
             category,
-            inputs,
-            inplace,
-            accumulate,
-            dtype_support_ref,
-            uses_attrs,
-            fixed_output,
-            output_from_attr,
-            output_dtypes_ref,
+            input_count,
+            output_count,
+            input_tensor_types,
+            output_type,
+            parameter_types,
+            supports_broadcast,
+            supports_inplace,
         });
     }
     Ok(out)
 }
 
-fn parse_input_arity_json(value: Option<&Value>) -> Result<InputArityInfo, Box<dyn Error>> {
-    let obj = value
-        .and_then(|v| v.as_object())
-        .ok_or_else(|| "inputs must be an object".to_string())?;
-    let arity = get_string(obj.get("arity"), "inputs.arity")?;
-    match arity.as_str() {
-        "fixed" => {
-            let count = obj
-                .get("count")
-                .and_then(|v| v.as_u64())
-                .ok_or_else(|| "inputs.count missing for fixed arity".to_string())?;
-            Ok(InputArityInfo::Fixed(count as usize))
+fn parse_input_tensor_types(value: Option<&Value>) -> Result<Vec<String>, Box<dyn Error>> {
+    let arr = value
+        .and_then(|v| v.as_array())
+        .ok_or_else(|| "input_tensor_types must be array".to_string())?;
+    arr.iter()
+        .map(|v| {
+            let s = v
+                .as_str()
+                .ok_or_else(|| "input_tensor_types must be strings".to_string())?;
+            to_dtype_variant(s)
+        })
+        .collect()
+}
+
+fn parse_output_type(value: Option<&Value>) -> Result<OutputType, Box<dyn Error>> {
+    let s = value
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| "output_type must be string".to_string())?;
+    match s {
+        "same" => Ok(OutputType::Same),
+        "from_attr" => {
+            // For cast, output comes from "to" attr. Could be extended to support {"from_attr": "attr_name"}
+            Ok(OutputType::FromAttr("to".to_string()))
         }
-        "at_least" => {
-            let count = obj
-                .get("count")
-                .and_then(|v| v.as_u64())
-                .ok_or_else(|| "inputs.count missing for at_least arity".to_string())?;
-            Ok(InputArityInfo::AtLeast(count as usize))
+        dtype if dtype.len() == 2 || dtype.len() == 3 || dtype == "bool" => {
+            Ok(OutputType::Fixed(to_dtype_variant(dtype)?))
         }
-        "any" => Ok(InputArityInfo::Any),
-        other => Err(format!("unknown input arity {other}").into()),
+        other => Err(format!("unknown output_type {other}").into()),
     }
 }
 
-fn parse_type_rule_json(value: Option<&Value>) -> Result<(Option<String>, bool), Box<dyn Error>> {
-    let obj = value
-        .and_then(|v| v.as_object())
-        .ok_or_else(|| "type_rule must be an object".to_string())?;
-    let kind = get_string(obj.get("kind"), "type_rule.kind")?;
-    match kind.as_str() {
-        "fixed" => {
-            let dtype = get_string(obj.get("dtype"), "type_rule.dtype")?;
-            Ok((Some(to_dtype_variant(&dtype)?), false))
-        }
-        "acc_from_attr" => Ok((None, true)),
-        "same_as_input" => Ok((None, false)),
-        other => Err(format!("unknown type_rule kind {other}").into()),
-    }
-}
-
-fn parse_allow(value: Option<&Value>, label: &str) -> Result<bool, Box<dyn Error>> {
-    let value = get_string(value, label)?;
-    match value.as_str() {
-        "allow" => Ok(true),
-        "deny" => Ok(false),
-        other => Err(format!("unknown {label} value {other}").into()),
-    }
-}
-
-fn parse_dtype_sets(value: Option<&Value>) -> Result<HashMap<String, DTypeSupportSet>, Box<dyn Error>> {
-    let obj = value
-        .and_then(|v| v.as_object())
-        .ok_or_else(|| "ops.json missing dtype_sets object".to_string())?;
-    let mut out = HashMap::new();
-    for (name, entry) in obj {
-        let entry_obj = entry
-            .as_object()
-            .ok_or_else(|| format!("dtype_sets.{name} must be an object"))?;
-        let normal = entry_obj
-            .get("normal")
-            .and_then(|v| v.as_array())
-            .ok_or_else(|| format!("dtype_sets.{name}.normal missing"))?
-            .iter()
-            .map(|v| v.as_str().ok_or_else(|| "dtype normal must be string".to_string()))
-            .collect::<Result<Vec<_>, _>>()?
-            .into_iter()
-            .map(to_dtype_variant)
-            .collect::<Result<Vec<_>, _>>()?;
-        let accumulate = entry_obj
-            .get("accumulate")
-            .and_then(|v| v.as_array())
-            .map(|arr| {
-                arr.iter()
-                    .map(|pair| {
-                        let pair_obj = pair.as_object().ok_or("accumulate pair must be object")?;
-                        let input = get_string(pair_obj.get("input"), "accumulate.input")?;
-                        let acc = get_string(pair_obj.get("acc"), "accumulate.acc")?;
-                        Ok(Some((to_dtype_variant(&input)?, to_dtype_variant(&acc)?)))
-                    })
-                    .filter_map(|pair| match pair {
-                        Ok(Some(pair)) => Some(Ok(pair)),
-                        Ok(None) => None,
-                        Err(err) => Some(Err(err)),
-                    })
-                    .collect::<Result<Vec<_>, Box<dyn Error>>>()
-            })
-            .unwrap_or_else(|| Ok(Vec::new()))?;
-        out.insert(
-            name.clone(),
-            DTypeSupportSet {
-                normal,
-                accumulate,
-            },
-        );
-    }
-    Ok(out)
-}
-
-fn parse_output_dtype_sets(
-    value: Option<&Value>,
-) -> Result<HashMap<String, Vec<String>>, Box<dyn Error>> {
-    let mut out = HashMap::new();
-    let Some(obj) = value.and_then(|v| v.as_object()) else {
-        return Ok(out);
+fn parse_parameter_types(value: Option<&Value>) -> Result<Vec<ParamDef>, Box<dyn Error>> {
+    let Some(arr) = value.and_then(|v| v.as_array()) else {
+        return Ok(Vec::new());
     };
-    for (name, entry) in obj {
-        let dtypes = entry
-            .as_array()
-            .ok_or_else(|| format!("output_dtype_sets.{name} must be array"))?
-            .iter()
-            .map(|v| v.as_str().ok_or_else(|| "output dtype must be string".to_string()))
-            .collect::<Result<Vec<_>, _>>()?
-            .into_iter()
-            .map(to_dtype_variant)
-            .collect::<Result<Vec<_>, _>>()?;
-        out.insert(name.clone(), dtypes);
+    let mut out = Vec::new();
+    for elem in arr {
+        let obj = elem
+            .as_object()
+            .ok_or_else(|| "parameter_types entry must be object".to_string())?;
+        let name = get_string(obj.get("name"), "parameter_types.name")?;
+        let kind = parse_param_kind(obj.get("kind"))?;
+        out.push(ParamDef { name, kind });
     }
     Ok(out)
+}
+
+fn parse_param_kind(value: Option<&Value>) -> Result<ParamKind, Box<dyn Error>> {
+    let v = value.ok_or_else(|| "parameter_types.kind missing".to_string())?;
+    if let Some(arr) = v.as_array() {
+        let dtypes: Vec<String> = arr
+            .iter()
+            .map(|e| {
+                let s = e
+                    .as_str()
+                    .ok_or_else(|| "kind array must be strings".to_string())?;
+                to_dtype_variant(s)
+            })
+            .collect::<Result<_, _>>()?;
+        return Ok(ParamKind::DTypes(dtypes));
+    }
+    if let Some(s) = v.as_str() {
+        return match s {
+            "string" => Ok(ParamKind::String),
+            "bool" => Ok(ParamKind::Bool),
+            "u64" | "i64" => Ok(ParamKind::I64),
+            "i64[]" => Ok(ParamKind::I64Array),
+            _ => Err(format!("unknown parameter kind {s}").into()),
+        };
+    }
+    Err("parameter_types.kind must be string or array".into())
 }
 
 fn get_string(value: Option<&Value>, label: &str) -> Result<String, Box<dyn Error>> {
@@ -286,7 +251,8 @@ fn get_string(value: Option<&Value>, label: &str) -> Result<String, Box<dyn Erro
 }
 
 fn to_dtype_variant(ident: &str) -> Result<String, Box<dyn Error>> {
-    let variant = match ident {
+    let normalized = ident.to_lowercase();
+    let variant = match normalized.as_str() {
         "f8" => "F8",
         "bf16" => "BF16",
         "f16" => "F16",
@@ -605,27 +571,6 @@ fn extract_allow_flag(expr: &Expr) -> Result<bool, Box<dyn Error>> {
         "Allow" => Ok(true),
         "Deny" => Ok(false),
         _ => Err(format!("unexpected support flag {ident}").into()),
-    }
-}
-
-fn extract_input_arity(expr: &Expr) -> Result<InputArityInfo, Box<dyn Error>> {
-    match expr {
-        Expr::Path(ExprPath { path, .. }) => {
-            let last = path.segments.last().map(|seg| seg.ident.to_string());
-            match last.as_deref() {
-                Some("Any") => Ok(InputArityInfo::Any),
-                _ => Err("unexpected InputArity path".into()),
-            }
-        }
-        Expr::Call(ExprCall { func, args, .. }) => {
-            let func_ident = extract_path_ident(func).ok_or("InputArity call missing ident")?;
-            match func_ident.as_str() {
-                "Fixed" => Ok(InputArityInfo::Fixed(extract_usize_arg(args.first())?)),
-                "AtLeast" => Ok(InputArityInfo::AtLeast(extract_usize_arg(args.first())?)),
-                _ => Err(format!("unexpected InputArity call {func_ident}").into()),
-            }
-        }
-        _ => Err("unsupported InputArity expr".into()),
     }
 }
 

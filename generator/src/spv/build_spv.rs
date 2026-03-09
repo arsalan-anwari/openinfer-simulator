@@ -8,90 +8,92 @@ use anyhow::{anyhow, Context, Result};
 use ash::vk;
 use serde_json::Value;
 
+/// Hardcoded path convention: src/ops/vulkan/{category}/{name}/shaders/*.slang
+/// SPV output: src/ops/vulkan/{category}/{name}/bin/{entrypoint}.spv
+const VULKAN_OPS_BASE: &str = "src/ops/vulkan";
+
 fn main() -> Result<()> {
     let ops_filter = parse_ops_filter()?;
     let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .expect("missing workspace root");
     let settings_path = workspace_root.join("settings.json");
-    let ops_json = workspace_root.join("ops.json");
-    let contents = fs::read_to_string(&ops_json).with_context(|| format!("read {}", ops_json.display()))?;
-    let value: Value = serde_json::from_str(&contents)?;
-    let ops = value
-        .get("ops")
-        .and_then(|ops| ops.as_array())
-        .ok_or_else(|| anyhow!("ops.json missing ops array"))?;
+    let vulkan_base = workspace_root.join(VULKAN_OPS_BASE);
+    let include_dir = workspace_root.join("src/ops/vulkan/shaders");
 
     let mut planned = Vec::new();
-    for op in ops {
-        let op_name = op
-            .get("name")
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| anyhow!("ops.json op missing name"))?;
-        if let Some(filter) = &ops_filter {
-            if !filter.contains(op_name) {
+
+    if vulkan_base.exists() {
+        for category_entry in fs::read_dir(&vulkan_base)? {
+            let category_entry = category_entry?;
+            let category_path = category_entry.path();
+            if !category_path.is_dir() {
                 continue;
             }
-        }
-        let vulkan = op
-            .get("devices")
-            .and_then(|v| v.as_object())
-            .and_then(|v| v.get("vulkan"))
-            .and_then(|v| v.as_object());
-        let Some(vulkan) = vulkan else {
-            continue;
-        };
-        let shader_dir = vulkan
-            .get("shader_dir")
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| anyhow!("{op_name} missing shader_dir"))?;
-        let spv_dir = vulkan
-            .get("spv_dir")
-            .and_then(|v| v.as_str())
-            .ok_or_else(|| anyhow!("{op_name} missing spv_dir"))?;
-        let shader_files_raw = vulkan
-            .get("shader_files")
-            .and_then(|v| v.as_array())
-            .ok_or_else(|| anyhow!("{op_name} missing shader_files"))?;
-        let shader_files: Vec<&str> = shader_files_raw
-            .iter()
-            .filter_map(|v| v.as_str())
-            .filter(|f| *f != "accumulate.slang")
-            .collect();
-
-        let shader_dir = workspace_root.join(shader_dir);
-        let spv_dir = workspace_root.join(spv_dir);
-        fs::create_dir_all(&spv_dir)?;
-
-        let include_dir = workspace_root.join("src/ops/vulkan/shaders");
-
-        for file in shader_files {
-            let shader_path = shader_dir.join(file);
-            let entrypoints = parse_entrypoints(&shader_path)?;
-            for entry in entrypoints {
-                let (has_f64, has_i64, has_u64) =
-                    resolve_feature_flags(&settings_path)?;
-                if should_skip_entry(&entry, has_f64, has_i64, has_u64) {
+            let _category = category_path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("")
+                .to_string();
+            for op_entry in fs::read_dir(&category_path)? {
+                let op_entry = op_entry?;
+                let op_path = op_entry.path();
+                if !op_path.is_dir() {
                     continue;
                 }
-                let spv_path = spv_dir.join(format!("{}.spv", entry));
-                let spv_display = spv_path
-                    .strip_prefix(workspace_root)
-                    .unwrap_or(&spv_path)
-                    .display()
+                let op_name = op_path
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .unwrap_or("")
                     .to_string();
-                planned.push(PlannedCompile {
-                    op_name: op_name.to_string(),
-                    shader_path: shader_path.clone(),
-                    shader_dir: shader_dir.clone(),
-                    include_dir: include_dir.clone(),
-                    entry,
-                    spv_path,
-                    spv_display,
-                    has_f64,
-                    has_i64,
-                    has_u64,
-                });
+                if let Some(ref filter) = ops_filter {
+                    if !filter.contains(&op_name) {
+                        continue;
+                    }
+                }
+                let shaders_dir = op_path.join("shaders");
+                if !shaders_dir.exists() || !shaders_dir.is_dir() {
+                    continue;
+                }
+                let spv_dir = op_path.join("bin");
+                fs::create_dir_all(&spv_dir)?;
+                for shader_entry in fs::read_dir(&shaders_dir)? {
+                    let shader_entry = shader_entry?;
+                    let shader_path = shader_entry.path();
+                    let ext = shader_path.extension().and_then(|e| e.to_str());
+                    if ext != Some("slang") {
+                        continue;
+                    }
+                    if shader_path.file_name().and_then(|n| n.to_str()) == Some("accumulate.slang") {
+                        continue;
+                    }
+                    let entrypoints = parse_entrypoints(&shader_path)?;
+                    for entry in entrypoints {
+                        let (has_f64, has_i64, has_u64) =
+                            resolve_feature_flags(&settings_path)?;
+                        if should_skip_entry(&entry, has_f64, has_i64, has_u64) {
+                            continue;
+                        }
+                        let spv_path = spv_dir.join(format!("{}.spv", entry));
+                        let spv_display = spv_path
+                            .strip_prefix(&workspace_root)
+                            .unwrap_or(&spv_path)
+                            .display()
+                            .to_string();
+                        planned.push(PlannedCompile {
+                            op_name: op_name.clone(),
+                            shader_path: shader_path.clone(),
+                            shader_dir: shaders_dir.clone(),
+                            include_dir: include_dir.clone(),
+                            entry,
+                            spv_path,
+                            spv_display,
+                            has_f64,
+                            has_i64,
+                            has_u64,
+                        });
+                    }
+                }
             }
         }
     }

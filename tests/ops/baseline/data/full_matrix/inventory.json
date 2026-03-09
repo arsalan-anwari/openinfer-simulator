@@ -1,7 +1,25 @@
 {
   "ops": [
     {
-      "inplace": "allow",
+      "inplace": true,
+      "normal": [
+        "f8",
+        "bf16",
+        "f16",
+        "f32",
+        "f64",
+        "i4",
+        "i8",
+        "i16",
+        "i32",
+        "i64"
+      ],
+      "op": "abs",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": true,
       "normal": [
         "f8",
         "bf16",
@@ -21,15 +39,65 @@
         "u4"
       ],
       "op": "add",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
+      "output_type": "same",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "allow",
+      "inplace": true,
+      "normal": [
+        "f8",
+        "bf16",
+        "f16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "div",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": true,
+      "normal": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "floor_div",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": true,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64"
+      ],
+      "op": "fma",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": true,
       "normal": [
         "f8",
         "bf16",
@@ -49,110 +117,43 @@
         "u4"
       ],
       "op": "mul",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
+      "output_type": "same",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "allow",
+      "inplace": true,
       "normal": [
         "f8",
-        "bf16",
         "f16",
-        "f32",
-        "f64",
-        "i4",
-        "i8",
-        "i16",
-        "i32",
-        "i64"
-      ],
-      "op": "abs",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "f8",
         "bf16",
-        "f16",
-        "f32",
-        "f64",
-        "i4",
-        "i8",
-        "i16",
-        "i32",
-        "i64"
-      ],
-      "op": "relu",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "f8",
-        "bf16",
-        "f16",
         "f32",
         "f64",
         "i8",
         "i16",
         "i32",
         "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "bool",
-        "i4",
-        "u4"
+        "i4"
       ],
-      "op": "matmul",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
+      "op": "neg",
+      "output_type": "same",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "deny",
+      "inplace": true,
       "normal": [
         "f8",
-        "bf16",
         "f16",
+        "bf16",
         "f32",
         "f64"
       ],
-      "op": "is_finite",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "dtype": "bool",
-        "kind": "fixed"
-      }
+      "op": "recip",
+      "output_type": "same",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "allow",
+      "inplace": true,
       "normal": [
-        "f8",
-        "bf16",
-        "f16",
-        "f32",
-        "f64",
         "i8",
         "i16",
         "i32",
@@ -161,20 +162,15 @@
         "u16",
         "u32",
         "u64",
-        "bool",
         "i4",
         "u4"
       ],
-      "op": "fill",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
+      "op": "rem",
+      "output_type": "same",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "allow",
+      "inplace": true,
       "normal": [
         "f8",
         "bf16",
@@ -193,313 +189,11 @@
         "u4"
       ],
       "op": "sub",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
+      "output_type": "same",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "allow",
-      "normal": [
-        "f8",
-        "bf16",
-        "f16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ],
-      "op": "div",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ],
-      "op": "floor_div",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ],
-      "op": "rem",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64"
-      ],
-      "op": "fma",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "i4"
-      ],
-      "op": "neg",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "i4"
-      ],
-      "op": "sign",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "dtype": "i8",
-        "kind": "fixed"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64"
-      ],
-      "op": "recip",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ],
-      "op": "min",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ],
-      "op": "max",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ],
-      "op": "clamp",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64"
-      ],
-      "op": "floor",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64"
-      ],
-      "op": "ceil",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64"
-      ],
-      "op": "round",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64"
-      ],
-      "op": "trunc",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
+      "inplace": true,
       "normal": [
         "i8",
         "i16",
@@ -514,61 +208,11 @@
         "bool"
       ],
       "op": "and",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
+      "output_type": "same",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "allow",
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4",
-        "bool"
-      ],
-      "op": "or",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4",
-        "bool"
-      ],
-      "op": "xor",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "allow",
+      "inplace": true,
       "normal": [
         "i8",
         "i16",
@@ -583,15 +227,11 @@
         "bool"
       ],
       "op": "not",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
+      "output_type": "same",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "allow",
+      "inplace": true,
       "normal": [
         "i8",
         "i16",
@@ -602,40 +242,15 @@
         "u32",
         "u64",
         "i4",
-        "u4"
+        "u4",
+        "bool"
       ],
-      "op": "shl",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
+      "op": "or",
+      "output_type": "same",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "allow",
-      "normal": [
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ],
-      "op": "shr",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "deny",
+      "inplace": false,
       "normal": [
         "i8",
         "i16",
@@ -649,15 +264,89 @@
         "u4"
       ],
       "op": "popcount",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "dtype": "u8",
-        "kind": "fixed"
-      }
+      "output_type": "u8",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "deny",
+      "inplace": true,
+      "normal": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "shl",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": true,
+      "normal": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "shr",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": true,
+      "normal": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4",
+        "bool"
+      ],
+      "op": "xor",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": false,
+      "normal": [
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i4",
+        "u4"
+      ],
+      "op": "cast",
+      "output_type": "from_attr",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": false,
       "normal": [
         "f8",
         "f16",
@@ -677,15 +366,103 @@
         "bool"
       ],
       "op": "eq",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "dtype": "bool",
-        "kind": "fixed"
-      }
+      "output_type": "bool",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "deny",
+      "inplace": false,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "ge",
+      "output_type": "bool",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": false,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "gt",
+      "output_type": "bool",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": false,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "le",
+      "output_type": "bool",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": false,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "lt",
+      "output_type": "bool",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": false,
       "normal": [
         "f8",
         "f16",
@@ -705,123 +482,11 @@
         "bool"
       ],
       "op": "ne",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "dtype": "bool",
-        "kind": "fixed"
-      }
+      "output_type": "bool",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "deny",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ],
-      "op": "lt",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "dtype": "bool",
-        "kind": "fixed"
-      }
-    },
-    {
-      "inplace": "deny",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ],
-      "op": "le",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "dtype": "bool",
-        "kind": "fixed"
-      }
-    },
-    {
-      "inplace": "deny",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ],
-      "op": "gt",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "dtype": "bool",
-        "kind": "fixed"
-      }
-    },
-    {
-      "inplace": "deny",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ],
-      "op": "ge",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "dtype": "bool",
-        "kind": "fixed"
-      }
-    },
-    {
-      "inplace": "deny",
+      "inplace": false,
       "normal": [
         "f8",
         "f16",
@@ -841,32 +506,24 @@
         "bool"
       ],
       "op": "filter",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
+      "output_type": "same",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "deny",
+      "inplace": false,
       "normal": [
         "f8",
-        "f16",
         "bf16",
+        "f16",
         "f32",
         "f64"
       ],
-      "op": "is_nan",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "dtype": "bool",
-        "kind": "fixed"
-      }
+      "op": "is_finite",
+      "output_type": "bool",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "deny",
+      "inplace": false,
       "normal": [
         "f8",
         "f16",
@@ -875,15 +532,24 @@
         "f64"
       ],
       "op": "is_inf",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "dtype": "bool",
-        "kind": "fixed"
-      }
+      "output_type": "bool",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "deny",
+      "inplace": false,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64"
+      ],
+      "op": "is_nan",
+      "output_type": "bool",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": false,
       "normal": [
         "f8",
         "f16",
@@ -901,19 +567,15 @@
         "i4"
       ],
       "op": "is_neg",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "dtype": "bool",
-        "kind": "fixed"
-      }
+      "output_type": "bool",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "deny",
+      "inplace": true,
       "normal": [
         "f8",
-        "f16",
         "bf16",
+        "f16",
         "f32",
         "f64",
         "i8",
@@ -924,23 +586,20 @@
         "u16",
         "u32",
         "u64",
+        "bool",
         "i4",
         "u4"
       ],
-      "op": "sum_axis",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
+      "op": "fill",
+      "output_type": "same",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "deny",
+      "inplace": true,
       "normal": [
         "f8",
-        "f16",
         "bf16",
+        "f16",
         "f32",
         "f64",
         "i8",
@@ -951,100 +610,34 @@
         "u16",
         "u32",
         "u64",
+        "bool",
         "i4",
         "u4"
       ],
-      "op": "mean_axis",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
+      "op": "matmul",
+      "output_type": "same",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "deny",
+      "inplace": true,
       "normal": [
         "f8",
-        "f16",
         "bf16",
+        "f16",
         "f32",
         "f64",
+        "i4",
         "i8",
         "i16",
         "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
+        "i64"
       ],
-      "op": "prod_axis",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
+      "op": "relu",
+      "output_type": "same",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "deny",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ],
-      "op": "max_axis",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "deny",
-      "normal": [
-        "f8",
-        "f16",
-        "bf16",
-        "f32",
-        "f64",
-        "i8",
-        "i16",
-        "i32",
-        "i64",
-        "u8",
-        "u16",
-        "u32",
-        "u64",
-        "i4",
-        "u4"
-      ],
-      "op": "min_axis",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "index": 0,
-        "kind": "same_as_input"
-      }
-    },
-    {
-      "inplace": "deny",
+      "inplace": false,
       "normal": [
         "f8",
         "f16",
@@ -1063,15 +656,11 @@
         "u4"
       ],
       "op": "argmax_axis",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "dtype": "i64",
-        "kind": "fixed"
-      }
+      "output_type": "i64",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "deny",
+      "inplace": false,
       "normal": [
         "f8",
         "f16",
@@ -1090,16 +679,17 @@
         "u4"
       ],
       "op": "argmin_axis",
-      "output_dtypes_ref": null,
-      "skipped_dtypes": [],
-      "type_rule": {
-        "dtype": "i64",
-        "kind": "fixed"
-      }
+      "output_type": "i64",
+      "skipped_dtypes": []
     },
     {
-      "inplace": "deny",
+      "inplace": false,
       "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
         "i8",
         "i16",
         "i32",
@@ -1108,21 +698,243 @@
         "u16",
         "u32",
         "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "max_axis",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": false,
+      "normal": [
         "f8",
         "f16",
         "bf16",
         "f32",
         "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
         "i4",
         "u4"
       ],
-      "op": "cast",
-      "output_dtypes_ref": "CAST_OUTPUT_DTYPES",
-      "skipped_dtypes": [],
-      "type_rule": {
-        "attr": "to",
-        "kind": "acc_from_attr"
-      }
+      "op": "mean_axis",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": false,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "min_axis",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": false,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "prod_axis",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": false,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "sum_axis",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": true,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64"
+      ],
+      "op": "ceil",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": true,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "clamp",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": true,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64"
+      ],
+      "op": "floor",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": true,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64"
+      ],
+      "op": "round",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": true,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64"
+      ],
+      "op": "trunc",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": true,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "max",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": true,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "u8",
+        "u16",
+        "u32",
+        "u64",
+        "i4",
+        "u4"
+      ],
+      "op": "min",
+      "output_type": "same",
+      "skipped_dtypes": []
+    },
+    {
+      "inplace": true,
+      "normal": [
+        "f8",
+        "f16",
+        "bf16",
+        "f32",
+        "f64",
+        "i8",
+        "i16",
+        "i32",
+        "i64",
+        "i4"
+      ],
+      "op": "sign",
+      "output_type": "i8",
+      "skipped_dtypes": []
     }
   ]
 }

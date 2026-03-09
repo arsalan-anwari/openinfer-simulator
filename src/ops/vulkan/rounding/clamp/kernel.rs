@@ -141,7 +141,7 @@ fn dispatch_clamp(
         );
         return cpu_fallback(mode, attrs, inputs, Some(output), output_dtype);
     }
-    if !op_supports_dtype(OpKind::Clamp, mode, input_dtype, output_dtype) {
+    if !op_supports_dtype(OpKind::Clamp, mode, input_dtype, output_dtype, attrs) {
         crate::vk_trace!(
             "vulkan target unsupported (mode={:?}, in={:?}, out={:?}), cpu fallback",
             mode,
@@ -209,7 +209,7 @@ fn dispatch_clamp(
     let push_bytes = bytemuck::bytes_of(&push).to_vec();
     let spec = VulkanOpSpec {
         entry: &target,
-        spv_dir: "src/ops/vulkan/clamp/bin",
+        spv_dir: crate::ops::vulkan::spv::spv_dir_for_op(OpKind::Clamp.as_str()),
         workgroup_size: [256, 1, 1],
         push_constant_size: std::mem::size_of::<ClampPush>() as u32,
     };

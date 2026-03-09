@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 
 use crate::graph::{OpAttrs, OpKind};
 use crate::ops::{lookup_kernel, OpKey, OpMode};
-use crate::op_defs::{op_schema, supports_tuple};
+use crate::op_defs::{op_schema, supports_pattern};
 use crate::runtime::state::SharedTensor;
 use crate::simulator::Device;
 use crate::tensor::TensorValue;
@@ -21,11 +21,11 @@ pub fn exec_op(
     }
     let schema = op_schema(op).ok_or_else(|| anyhow!("unsupported op {}", op))?;
     let input_dtypes = inputs.iter().map(|tensor| tensor.dtype()).collect::<Vec<_>>();
-    let is_broadcast = schema.broadcast.allow()
+    let is_broadcast = schema.supports_broadcast
         && inputs
             .windows(2)
             .any(|pair| pair[0].shape() != pair[1].shape());
-    let is_inplace = schema.inplace.allow() && is_inplace;
+    let is_inplace = schema.supports_inplace && is_inplace;
     let mode = if is_inplace {
         OpMode::Inplace
     } else {
@@ -42,9 +42,9 @@ pub fn exec_op(
     let output_dtype = if let Some(out) = output_guard.as_ref() {
         out.dtype()
     } else {
-        schema.type_rule.output_dtype(&input_dtypes, attrs)?
+        schema.output_dtype(&input_dtypes, attrs)?
     };
-    if !supports_tuple(schema, &input_dtypes, output_dtype) {
+    if !supports_pattern(schema, &input_dtypes, output_dtype, attrs) {
         return Err(anyhow!(
             "unsupported op typing tuple at runtime for {}: inputs={:?}, out={:?}",
             op,

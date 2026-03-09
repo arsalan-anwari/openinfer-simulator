@@ -743,6 +743,8 @@ def _compute_op(op: str, inputs: list[np.ndarray], attrs: list[dict], dtype: str
     if op == "cast":
         target = out_dtype
         values = inputs[0]
+        if target == "bool":
+            return values.astype(np.bool_)
         if target in {"i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64"}:
             if _is_float(dtype):
                 values = np.trunc(values)
@@ -764,6 +766,7 @@ def _compute_op(op: str, inputs: list[np.ndarray], attrs: list[dict], dtype: str
             return values.astype(np.float32)
         if target == "f64":
             return values.astype(np.float64)
+        raise ValueError(f"Unsupported cast target {target}")
     if op == "fill":
         value = _apply_attrs(attrs, "value", 0)
         return np.full_like(inputs[0], value)
@@ -805,9 +808,54 @@ def _wrap_packed(dtype: str, output: np.ndarray) -> np.ndarray:
     return wrapped.astype(np.int8)
 
 
+def _dtype_bit_width(dtype: str) -> int:
+    return {"i4": 4, "u4": 4, "i8": 8, "u8": 8, "f8": 8, "i16": 16, "u16": 16,
+            "f16": 16, "bf16": 16, "i32": 32, "u32": 32, "f32": 32,
+            "i64": 64, "u64": 64, "f64": 64, "bool": 8}.get(dtype, 0)
+
+
+def _is_allowed_cast(in_dtype: str, out_dtype: str) -> bool:
+    """Match Rust kernel::is_allowed_cast logic."""
+    if in_dtype == out_dtype:
+        return False
+    if _is_float(out_dtype):
+        return _is_float(in_dtype) or in_dtype.startswith("i") or in_dtype.startswith("u") or in_dtype in {"i4", "u4"}
+    if out_dtype in {"i8", "i16", "i32", "i64"}:
+        if _is_float(in_dtype):
+            return True
+        if in_dtype == "i4":
+            return _dtype_bit_width(out_dtype) > 4
+        if in_dtype in {"i8", "i16", "i32", "i64"}:
+            return _dtype_bit_width(out_dtype) > _dtype_bit_width(in_dtype)
+        return False
+    if out_dtype in {"u8", "u16", "u32", "u64"}:
+        if _is_float(in_dtype):
+            return True
+        if in_dtype == "u4":
+            return _dtype_bit_width(out_dtype) > 4
+        if in_dtype in {"u8", "u16", "u32", "u64"}:
+            return _dtype_bit_width(out_dtype) > _dtype_bit_width(in_dtype)
+        return False
+    # Rust kernel does not support cast to bool
+    return False
+
+
+def _output_dtypes_for_op(op_entry: dict) -> list[str]:
+    """Get output dtype candidates for an op from new ops.json format."""
+    output_type = op_entry.get("output_type", "same")
+    if output_type == "same":
+        return []  # same as input, resolved per input_dtype
+    if output_type == "from_attr":
+        for param in op_entry.get("parameter_types", []):
+            if param.get("name") == "to" and isinstance(param.get("kind"), list):
+                return [d for d in param["kind"] if isinstance(d, str)]
+        return []
+    # fixed dtype
+    return [output_type]
+
+
 def generate_ops_full_matrix() -> None:
     opspec = _load_opspec()
-    dtype_sets = opspec["dtype_sets"]
     ops = opspec["ops"]
 
     out_dir = ROOT / "tests/ops/baseline/data/full_matrix"
@@ -817,20 +865,15 @@ def generate_ops_full_matrix() -> None:
 
     inplace_skip_ops = {"sign"}
     for op_entry in ops:
-        op = op_entry["kind"]
-        input_arity = op_entry["inputs"]["arity"]
-        if input_arity != "fixed":
-            continue
-        input_count = op_entry["inputs"]["count"]
-        dtype_support = dtype_sets[op_entry["dtype_support_ref"]]
-        normal_dtypes = [
-            dtype for dtype in dtype_support.get("normal", []) if dtype != "bitset"
-        ]
-        type_rule = op_entry["type_rule"]
+        op = op_entry["name"]
+        input_count = op_entry["input_count"]
+        input_tensor_types = op_entry.get("input_tensor_types", [])
+        normal_dtypes = [d for d in input_tensor_types if d != "bitset"]
+        output_type = op_entry.get("output_type", "same")
+        supports_inplace = op_entry.get("supports_inplace", False)
 
         tensor_map: dict[str, object] = {}
-        output_dtypes_ref = op_entry.get("output_dtypes_ref")
-        output_dtypes = opspec.get("output_dtypes", {})
+        fixed_output_dtypes = _output_dtypes_for_op(op_entry)
         for dtype in normal_dtypes:
             base_shape = (2, 3)
             if op == "matmul":
@@ -848,14 +891,19 @@ def generate_ops_full_matrix() -> None:
                 input_names.append(name)
                 inputs.append(values.astype(np.float32) if _is_float(dtype) else values)
 
-            if type_rule["kind"] == "fixed":
-                out_candidates = [type_rule["dtype"]]
-            elif type_rule["kind"] == "acc_from_attr" and output_dtypes_ref:
-                out_candidates = output_dtypes.get(output_dtypes_ref, [])
+            if output_type == "same":
+                out_candidates = [dtype]
+            elif output_type == "from_attr" and fixed_output_dtypes:
+                out_candidates = fixed_output_dtypes
+            elif fixed_output_dtypes:
+                out_candidates = fixed_output_dtypes
             else:
                 out_candidates = [dtype]
 
             for out_dtype in out_candidates:
+                if op == "cast":
+                    if dtype == out_dtype or not _is_allowed_cast(dtype, out_dtype):
+                        continue
                 attrs = _default_attrs(op, dtype, out_dtype, "normal")
                 with np.errstate(divide="ignore", invalid="ignore"):
                     output = _compute_op(op, inputs, attrs, dtype, out_dtype)
@@ -876,7 +924,7 @@ def generate_ops_full_matrix() -> None:
                     "attrs": attrs,
                 })
 
-                if op_entry["inplace"] == "allow" and out_dtype == dtype and op not in inplace_skip_ops:
+                if supports_inplace and out_dtype == dtype and op not in inplace_skip_ops:
                     inplace_inputs = inputs
                     inplace_input_names = input_names
                     if op == "matmul":
@@ -932,17 +980,16 @@ def generate_ops_full_matrix() -> None:
 
     inventory = []
     for op_entry in ops:
-        support = dtype_sets[op_entry["dtype_support_ref"]]
+        normal = op_entry.get("input_tensor_types", [])
         skipped = []
-        if "bitset" in support.get("normal", []):
+        if "bitset" in normal:
             skipped.append("bitset")
         inventory.append(
             {
-                "op": op_entry["kind"],
-                "normal": support.get("normal", []),
-                "inplace": op_entry["inplace"],
-                "type_rule": op_entry["type_rule"],
-                "output_dtypes_ref": op_entry.get("output_dtypes_ref"),
+                "op": op_entry["name"],
+                "normal": normal,
+                "inplace": op_entry.get("supports_inplace", False),
+                "output_type": op_entry.get("output_type", "same"),
                 "skipped_dtypes": sorted(set(skipped)),
             }
         )

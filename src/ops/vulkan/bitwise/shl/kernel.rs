@@ -109,7 +109,7 @@ fn dispatch_shl(
         );
         return cpu_fallback(mode, attrs, inputs, Some(output), output_dtype);
     }
-    if !op_supports_dtype(OpKind::Shl, mode, input_dtype, output_dtype) {
+    if !op_supports_dtype(OpKind::Shl, mode, input_dtype, output_dtype, attrs) {
         crate::vk_trace!(
             "vulkan target unsupported (mode={:?}, in={:?}, out={:?}), cpu fallback",
             mode,
@@ -153,7 +153,7 @@ fn dispatch_shl(
     let push_bytes = bytemuck::bytes_of(&push).to_vec();
     let spec = VulkanOpSpec {
         entry: &target,
-        spv_dir: "src/ops/vulkan/shl/bin",
+        spv_dir: crate::ops::vulkan::spv::spv_dir_for_op(OpKind::Shl.as_str()),
         workgroup_size: [256, 1, 1],
         push_constant_size: std::mem::size_of::<ShlPush>() as u32,
     };

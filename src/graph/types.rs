@@ -347,9 +347,7 @@ impl Graph {
     ///
     /// # Example
     /// ```no_run
-    /// # use openinfer::graph::{Graph, NodeKind};
-    /// # use openinfer::graph::MemoryKind;
-    /// # use openinfer::tensor::DType;
+    /// # use openinfer::{Graph, NodeKind, MemoryKind, DType};
     /// # fn main() -> anyhow::Result<()> {
     /// let mut g = Graph::new();
     /// g.add_block("entry");

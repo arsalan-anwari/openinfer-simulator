@@ -13,41 +13,24 @@ pub static ENTRIES: Lazy<Vec<(OpKey, KernelFn)>> = Lazy::new(|| {
 fn build_cast_entries() -> Result<Vec<(OpKey, KernelFn)>> {
     let kind = OpKind::Cast;
     let schema = op_schema(kind).ok_or_else(|| anyhow!("missing op schema {:?}", kind))?;
-    let support = schema
-        .dtype_support
-        .ok_or_else(|| anyhow!("op {:?} has no dtype support", kind))?;
-    let inputs = schema.inputs.fixed().ok_or_else(|| {
-        anyhow!(
-            "op {:?} has non-fixed input arity {:?}",
-            kind,
-            schema.inputs
-        )
-    })?;
-    let broadcast_flags: &[bool] = if schema.broadcast.allow() {
-        &[false, true]
-    } else {
-        &[false]
-    };
+    let output_dtypes = schema
+        .output_dtypes_from_attr()
+        .ok_or_else(|| anyhow!("op {:?} has from_attr output but no output dtypes", kind))?;
 
     let mut entries = Vec::new();
-    let output_dtypes = schema
-        .output_dtypes
-        .ok_or_else(|| anyhow!("op {:?} missing output dtypes", kind))?;
-    for in_dtype in support.normal {
+    for in_dtype in schema.input_tensor_types {
         for &out_dtype in output_dtypes {
             if !kernel::is_allowed_cast(*in_dtype, out_dtype) {
                 continue;
             }
-            for &broadcast in broadcast_flags {
-                let normal_key = OpKey {
-                    kind,
-                    mode: OpMode::Normal,
-                    broadcast,
-                    inputs: vec![*in_dtype; inputs],
-                    out0: out_dtype,
-                };
-                entries.push((normal_key, kernel::cast_normal_dispatch as KernelFn));
-            }
+            let key = OpKey {
+                kind,
+                mode: OpMode::Normal,
+                broadcast: false,
+                inputs: vec![*in_dtype; schema.input_count],
+                out0: out_dtype,
+            };
+            entries.push((key, kernel::cast_normal_dispatch as KernelFn));
         }
     }
     Ok(entries)
