@@ -8,7 +8,7 @@ use super::kernel;
 pub static ENTRIES: Lazy<Vec<(OpKey, KernelFn)>> = Lazy::new(|| {
     build_op_entries_same_input(OpKind::Ne, |mode| match mode {
         OpMode::Normal => Some(kernel::ne_normal_dispatch),
-        OpMode::Inplace | OpMode::Accumulate => None,
+        OpMode::Inplace => None,
     })
     .expect("failed to build ne vulkan entries")
 });

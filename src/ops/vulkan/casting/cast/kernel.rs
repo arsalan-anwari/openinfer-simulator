@@ -254,11 +254,11 @@ fn is_unsigned_int(dtype: DType) -> bool {
 }
 
 fn is_packed_signed(dtype: DType) -> bool {
-    matches!(dtype, DType::I1 | DType::I2 | DType::I4)
+    matches!(dtype, DType::I4)
 }
 
 fn is_packed_unsigned(dtype: DType) -> bool {
-    matches!(dtype, DType::U1 | DType::U2 | DType::U4)
+    matches!(dtype, DType::U4)
 }
 
 fn cpu_fallback(

@@ -27,29 +27,3 @@ pub fn sum_axis_normal_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output
     }
 }
 
-pub fn sum_axis_accumulate_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output: Option<&mut TensorValue>) -> Result<()> {
-    let out = expect_output(output)?;
-    match (&inputs[0], out) {
-        (TensorValue::I4(a0), TensorValue::I8(out)) => super::kernels::accumulate::sum_axis_i4_accumulate_i8(_attrs, a0, out),
-        (TensorValue::I4(a0), TensorValue::I16(out)) => super::kernels::accumulate::sum_axis_i4_accumulate_i16(_attrs, a0, out),
-        (TensorValue::I4(a0), TensorValue::I32(out)) => super::kernels::accumulate::sum_axis_i4_accumulate_i32(_attrs, a0, out),
-        (TensorValue::I4(a0), TensorValue::I64(out)) => super::kernels::accumulate::sum_axis_i4_accumulate_i64(_attrs, a0, out),
-        (TensorValue::I8(a0), TensorValue::I16(out)) => super::kernels::accumulate::sum_axis_i8_accumulate_i16(_attrs, a0, out),
-        (TensorValue::I8(a0), TensorValue::I32(out)) => super::kernels::accumulate::sum_axis_i8_accumulate_i32(_attrs, a0, out),
-        (TensorValue::I8(a0), TensorValue::I64(out)) => super::kernels::accumulate::sum_axis_i8_accumulate_i64(_attrs, a0, out),
-        (TensorValue::I16(a0), TensorValue::I32(out)) => super::kernels::accumulate::sum_axis_i16_accumulate_i32(_attrs, a0, out),
-        (TensorValue::I16(a0), TensorValue::I64(out)) => super::kernels::accumulate::sum_axis_i16_accumulate_i64(_attrs, a0, out),
-        (TensorValue::I32(a0), TensorValue::I64(out)) => super::kernels::accumulate::sum_axis_i32_accumulate_i64(_attrs, a0, out),
-        (TensorValue::U4(a0), TensorValue::U8(out)) => super::kernels::accumulate::sum_axis_u4_accumulate_u8(_attrs, a0, out),
-        (TensorValue::U4(a0), TensorValue::U16(out)) => super::kernels::accumulate::sum_axis_u4_accumulate_u16(_attrs, a0, out),
-        (TensorValue::U4(a0), TensorValue::U32(out)) => super::kernels::accumulate::sum_axis_u4_accumulate_u32(_attrs, a0, out),
-        (TensorValue::U4(a0), TensorValue::U64(out)) => super::kernels::accumulate::sum_axis_u4_accumulate_u64(_attrs, a0, out),
-        (TensorValue::U8(a0), TensorValue::U16(out)) => super::kernels::accumulate::sum_axis_u8_accumulate_u16(_attrs, a0, out),
-        (TensorValue::U8(a0), TensorValue::U32(out)) => super::kernels::accumulate::sum_axis_u8_accumulate_u32(_attrs, a0, out),
-        (TensorValue::U8(a0), TensorValue::U64(out)) => super::kernels::accumulate::sum_axis_u8_accumulate_u64(_attrs, a0, out),
-        (TensorValue::U16(a0), TensorValue::U32(out)) => super::kernels::accumulate::sum_axis_u16_accumulate_u32(_attrs, a0, out),
-        (TensorValue::U16(a0), TensorValue::U64(out)) => super::kernels::accumulate::sum_axis_u16_accumulate_u64(_attrs, a0, out),
-        (TensorValue::U32(a0), TensorValue::U64(out)) => super::kernels::accumulate::sum_axis_u32_accumulate_u64(_attrs, a0, out),
-        _ => Err(anyhow!("dtype mismatch")),
-    }
-}

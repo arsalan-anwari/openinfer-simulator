@@ -134,11 +134,7 @@ fn build_attrs(attrs: &[AttrSpec]) -> Result<OpAttrs> {
                     .as_str()
                     .ok_or_else(|| anyhow::anyhow!("dtype value must be string"))?;
                 let dtype = DType::from_ident(dtype)?;
-                if attr.name == "acc" {
-                    AttrValue::DTypeList(vec![dtype])
-                } else {
-                    AttrValue::DType(dtype)
-                }
+                AttrValue::DType(dtype)
             }
             "dtype_list" => {
                 let items = attr

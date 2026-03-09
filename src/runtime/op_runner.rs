@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 
 use crate::graph::{OpAttrs, OpKind};
 use crate::ops::{lookup_kernel, OpKey, OpMode};
-use crate::op_defs::{acc_list, op_schema, supports_tuple};
+use crate::op_defs::{op_schema, supports_tuple};
 use crate::runtime::state::SharedTensor;
 use crate::simulator::Device;
 use crate::tensor::TensorValue;
@@ -21,20 +21,12 @@ pub fn exec_op(
     }
     let schema = op_schema(op).ok_or_else(|| anyhow!("unsupported op {}", op))?;
     let input_dtypes = inputs.iter().map(|tensor| tensor.dtype()).collect::<Vec<_>>();
-    let is_accumulate = schema.accumulate.allow() && attrs.items.iter().any(|attr| attr.name == "acc");
-    let requested_acc = if is_accumulate {
-        acc_list(attrs)?
-    } else {
-        Vec::new()
-    };
     let is_broadcast = schema.broadcast.allow()
         && inputs
             .windows(2)
             .any(|pair| pair[0].shape() != pair[1].shape());
     let is_inplace = schema.inplace.allow() && is_inplace;
-    let mode = if is_accumulate {
-        OpMode::Accumulate
-    } else if is_inplace {
+    let mode = if is_inplace {
         OpMode::Inplace
     } else {
         OpMode::Normal
@@ -49,28 +41,15 @@ pub fn exec_op(
     };
     let output_dtype = if let Some(out) = output_guard.as_ref() {
         out.dtype()
-    } else if mode == OpMode::Accumulate {
-        requested_acc
-            .last()
-            .copied()
-            .ok_or_else(|| anyhow!("missing acc dtype list for accumulate mode"))?
     } else {
         schema.type_rule.output_dtype(&input_dtypes, attrs)?
     };
-    if !supports_tuple(
-        schema,
-        &input_dtypes,
-        &requested_acc,
-        output_dtype,
-        mode == OpMode::Accumulate,
-    ) {
+    if !supports_tuple(schema, &input_dtypes, output_dtype) {
         return Err(anyhow!(
-            "unsupported op typing tuple at runtime for {}: inputs={:?}, acc={:?}, out={:?}, mode={:?}",
+            "unsupported op typing tuple at runtime for {}: inputs={:?}, out={:?}",
             op,
             input_dtypes,
-            requested_acc,
-            output_dtype,
-            mode
+            output_dtype
         ));
     }
 

@@ -1,8 +1,7 @@
 use anyhow::{anyhow, Result};
 
 use crate::graph::{MemoryKind, OpAttrs, OpKind};
-use crate::ops::OpMode;
-use crate::op_defs::{acc_list, op_schema, supports_tuple};
+use crate::op_defs::{op_schema, supports_tuple};
 use super::attrs;
 use super::context::ValidationContext;
 
@@ -32,11 +31,6 @@ pub fn validate_op(
     }
     if output.trim().is_empty() {
         return Err(anyhow!("op {} missing output", op));
-    }
-
-    let has_acc = attrs.items.iter().any(|attr| attr.name == "acc");
-    if has_acc && !schema.accumulate.allow() {
-        return Err(anyhow!("op {} does not support accumulation", op));
     }
 
     let mut input_dtypes = Vec::with_capacity(inputs.len());
@@ -82,17 +76,15 @@ pub fn validate_op(
         ctx.var_dtype(output)?
     };
 
-    if !has_acc {
-        let inferred = schema.type_rule.output_dtype(&input_dtypes, attrs)?;
-        if inferred != output_dtype {
-            return Err(anyhow!(
-                "op {} output dtype mismatch for {}: expected {:?}, got {:?}",
-                op,
-                output,
-                output_dtype,
-                inferred
-            ));
-        }
+    let inferred = schema.type_rule.output_dtype(&input_dtypes, attrs)?;
+    if inferred != output_dtype {
+        return Err(anyhow!(
+            "op {} output dtype mismatch for {}: expected {:?}, got {:?}",
+            op,
+            output,
+            output_dtype,
+            inferred
+        ));
     }
 
     let is_inplace = inputs.iter().any(|name| name == output);
@@ -101,32 +93,12 @@ pub fn validate_op(
     }
 
     if !input_dtypes.is_empty() {
-        let mode = if has_acc {
-            OpMode::Accumulate
-        } else if is_inplace {
-            OpMode::Inplace
-        } else {
-            OpMode::Normal
-        };
-        let requested_acc = if mode == OpMode::Accumulate {
-            acc_list(attrs)?
-        } else {
-            Vec::new()
-        };
-        if !supports_tuple(
-            schema,
-            &input_dtypes,
-            &requested_acc,
-            output_dtype,
-            mode == OpMode::Accumulate,
-        ) {
+        if !supports_tuple(schema, &input_dtypes, output_dtype) {
             return Err(anyhow!(
-                "unsupported op typing tuple for {}: inputs={:?}, acc={:?}, out={:?}, mode={:?}",
+                "unsupported op typing tuple for {}: inputs={:?}, out={:?}",
                 op,
                 input_dtypes,
-                requested_acc,
-                output_dtype,
-                mode
+                output_dtype
             ));
         }
     }

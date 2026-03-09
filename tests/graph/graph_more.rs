@@ -213,74 +213,6 @@ fn cache_fixed_limit_errors() -> Result<()> {
 }
 
 #[test]
-fn cache_weight_update_accumulates() -> Result<()> {
-    for device in common::test_targets() {
-        let model_path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("res/models/cache_weight_update_model.oinf");
-        let model = ModelLoader::open(model_path)?;
-
-        let g = graph! {
-            dynamic {
-                x: f32[D];
-                delta: f32[D];
-            }
-
-            volatile {
-                tmp: f32[D];
-                out: f32[D];
-            }
-
-            persistent {
-                W: f32[D] @init(0.0);
-            }
-
-            block entry {
-                cache.read W >> tmp;
-                op add(tmp, x) >> tmp;
-                op add(tmp, delta) >> tmp;
-                cache.write tmp >> W;
-                cache.read W >> out;
-                return;
-            }
-        };
-
-        let sim = match Simulator::new(&model, &g, device) {
-            Ok(sim) => sim,
-            Err(err) => {
-                if device == openinfer::Device::Vulkan {
-                    eprintln!("Skipping cache_weight_update on {:?}: {}", device, err);
-                    continue;
-                }
-                return Err(err);
-            }
-        };
-        let mut exec = sim.make_executor()?;
-
-        let len = model.size_of("D")?;
-        let input = Random::<f32>::generate_with_seed(3, (-1.0, 1.0), len)?;
-        let delta = Random::<f32>::generate_with_seed(9, (-0.1, 0.1), len)?;
-
-        insert_executor!(exec, { x: input.clone(), delta: delta.clone() });
-        exec.step()?;
-        fetch_executor!(exec, { out: Tensor<f32> });
-        let expected_step1: Vec<f32> = input
-            .data
-            .iter()
-            .zip(delta.data.iter())
-            .map(|(a, b)| a + b)
-            .collect();
-        assert_vec_close(&out.data, &expected_step1, 1e-5)?;
-
-        insert_executor!(exec, { x: input, delta: delta });
-        exec.step()?;
-        fetch_executor!(exec, { out: Tensor<f32> });
-        let expected_step2: Vec<f32> = expected_step1.iter().map(|v| v * 2.0).collect();
-        assert_vec_close(&out.data, &expected_step2, 1e-5)?;
-    }
-    Ok(())
-}
-
-#[test]
 fn loop_matches_cpu_reference() -> Result<()> {
     let model_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("res/models/loop_model.oinf");
     let model = ModelLoader::open(model_path)?;
@@ -735,22 +667,6 @@ fn trace_emits_events() -> Result<()> {
     let trace = exec.trace();
     if trace.is_empty() {
         return Err(anyhow!("trace should contain events"));
-    }
-    Ok(())
-}
-
-fn assert_vec_close(actual: &[f32], expected: &[f32], tol: f32) -> Result<()> {
-    if actual.len() != expected.len() {
-        return Err(anyhow!(
-            "length mismatch: {} vs {}",
-            actual.len(),
-            expected.len()
-        ));
-    }
-    for (idx, (a, b)) in actual.iter().zip(expected.iter()).enumerate() {
-        if (*a - *b).abs() > tol {
-            return Err(anyhow!("value mismatch at {}: {} vs {}", idx, a, b));
-        }
     }
     Ok(())
 }

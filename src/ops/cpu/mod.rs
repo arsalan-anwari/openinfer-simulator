@@ -24,7 +24,6 @@ pub use rounding::{ceil, clamp, floor, round, trunc};
 pub use statistics::{max, min, sign};
 pub mod elementwise;
 pub mod packed_ops;
-pub mod accumulate;
 pub mod compare;
 pub mod reduce;
 pub mod broadcast;

@@ -40,14 +40,6 @@ pub fn mul_inplace_dispatch(
     dispatch_mul(OpMode::Inplace, attrs, inputs, output)
 }
 
-pub fn mul_accumulate_dispatch(
-    attrs: &OpAttrs,
-    inputs: &[TensorValue],
-    output: Option<&mut TensorValue>,
-) -> Result<()> {
-    dispatch_mul(OpMode::Accumulate, attrs, inputs, output)
-}
-
 fn dispatch_mul(
     mode: OpMode,
     attrs: &OpAttrs,

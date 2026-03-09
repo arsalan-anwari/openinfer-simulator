@@ -9,7 +9,6 @@ pub static ENTRIES: Lazy<Vec<(OpKey, KernelFn)>> = Lazy::new(|| {
     build_op_entries_same_input(OpKind::Clamp, |mode| match mode {
         OpMode::Normal => Some(kernel::clamp_normal_dispatch),
         OpMode::Inplace => Some(kernel::clamp_inplace_dispatch),
-        OpMode::Accumulate => None,
     })
     .expect("failed to build clamp vulkan entries")
 });

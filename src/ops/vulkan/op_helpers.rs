@@ -112,18 +112,16 @@ pub fn validate_unary_shape_and_rank(
 pub fn target_name(op: OpKind, mode: OpMode, in_dtype: DType, out_dtype: DType) -> Result<String> {
     let op_name = op.as_str();
     let in_name = dtype_suffix(in_dtype)?;
-    let out_name = dtype_suffix(out_dtype)?;
+    let _out_name = dtype_suffix(out_dtype)?;
     if in_dtype.is_packed() {
         return Ok(match mode {
             OpMode::Normal => format!("{op_name}_{in_name}_packed"),
             OpMode::Inplace => format!("{op_name}_{in_name}_packed_inplace"),
-            OpMode::Accumulate => format!("{op_name}_{in_name}_accumulate_{out_name}"),
         });
     }
     Ok(match mode {
         OpMode::Normal => format!("{op_name}_{in_name}_normal"),
         OpMode::Inplace => format!("{op_name}_{in_name}_inplace"),
-        OpMode::Accumulate => format!("{op_name}_{in_name}_accumulate_{out_name}"),
     })
 }
 

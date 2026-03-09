@@ -8,7 +8,7 @@ use super::kernel;
 pub static ENTRIES: Lazy<Vec<(OpKey, KernelFn)>> = Lazy::new(|| {
     build_op_entries_same_input(OpKind::Filter, |mode| match mode {
         OpMode::Normal => Some(kernel::filter_normal_dispatch),
-        OpMode::Inplace | OpMode::Accumulate => None,
+        OpMode::Inplace => None,
     })
     .expect("failed to build filter vulkan entries")
 });

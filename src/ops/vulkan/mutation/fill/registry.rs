@@ -8,7 +8,6 @@ pub static ENTRIES: Lazy<Vec<(OpKey, KernelFn)>> = Lazy::new(|| {
     build_op_entries_same_input(crate::graph::OpKind::Fill, |mode| match mode {
         OpMode::Normal => Some(kernel::fill_normal_dispatch),
         OpMode::Inplace => Some(kernel::fill_inplace_dispatch),
-        OpMode::Accumulate => None,
     })
     .expect("failed to build fill vulkan entries")
 });

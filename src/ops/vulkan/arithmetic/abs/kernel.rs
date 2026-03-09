@@ -40,14 +40,6 @@ pub fn abs_inplace_dispatch(
     dispatch_abs(OpMode::Inplace, attrs, inputs, output)
 }
 
-pub fn abs_accumulate_dispatch(
-    attrs: &OpAttrs,
-    inputs: &[TensorValue],
-    output: Option<&mut TensorValue>,
-) -> Result<()> {
-    dispatch_abs(OpMode::Accumulate, attrs, inputs, output)
-}
-
 fn dispatch_abs(
     mode: OpMode,
     attrs: &OpAttrs,

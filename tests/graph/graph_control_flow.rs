@@ -55,53 +55,6 @@ fn branch_unconditional_executes_block() -> Result<()> {
 }
 
 #[test]
-fn loop_literal_bounds_accumulates() -> Result<()> {
-    for device in common::test_targets() {
-        let model_path =
-            Path::new(env!("CARGO_MANIFEST_DIR")).join("res/models/minimal_model.oinf");
-        let model = ModelLoader::open(model_path)?;
-
-        let g = graph! {
-            dynamic {
-                x: f32[B];
-            }
-
-            volatile {
-                y: f32[B] @init(0.0);
-            }
-
-            block entry {
-                loop i (idx in 0..3) {
-                    op add(y, x) >> y;
-                }
-                return;
-            }
-        };
-
-        let sim = match Simulator::new(&model, &g, device) {
-            Ok(sim) => sim,
-            Err(err) => {
-                if device == openinfer::Device::Vulkan {
-                    eprintln!("Skipping loop_literal on {:?}: {}", device, err);
-                    continue;
-                }
-                return Err(err);
-            }
-        };
-        let mut exec = sim.make_executor()?;
-
-        let len = model.size_of("B")?;
-        let input = Random::<f32>::generate_with_seed(4, (-1.0, 1.0), len)?;
-        insert_executor!(exec, { x: input.clone() });
-        exec.step()?;
-        fetch_executor!(exec, { y: Tensor<f32> });
-        let expected: Vec<f32> = input.data.iter().map(|v| v * 3.0).collect();
-        assert_eq!(y.data, expected);
-    }
-    Ok(())
-}
-
-#[test]
 fn yield_await_multiple_vars() -> Result<()> {
     for device in common::test_targets() {
         let model_path =

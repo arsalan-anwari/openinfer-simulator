@@ -12,7 +12,7 @@ use crate::tensor::{DType, TensorValue};
 use super::{RuntimeState, TraceTiming};
 
 impl RuntimeState {
-    pub fn ensure_output(&mut self, name: &str, attrs: &OpAttrs) -> Result<()> {
+    pub fn ensure_output(&mut self, name: &str, _attrs: &OpAttrs) -> Result<()> {
         if self.dynamic.contains_key(name)
             || self.locals.contains_key(name)
             || self
@@ -37,8 +37,6 @@ impl RuntimeState {
             } else {
                 TensorValue::zeros(dtype, &shape)
             }
-        } else if attrs.items.iter().any(|attr| attr.name == "acc") {
-            TensorValue::zeros(dtype, &shape)
         } else {
             TensorValue::zeros(dtype, &shape)
         };

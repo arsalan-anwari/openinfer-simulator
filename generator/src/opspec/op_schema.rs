@@ -858,10 +858,10 @@ fn write_kernel_rs(
     op_dir: &Path,
     op_name: &str,
     normal_dtypes: &[String],
-    acc_pairs: &[(String, String)],
+    _acc_pairs: &[(String, String)],
     inputs: usize,
     inplace: bool,
-    accumulate: bool,
+    _accumulate: bool,
     uses_attrs: bool,
     fixed_output: Option<&str>,
 ) -> Result<(), Box<dyn Error>> {
@@ -996,45 +996,6 @@ fn write_kernel_rs(
         }
         out.push_str("    }\n");
         out.push_str("}\n\n");
-    }
-
-    if accumulate {
-        out.push_str(&format!(
-            "pub fn {op_name}_accumulate_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output: Option<&mut TensorValue>) -> Result<()> {{\n"
-        ));
-        out.push_str("    let out = expect_output(output)?;\n");
-        let input_refs: Vec<String> = (0..inputs).map(|i| format!("&inputs[{i}]")).collect();
-        let match_head = if inputs == 1 {
-            "    match (&inputs[0], out) {\n".to_string()
-        } else {
-            format!("    match ({}, out) {{\n", input_refs.join(", "))
-        };
-        out.push_str(&match_head);
-        let arg_names: Vec<String> = (0..inputs).map(|i| format!("a{i}")).collect();
-        for (input, acc) in acc_pairs {
-            let input_variant = input;
-            let acc_variant = acc;
-            let input_suffix = dtype_suffix(input)?;
-            let acc_suffix = dtype_suffix(acc)?;
-            let pattern_inputs = arg_names
-                .iter()
-                .map(|name| format!("TensorValue::{input_variant}({name})"))
-                .collect::<Vec<_>>()
-                .join(", ");
-            let call_args = arg_names.join(", ");
-            if uses_attrs {
-                out.push_str(&format!(
-                    "        ({pattern_inputs}, TensorValue::{acc_variant}(out)) => super::kernels::accumulate::{op_name}_{input_suffix}_accumulate_{acc_suffix}(_attrs, {call_args}, out),\n"
-                ));
-            } else {
-                out.push_str(&format!(
-                    "        ({pattern_inputs}, TensorValue::{acc_variant}(out)) => super::kernels::accumulate::{op_name}_{input_suffix}_accumulate_{acc_suffix}({call_args}, out),\n"
-                ));
-            }
-        }
-        out.push_str("        _ => Err(anyhow!(\"dtype mismatch\")),\n");
-        out.push_str("    }\n");
-        out.push_str("}\n");
     }
 
     let out_path = op_dir.join("kernel.rs");

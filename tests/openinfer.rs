@@ -17,8 +17,6 @@ mod ops_rounding;
 mod ops_reduce;
 #[path = "ops/ops_cast.rs"]
 mod ops_cast;
-#[path = "ops/ops_accumulate_inplace.rs"]
-mod ops_accumulate_inplace;
 #[path = "ops/ops_misc.rs"]
 mod ops_misc;
 #[path = "ops/ops_float_special.rs"]

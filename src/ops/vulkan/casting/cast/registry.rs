@@ -13,7 +13,7 @@ pub static ENTRIES: Lazy<Vec<(OpKey, KernelFn)>> = Lazy::new(|| {
         .expect("missing cast output dtypes");
     build_op_entries_with_outputs(OpKind::Cast, output_dtypes, |mode| match mode {
         OpMode::Normal => Some(kernel::cast_normal_dispatch),
-        OpMode::Inplace | OpMode::Accumulate => None,
+        OpMode::Inplace => None,
     })
     .expect("failed to build cast vulkan entries")
 });

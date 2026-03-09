@@ -40,14 +40,6 @@ pub fn sub_inplace_dispatch(
     dispatch_sub(OpMode::Inplace, attrs, inputs, output)
 }
 
-pub fn sub_accumulate_dispatch(
-    attrs: &OpAttrs,
-    inputs: &[TensorValue],
-    output: Option<&mut TensorValue>,
-) -> Result<()> {
-    dispatch_sub(OpMode::Accumulate, attrs, inputs, output)
-}
-
 fn dispatch_sub(
     mode: OpMode,
     attrs: &OpAttrs,

@@ -9,7 +9,6 @@ pub static ENTRIES: Lazy<Vec<(OpKey, KernelFn)>> = Lazy::new(|| {
     build_op_entries_same_input(OpKind::Xor, |mode| match mode {
         OpMode::Normal => Some(kernel::xor_normal_dispatch),
         OpMode::Inplace => Some(kernel::xor_inplace_dispatch),
-        OpMode::Accumulate => None,
     })
     .expect("failed to build xor vulkan entries")
 });

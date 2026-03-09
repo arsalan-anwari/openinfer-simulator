@@ -37,14 +37,6 @@ pub fn sum_axis_normal_dispatch(
     dispatch_sum_axis(OpMode::Normal, attrs, inputs, output)
 }
 
-pub fn sum_axis_accumulate_dispatch(
-    attrs: &OpAttrs,
-    inputs: &[TensorValue],
-    output: Option<&mut TensorValue>,
-) -> Result<()> {
-    dispatch_sum_axis(OpMode::Accumulate, attrs, inputs, output)
-}
-
 fn dispatch_sum_axis(
     mode: OpMode,
     attrs: &OpAttrs,

@@ -124,16 +124,6 @@ class OpsCastBaseline:
 
 
 @dataclass
-class OpsAccumulateInplaceBaseline:
-    acc_a: np.ndarray
-    acc_b: np.ndarray
-    acc_out: np.ndarray
-    inplace_a: np.ndarray
-    inplace_b: np.ndarray
-    inplace_out: np.ndarray
-
-
-@dataclass
 class OpsMiscBaseline:
     fma_a: np.ndarray
     fma_b: np.ndarray
@@ -331,23 +321,6 @@ def build_ops_cast() -> OpsCastBaseline:
         cast_f32_to_u8=f32.astype(np.uint8),
         cast_i32=i32,
         cast_i32_to_f32=i32.astype(np.float32),
-    )
-
-
-def build_ops_accumulate_inplace() -> OpsAccumulateInplaceBaseline:
-    rng = np.random.default_rng(6)
-    acc_a = rng.normal(size=(2, 3)).astype(np.float16)
-    acc_b = rng.normal(size=(2, 3)).astype(np.float16)
-    acc_out = acc_a.astype(np.float32) + acc_b.astype(np.float32)
-    inplace_a = rng.normal(size=(2, 3)).astype(np.float32)
-    inplace_b = rng.normal(size=(2, 3)).astype(np.float32)
-    return OpsAccumulateInplaceBaseline(
-        acc_a=acc_a,
-        acc_b=acc_b,
-        acc_out=acc_out,
-        inplace_a=inplace_a,
-        inplace_b=inplace_b,
-        inplace_out=inplace_a + inplace_b,
     )
 
 
@@ -633,8 +606,6 @@ def _default_attrs(op: str, dtype: str, out_dtype: str, mode: str) -> list[dict]
         attrs.append({"name": "to", "kind": "dtype", "value": out_dtype})
         attrs.append({"name": "rounding_mode", "kind": "string", "value": "trunc"})
         attrs.append({"name": "saturate", "kind": "scalar", "scalar_kind": "bool", "value": True})
-    if mode == "accumulate":
-        attrs.append({"name": "acc", "kind": "dtype", "value": out_dtype})
     return attrs
 
 
@@ -855,11 +826,6 @@ def generate_ops_full_matrix() -> None:
         normal_dtypes = [
             dtype for dtype in dtype_support.get("normal", []) if dtype != "bitset"
         ]
-        accumulate_pairs = [
-            pair
-            for pair in dtype_support.get("accumulate", [])
-            if pair.get("input") != "bitset" and pair.get("acc") != "bitset"
-        ]
         type_rule = op_entry["type_rule"]
 
         tensor_map: dict[str, object] = {}
@@ -951,45 +917,6 @@ def generate_ops_full_matrix() -> None:
                         "attrs": attrs,
                     })
 
-        for pair in accumulate_pairs:
-            in_dtype = pair["input"]
-            acc_dtype = pair["acc"]
-            base_shape = (2, 3)
-            if op == "matmul":
-                shapes = [(2, 3), (3, 4)]
-            else:
-                shapes = [base_shape for _ in range(input_count)]
-            inputs = []
-            input_names = []
-            for idx in range(input_count):
-                values = _make_values(in_dtype, shapes[idx], seed=idx + 30, op=op, role="a" if idx == 0 else "b")
-                name = f"{op}_acc_{in_dtype}_{acc_dtype}_in{idx}"
-                key, spec = _tensor_spec(name, in_dtype, values)
-                tensor_map[key] = spec
-                input_names.append(name)
-                inputs.append(values.astype(np.float32) if _is_float(in_dtype) else values)
-
-            attrs = _default_attrs(op, in_dtype, acc_dtype, "accumulate")
-            with np.errstate(divide="ignore", invalid="ignore"):
-                output = _compute_op(op, inputs, attrs, in_dtype, acc_dtype)
-                output = _cast_output(acc_dtype, output)
-            out_name = f"{op}_acc_{in_dtype}_{acc_dtype}_out"
-            key, spec = _tensor_spec(out_name, acc_dtype, output)
-            tensor_map[key] = spec
-            cases.append({
-                "file": f"full_matrix/{op}.oinf",
-                "name": f"{op}_acc_{in_dtype}_{acc_dtype}",
-                "op": op,
-                "mode": "accumulate",
-                "input_dtype": in_dtype,
-                "output_dtype": acc_dtype,
-                "acc_dtype": acc_dtype,
-                "inputs": input_names,
-                "output_var": out_name,
-                "expected": out_name,
-                "attrs": attrs,
-            })
-
         if tensor_map:
             Baseline = make_dataclass(
                 f"{op}_baseline",
@@ -1009,14 +936,10 @@ def generate_ops_full_matrix() -> None:
         skipped = []
         if "bitset" in support.get("normal", []):
             skipped.append("bitset")
-        for pair in support.get("accumulate", []):
-            if pair.get("input") == "bitset" or pair.get("acc") == "bitset":
-                skipped.append("bitset")
         inventory.append(
             {
                 "op": op_entry["kind"],
                 "normal": support.get("normal", []),
-                "accumulate": support.get("accumulate", []),
                 "inplace": op_entry["inplace"],
                 "type_rule": op_entry["type_rule"],
                 "output_dtypes_ref": op_entry.get("output_dtypes_ref"),
@@ -1040,7 +963,6 @@ def main() -> None:
     write_baseline(data_dir, "ops_rounding", build_ops_rounding())
     write_baseline(data_dir, "ops_reduce", build_ops_reduce())
     write_baseline(data_dir, "ops_cast", build_ops_cast())
-    write_baseline(data_dir, "ops_accumulate_inplace", build_ops_accumulate_inplace())
     write_baseline(data_dir, "ops_misc", build_ops_misc())
     write_baseline(data_dir, "ops_float_special", build_ops_float_special())
     write_baseline(data_dir, "ops_packed", build_ops_packed())

@@ -53,11 +53,6 @@ def build_models() -> None:
         ModelSpec(sizevars={"D": SizeVar(4), "H": SizeVar(3)}),
     )
 
-    write_model(
-        "cache_weight_update_model",
-        ModelSpec(sizevars={"D": SizeVar(4)}),
-    )
-
     d = 4
     b = 3
     write_model(

@@ -41,14 +41,6 @@ pub fn matmul_inplace_dispatch(
     dispatch_matmul(OpMode::Inplace, attrs, inputs, output)
 }
 
-pub fn matmul_accumulate_dispatch(
-    attrs: &OpAttrs,
-    inputs: &[TensorValue],
-    output: Option<&mut TensorValue>,
-) -> Result<()> {
-    dispatch_matmul(OpMode::Accumulate, attrs, inputs, output)
-}
-
 fn dispatch_matmul(
     mode: OpMode,
     attrs: &OpAttrs,

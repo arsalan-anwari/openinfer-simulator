@@ -9,7 +9,6 @@ pub static ENTRIES: Lazy<Vec<(OpKey, KernelFn)>> = Lazy::new(|| {
     build_op_entries_same_input(OpKind::Round, |mode| match mode {
         OpMode::Normal => Some(round_normal_dispatch),
         OpMode::Inplace => Some(round_inplace_dispatch),
-        OpMode::Accumulate => None,
     })
     .expect("failed to build round cpu entries")
 });

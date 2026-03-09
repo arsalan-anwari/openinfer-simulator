@@ -9,7 +9,6 @@ pub static ENTRIES: Lazy<Vec<(OpKey, KernelFn)>> = Lazy::new(|| {
     build_op_entries_same_input(OpKind::Eq, |mode| match mode {
         OpMode::Normal => Some(eq_normal_dispatch),
         OpMode::Inplace => None,
-        OpMode::Accumulate => None,
     })
     .expect("failed to build eq cpu entries")
 });

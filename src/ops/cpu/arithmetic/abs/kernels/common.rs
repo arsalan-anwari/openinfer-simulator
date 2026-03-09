@@ -1,17 +1,8 @@
-use crate::tensor::{BF16, F16, F8, I4};
+use crate::tensor::{BF16, F16, F8};
 
 pub trait AbsElement: Copy {
     fn abs_value(self) -> Self;
 }
-
-pub trait SignedInput: Copy {
-    fn to_i64(self) -> i64;
-}
-
-pub trait SignedAcc: Copy {
-    fn from_i64(value: i64) -> Self;
-}
-
 
 impl AbsElement for f32 {
     fn abs_value(self) -> Self {
@@ -64,61 +55,5 @@ impl AbsElement for BF16 {
 impl AbsElement for F8 {
     fn abs_value(self) -> Self {
         F8::from_f32(self.to_f32().abs())
-    }
-}
-
-impl SignedInput for i8 {
-    fn to_i64(self) -> i64 {
-        self as i64
-    }
-}
-
-
-
-impl SignedInput for I4 {
-    fn to_i64(self) -> i64 {
-        self.to_i8() as i64
-    }
-}
-
-impl SignedInput for i16 {
-    fn to_i64(self) -> i64 {
-        self as i64
-    }
-}
-
-impl SignedInput for i32 {
-    fn to_i64(self) -> i64 {
-        self as i64
-    }
-}
-
-impl SignedInput for i64 {
-    fn to_i64(self) -> i64 {
-        self
-    }
-}
-
-impl SignedAcc for i8 {
-    fn from_i64(value: i64) -> Self {
-        value as i8
-    }
-}
-
-impl SignedAcc for i16 {
-    fn from_i64(value: i64) -> Self {
-        value as i16
-    }
-}
-
-impl SignedAcc for i32 {
-    fn from_i64(value: i64) -> Self {
-        value as i32
-    }
-}
-
-impl SignedAcc for i64 {
-    fn from_i64(value: i64) -> Self {
-        value
     }
 }

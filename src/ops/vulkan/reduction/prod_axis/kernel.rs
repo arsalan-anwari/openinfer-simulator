@@ -37,14 +37,6 @@ pub fn prod_axis_normal_dispatch(
     dispatch_prod_axis(OpMode::Normal, attrs, inputs, output)
 }
 
-pub fn prod_axis_accumulate_dispatch(
-    attrs: &OpAttrs,
-    inputs: &[TensorValue],
-    output: Option<&mut TensorValue>,
-) -> Result<()> {
-    dispatch_prod_axis(OpMode::Accumulate, attrs, inputs, output)
-}
-
 fn dispatch_prod_axis(
     mode: OpMode,
     attrs: &OpAttrs,

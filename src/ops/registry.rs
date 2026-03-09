@@ -9,7 +9,6 @@ use crate::tensor::{DType, TensorValue};
 pub enum OpMode {
     Normal,
     Inplace,
-    Accumulate,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -34,10 +33,6 @@ pub fn op_supports_dtype(kind: OpKind, mode: OpMode, in0: DType, out0: DType) ->
         None => return true,
     };
     match mode {
-        OpMode::Accumulate => support
-            .accumulate
-            .iter()
-            .any(|(in_dtype, out_dtype)| *in_dtype == in0 && *out_dtype == out0),
         OpMode::Normal | OpMode::Inplace => support.normal.contains(&in0),
     }
 }
@@ -100,22 +95,6 @@ pub fn build_op_entries_same_input(
             }
         }
     }
-    if schema.accumulate.allow() {
-        for (in_dtype, out_dtype) in support.accumulate {
-            for &broadcast in broadcast_flags {
-                let acc_key = OpKey {
-                    kind,
-                    mode: OpMode::Accumulate,
-                    broadcast,
-                    inputs: vec![*in_dtype; inputs],
-                    out0: *out_dtype,
-                };
-                if let Some(kernel) = kernel_for_mode(OpMode::Accumulate) {
-                    entries.push((acc_key, kernel));
-                }
-            }
-        }
-    }
     Ok(entries)
 }
 
@@ -167,22 +146,6 @@ pub fn build_op_entries_with_outputs(
                     if let Some(kernel) = kernel_for_mode(OpMode::Inplace) {
                         entries.push((inplace_key, kernel));
                     }
-                }
-            }
-        }
-    }
-    if schema.accumulate.allow() {
-        for (in_dtype, out_dtype) in support.accumulate {
-            for &broadcast in broadcast_flags {
-                let acc_key = OpKey {
-                    kind,
-                    mode: OpMode::Accumulate,
-                    broadcast,
-                    inputs: vec![*in_dtype; inputs],
-                    out0: *out_dtype,
-                };
-                if let Some(kernel) = kernel_for_mode(OpMode::Accumulate) {
-                    entries.push((acc_key, kernel));
                 }
             }
         }

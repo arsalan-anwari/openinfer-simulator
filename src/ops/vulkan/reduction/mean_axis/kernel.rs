@@ -37,14 +37,6 @@ pub fn mean_axis_normal_dispatch(
     dispatch_mean_axis(OpMode::Normal, attrs, inputs, output)
 }
 
-pub fn mean_axis_accumulate_dispatch(
-    attrs: &OpAttrs,
-    inputs: &[TensorValue],
-    output: Option<&mut TensorValue>,
-) -> Result<()> {
-    dispatch_mean_axis(OpMode::Accumulate, attrs, inputs, output)
-}
-
 fn dispatch_mean_axis(
     mode: OpMode,
     attrs: &OpAttrs,

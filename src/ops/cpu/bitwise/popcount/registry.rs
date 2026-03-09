@@ -9,7 +9,6 @@ pub static ENTRIES: Lazy<Vec<(OpKey, KernelFn)>> = Lazy::new(|| {
     build_op_entries_same_input(OpKind::Popcount, |mode| match mode {
         OpMode::Normal => Some(popcount_normal_dispatch),
         OpMode::Inplace => None,
-        OpMode::Accumulate => None,
     })
     .expect("failed to build popcount cpu entries")
 });

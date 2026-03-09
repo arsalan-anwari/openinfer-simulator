@@ -51,29 +51,3 @@ pub fn add_inplace_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output: Op
     }
 }
 
-pub fn add_accumulate_dispatch(_attrs: &OpAttrs, inputs: &[TensorValue], output: Option<&mut TensorValue>) -> Result<()> {
-    let out = expect_output(output)?;
-    match (&inputs[0], &inputs[1], out) {
-        (TensorValue::I4(a0), TensorValue::I4(a1), TensorValue::I8(out)) => super::kernels::accumulate::add_i4_accumulate_i8(a0, a1, out),
-        (TensorValue::I4(a0), TensorValue::I4(a1), TensorValue::I16(out)) => super::kernels::accumulate::add_i4_accumulate_i16(a0, a1, out),
-        (TensorValue::I4(a0), TensorValue::I4(a1), TensorValue::I32(out)) => super::kernels::accumulate::add_i4_accumulate_i32(a0, a1, out),
-        (TensorValue::I4(a0), TensorValue::I4(a1), TensorValue::I64(out)) => super::kernels::accumulate::add_i4_accumulate_i64(a0, a1, out),
-        (TensorValue::I8(a0), TensorValue::I8(a1), TensorValue::I16(out)) => super::kernels::accumulate::add_i8_accumulate_i16(a0, a1, out),
-        (TensorValue::I8(a0), TensorValue::I8(a1), TensorValue::I32(out)) => super::kernels::accumulate::add_i8_accumulate_i32(a0, a1, out),
-        (TensorValue::I8(a0), TensorValue::I8(a1), TensorValue::I64(out)) => super::kernels::accumulate::add_i8_accumulate_i64(a0, a1, out),
-        (TensorValue::I16(a0), TensorValue::I16(a1), TensorValue::I32(out)) => super::kernels::accumulate::add_i16_accumulate_i32(a0, a1, out),
-        (TensorValue::I16(a0), TensorValue::I16(a1), TensorValue::I64(out)) => super::kernels::accumulate::add_i16_accumulate_i64(a0, a1, out),
-        (TensorValue::I32(a0), TensorValue::I32(a1), TensorValue::I64(out)) => super::kernels::accumulate::add_i32_accumulate_i64(a0, a1, out),
-        (TensorValue::U4(a0), TensorValue::U4(a1), TensorValue::U8(out)) => super::kernels::accumulate::add_u4_accumulate_u8(a0, a1, out),
-        (TensorValue::U4(a0), TensorValue::U4(a1), TensorValue::U16(out)) => super::kernels::accumulate::add_u4_accumulate_u16(a0, a1, out),
-        (TensorValue::U4(a0), TensorValue::U4(a1), TensorValue::U32(out)) => super::kernels::accumulate::add_u4_accumulate_u32(a0, a1, out),
-        (TensorValue::U4(a0), TensorValue::U4(a1), TensorValue::U64(out)) => super::kernels::accumulate::add_u4_accumulate_u64(a0, a1, out),
-        (TensorValue::U8(a0), TensorValue::U8(a1), TensorValue::U16(out)) => super::kernels::accumulate::add_u8_accumulate_u16(a0, a1, out),
-        (TensorValue::U8(a0), TensorValue::U8(a1), TensorValue::U32(out)) => super::kernels::accumulate::add_u8_accumulate_u32(a0, a1, out),
-        (TensorValue::U8(a0), TensorValue::U8(a1), TensorValue::U64(out)) => super::kernels::accumulate::add_u8_accumulate_u64(a0, a1, out),
-        (TensorValue::U16(a0), TensorValue::U16(a1), TensorValue::U32(out)) => super::kernels::accumulate::add_u16_accumulate_u32(a0, a1, out),
-        (TensorValue::U16(a0), TensorValue::U16(a1), TensorValue::U64(out)) => super::kernels::accumulate::add_u16_accumulate_u64(a0, a1, out),
-        (TensorValue::U32(a0), TensorValue::U32(a1), TensorValue::U64(out)) => super::kernels::accumulate::add_u32_accumulate_u64(a0, a1, out),
-        _ => Err(anyhow!("dtype mismatch")),
-    }
-}

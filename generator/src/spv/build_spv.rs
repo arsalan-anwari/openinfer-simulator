@@ -49,10 +49,15 @@ fn main() -> Result<()> {
             .get("spv_dir")
             .and_then(|v| v.as_str())
             .ok_or_else(|| anyhow!("{op_name} missing spv_dir"))?;
-        let shader_files = vulkan
+        let shader_files_raw = vulkan
             .get("shader_files")
             .and_then(|v| v.as_array())
             .ok_or_else(|| anyhow!("{op_name} missing shader_files"))?;
+        let shader_files: Vec<&str> = shader_files_raw
+            .iter()
+            .filter_map(|v| v.as_str())
+            .filter(|f| *f != "accumulate.slang")
+            .collect();
 
         let shader_dir = workspace_root.join(shader_dir);
         let spv_dir = workspace_root.join(spv_dir);
@@ -61,9 +66,6 @@ fn main() -> Result<()> {
         let include_dir = workspace_root.join("src/ops/vulkan/shaders");
 
         for file in shader_files {
-            let file = file
-                .as_str()
-                .ok_or_else(|| anyhow!("{op_name} shader_files must be strings"))?;
             let shader_path = shader_dir.join(file);
             let entrypoints = parse_entrypoints(&shader_path)?;
             for entry in entrypoints {
@@ -278,6 +280,22 @@ fn should_skip_entry(entry: &str, has_f64: u32, has_i64: u32, has_u64: u32) -> b
     if has_u64 == 0 && (lower.contains("_u64") || lower.starts_with("add_u64")) {
         return true;
     }
+
+    // Skip 1/2-bit packed types (i1, i2, u1, u2) - only i4/u4 are supported
+    if lower.contains("_i1_") || lower.contains("_i2_") || lower.contains("_u1_") || lower.contains("_u2_") {
+        return true;
+    }
+
+    // Skip bitset
+    if lower.contains("bitset") {
+        return true;
+    }
+
+    // Skip accumulate
+    if lower.contains("accumulate") {
+        return true;
+    }
+
     false
 }
 

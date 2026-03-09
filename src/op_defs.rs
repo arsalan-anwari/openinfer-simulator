@@ -575,63 +575,11 @@ fn build_output_dtype_sets(
     Ok(out)
 }
 
-/// Convenience accessor for the `acc` dtype attribute.
-#[allow(unused)]
-pub fn acc_dtype(attrs: &OpAttrs) -> Result<DType> {
-    attrs
-        .items
-        .iter()
-        .find(|attr| attr.name == "acc")
-        .ok_or_else(|| anyhow!("missing acc attribute"))
-        .and_then(|attr| match &attr.value {
-            AttrValue::DType(dtype) => Ok(*dtype),
-            _ => Err(anyhow!("acc attribute must be a dtype")),
-        })
-}
-
-/// Convenience accessor for `acc` as an ordered dtype list.
-pub fn acc_list(attrs: &OpAttrs) -> Result<Vec<DType>> {
-    attrs
-        .items
-        .iter()
-        .find(|attr| attr.name == "acc")
-        .ok_or_else(|| anyhow!("missing acc attribute"))
-        .and_then(|attr| match &attr.value {
-            AttrValue::DTypeList(dtypes) => Ok(dtypes.clone()),
-            _ => Err(anyhow!("acc attribute must be a dtype list")),
-        })
-}
-
 /// Returns true if an op schema supports the provided typing tuple.
-pub fn supports_tuple(
-    schema: &OpSchema,
-    input_dtypes: &[DType],
-    acc_list: &[DType],
-    out_dtype: DType,
-    is_accumulate: bool,
-) -> bool {
+pub fn supports_tuple(schema: &OpSchema, input_dtypes: &[DType], _out_dtype: DType) -> bool {
     let Some(support) = schema.dtype_support else {
         return true;
     };
-    if is_accumulate {
-        if acc_list.is_empty() {
-            return false;
-        }
-        let exact_match = support.accumulate_tuples.iter().any(|tuple| {
-            tuple.inputs == input_dtypes && tuple.acc_list == acc_list && tuple.out == out_dtype
-        });
-        if exact_match {
-            return true;
-        }
-        if input_dtypes.is_empty() || input_dtypes.windows(2).any(|pair| pair[0] != pair[1]) {
-            return false;
-        }
-        return support
-            .accumulate
-            .iter()
-            .any(|(in_dtype, acc_dtype)| *in_dtype == input_dtypes[0] && *acc_dtype == out_dtype)
-            && acc_list.last().copied() == Some(out_dtype);
-    }
     input_dtypes.iter().all(|dtype| support.normal.contains(dtype))
 }
 

@@ -9,7 +9,6 @@ pub static ENTRIES: Lazy<Vec<(OpKey, KernelFn)>> = Lazy::new(|| {
     build_op_entries_same_input(OpKind::Shl, |mode| match mode {
         OpMode::Normal => Some(kernel::shl_normal_dispatch),
         OpMode::Inplace => Some(kernel::shl_inplace_dispatch),
-        OpMode::Accumulate => None,
     })
     .expect("failed to build shl vulkan entries")
 });

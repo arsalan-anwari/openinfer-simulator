@@ -1,88 +1,6 @@
 {
   "ops": [
     {
-      "accumulate": [
-        {
-          "acc": "i8",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i4"
-        },
-        {
-          "acc": "i32",
-          "input": "i4"
-        },
-        {
-          "acc": "i64",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i8"
-        },
-        {
-          "acc": "i64",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i32"
-        },
-        {
-          "acc": "u8",
-          "input": "u4"
-        },
-        {
-          "acc": "u16",
-          "input": "u4"
-        },
-        {
-          "acc": "u32",
-          "input": "u4"
-        },
-        {
-          "acc": "u64",
-          "input": "u4"
-        },
-        {
-          "acc": "u16",
-          "input": "u8"
-        },
-        {
-          "acc": "u32",
-          "input": "u8"
-        },
-        {
-          "acc": "u64",
-          "input": "u8"
-        },
-        {
-          "acc": "u32",
-          "input": "u16"
-        },
-        {
-          "acc": "u64",
-          "input": "u16"
-        },
-        {
-          "acc": "u64",
-          "input": "u32"
-        }
-      ],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -111,88 +29,6 @@
       }
     },
     {
-      "accumulate": [
-        {
-          "acc": "i8",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i4"
-        },
-        {
-          "acc": "i32",
-          "input": "i4"
-        },
-        {
-          "acc": "i64",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i8"
-        },
-        {
-          "acc": "i64",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i32"
-        },
-        {
-          "acc": "u8",
-          "input": "u4"
-        },
-        {
-          "acc": "u16",
-          "input": "u4"
-        },
-        {
-          "acc": "u32",
-          "input": "u4"
-        },
-        {
-          "acc": "u64",
-          "input": "u4"
-        },
-        {
-          "acc": "u16",
-          "input": "u8"
-        },
-        {
-          "acc": "u32",
-          "input": "u8"
-        },
-        {
-          "acc": "u64",
-          "input": "u8"
-        },
-        {
-          "acc": "u32",
-          "input": "u16"
-        },
-        {
-          "acc": "u64",
-          "input": "u16"
-        },
-        {
-          "acc": "u64",
-          "input": "u32"
-        }
-      ],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -221,48 +57,6 @@
       }
     },
     {
-      "accumulate": [
-        {
-          "acc": "i8",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i4"
-        },
-        {
-          "acc": "i32",
-          "input": "i4"
-        },
-        {
-          "acc": "i64",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i8"
-        },
-        {
-          "acc": "i64",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i32"
-        }
-      ],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -285,7 +79,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -308,88 +101,6 @@
       }
     },
     {
-      "accumulate": [
-        {
-          "acc": "i8",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i4"
-        },
-        {
-          "acc": "i32",
-          "input": "i4"
-        },
-        {
-          "acc": "i64",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i8"
-        },
-        {
-          "acc": "i64",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i32"
-        },
-        {
-          "acc": "u8",
-          "input": "u4"
-        },
-        {
-          "acc": "u16",
-          "input": "u4"
-        },
-        {
-          "acc": "u32",
-          "input": "u4"
-        },
-        {
-          "acc": "u64",
-          "input": "u4"
-        },
-        {
-          "acc": "u16",
-          "input": "u8"
-        },
-        {
-          "acc": "u32",
-          "input": "u8"
-        },
-        {
-          "acc": "u64",
-          "input": "u8"
-        },
-        {
-          "acc": "u32",
-          "input": "u16"
-        },
-        {
-          "acc": "u64",
-          "input": "u16"
-        },
-        {
-          "acc": "u64",
-          "input": "u32"
-        }
-      ],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -418,7 +129,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -436,7 +146,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -465,88 +174,6 @@
       }
     },
     {
-      "accumulate": [
-        {
-          "acc": "i8",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i4"
-        },
-        {
-          "acc": "i32",
-          "input": "i4"
-        },
-        {
-          "acc": "i64",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i8"
-        },
-        {
-          "acc": "i64",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i32"
-        },
-        {
-          "acc": "u8",
-          "input": "u4"
-        },
-        {
-          "acc": "u16",
-          "input": "u4"
-        },
-        {
-          "acc": "u32",
-          "input": "u4"
-        },
-        {
-          "acc": "u64",
-          "input": "u4"
-        },
-        {
-          "acc": "u16",
-          "input": "u8"
-        },
-        {
-          "acc": "u32",
-          "input": "u8"
-        },
-        {
-          "acc": "u64",
-          "input": "u8"
-        },
-        {
-          "acc": "u32",
-          "input": "u16"
-        },
-        {
-          "acc": "u64",
-          "input": "u16"
-        },
-        {
-          "acc": "u64",
-          "input": "u32"
-        }
-      ],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -574,7 +201,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -602,7 +228,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "i8",
@@ -625,7 +250,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "i8",
@@ -648,7 +272,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -666,7 +289,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -689,7 +311,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -712,7 +333,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -730,7 +350,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -758,7 +377,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -786,7 +404,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -814,7 +431,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -832,7 +448,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -850,7 +465,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -868,7 +482,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "f8",
@@ -886,7 +499,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "i8",
@@ -910,7 +522,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "i8",
@@ -934,7 +545,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "i8",
@@ -958,7 +568,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "i8",
@@ -982,7 +591,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "i8",
@@ -1005,7 +613,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "allow",
       "normal": [
         "i8",
@@ -1028,7 +635,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "i8",
@@ -1051,7 +657,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1080,7 +685,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1109,7 +713,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1137,7 +740,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1165,7 +767,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1193,7 +794,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1221,7 +821,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1250,7 +849,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1268,7 +866,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1286,7 +883,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1313,88 +909,6 @@
       }
     },
     {
-      "accumulate": [
-        {
-          "acc": "i8",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i4"
-        },
-        {
-          "acc": "i32",
-          "input": "i4"
-        },
-        {
-          "acc": "i64",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i8"
-        },
-        {
-          "acc": "i64",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i32"
-        },
-        {
-          "acc": "u8",
-          "input": "u4"
-        },
-        {
-          "acc": "u16",
-          "input": "u4"
-        },
-        {
-          "acc": "u32",
-          "input": "u4"
-        },
-        {
-          "acc": "u64",
-          "input": "u4"
-        },
-        {
-          "acc": "u16",
-          "input": "u8"
-        },
-        {
-          "acc": "u32",
-          "input": "u8"
-        },
-        {
-          "acc": "u64",
-          "input": "u8"
-        },
-        {
-          "acc": "u32",
-          "input": "u16"
-        },
-        {
-          "acc": "u64",
-          "input": "u16"
-        },
-        {
-          "acc": "u64",
-          "input": "u32"
-        }
-      ],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1422,88 +936,6 @@
       }
     },
     {
-      "accumulate": [
-        {
-          "acc": "i8",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i4"
-        },
-        {
-          "acc": "i32",
-          "input": "i4"
-        },
-        {
-          "acc": "i64",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i8"
-        },
-        {
-          "acc": "i64",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i32"
-        },
-        {
-          "acc": "u8",
-          "input": "u4"
-        },
-        {
-          "acc": "u16",
-          "input": "u4"
-        },
-        {
-          "acc": "u32",
-          "input": "u4"
-        },
-        {
-          "acc": "u64",
-          "input": "u4"
-        },
-        {
-          "acc": "u16",
-          "input": "u8"
-        },
-        {
-          "acc": "u32",
-          "input": "u8"
-        },
-        {
-          "acc": "u64",
-          "input": "u8"
-        },
-        {
-          "acc": "u32",
-          "input": "u16"
-        },
-        {
-          "acc": "u64",
-          "input": "u16"
-        },
-        {
-          "acc": "u64",
-          "input": "u32"
-        }
-      ],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1531,88 +963,6 @@
       }
     },
     {
-      "accumulate": [
-        {
-          "acc": "i8",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i4"
-        },
-        {
-          "acc": "i32",
-          "input": "i4"
-        },
-        {
-          "acc": "i64",
-          "input": "i4"
-        },
-        {
-          "acc": "i16",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i8"
-        },
-        {
-          "acc": "i64",
-          "input": "i8"
-        },
-        {
-          "acc": "i32",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i16"
-        },
-        {
-          "acc": "i64",
-          "input": "i32"
-        },
-        {
-          "acc": "u8",
-          "input": "u4"
-        },
-        {
-          "acc": "u16",
-          "input": "u4"
-        },
-        {
-          "acc": "u32",
-          "input": "u4"
-        },
-        {
-          "acc": "u64",
-          "input": "u4"
-        },
-        {
-          "acc": "u16",
-          "input": "u8"
-        },
-        {
-          "acc": "u32",
-          "input": "u8"
-        },
-        {
-          "acc": "u64",
-          "input": "u8"
-        },
-        {
-          "acc": "u32",
-          "input": "u16"
-        },
-        {
-          "acc": "u64",
-          "input": "u16"
-        },
-        {
-          "acc": "u64",
-          "input": "u32"
-        }
-      ],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1640,7 +990,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1668,7 +1017,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1696,7 +1044,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1724,7 +1071,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "f8",
@@ -1752,7 +1098,6 @@
       }
     },
     {
-      "accumulate": [],
       "inplace": "deny",
       "normal": [
         "i8",

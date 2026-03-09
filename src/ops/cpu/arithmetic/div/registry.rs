@@ -9,7 +9,6 @@ pub static ENTRIES: Lazy<Vec<(OpKey, KernelFn)>> = Lazy::new(|| {
     build_op_entries_same_input(OpKind::Div, |mode| match mode {
         OpMode::Normal => Some(div_normal_dispatch),
         OpMode::Inplace => Some(div_inplace_dispatch),
-        OpMode::Accumulate => None,
     })
     .expect("failed to build div cpu entries")
 });
