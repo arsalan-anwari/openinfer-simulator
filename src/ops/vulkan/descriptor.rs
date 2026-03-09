@@ -38,6 +38,50 @@ pub fn dtype_code(dtype: DType) -> u32 {
     }
 }
 
+/// Encode an accumulation rule as a u32 bit pattern for Vulkan push constants.
+/// Uses 8 bits per dtype (codes 0-255). For rules longer than 4 dtypes, only first 4 are encoded.
+pub fn encode_acc_rule(rule: &[DType]) -> u32 {
+    rule.iter()
+        .enumerate()
+        .take(4)
+        .map(|(i, d)| (dtype_code(*d) as u32).min(0xFF) << (i * 8))
+        .fold(0u32, |a, b| a | b)
+}
+
+/// Default accumulation dtype for ops that need accumulation but have no accumulation_rules.
+/// - Input ≤ 16-bit: Use 32-bit accumulation (i32, u32, f32 as appropriate).
+/// - Input 32/64-bit: Use largest available dtype (64-bit if supported).
+/// - Vulkan without 64-bit: Always use 32-bit accumulation, even for 64-bit inputs.
+#[allow(unused)]
+pub fn default_accum_dtype(input_dtype: DType, supports_64bit: bool) -> DType {
+    let bits = input_dtype.bit_width();
+    if bits <= 16 {
+        match input_dtype {
+            DType::F8 | DType::BF16 | DType::F16 => DType::F32,
+            DType::I4 | DType::I8 | DType::I16 => DType::I32,
+            DType::U4 | DType::U8 | DType::U16 => DType::U32,
+            _ => DType::F32,
+        }
+    } else {
+        if supports_64bit {
+            match input_dtype {
+                DType::F64 | DType::I64 | DType::U64 => input_dtype,
+                DType::F32 => DType::F64,
+                DType::I32 => DType::I64,
+                DType::U32 => DType::U64,
+                _ => DType::I64,
+            }
+        } else {
+            match input_dtype {
+                DType::F32 | DType::F64 => DType::F32,
+                DType::I32 | DType::I64 => DType::I32,
+                DType::U32 | DType::U64 => DType::U32,
+                _ => DType::I32,
+            }
+        }
+    }
+}
+
 pub fn build_tensor_desc(
     value: &TensorValue,
     out_rank: usize,

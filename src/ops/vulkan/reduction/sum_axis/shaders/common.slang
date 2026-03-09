@@ -8,7 +8,7 @@ struct SumAxisPush {
     uint output_rank;
     uint axes_mask;
     uint keepdims;
-    uint _pad0;
+    uint acc_flags;
     uint _pad1;
 };
 

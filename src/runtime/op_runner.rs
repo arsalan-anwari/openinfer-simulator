@@ -1,11 +1,30 @@
 use anyhow::{anyhow, Result};
 
-use crate::graph::{OpAttrs, OpKind};
+use crate::graph::{AttrValue, OpAttr, OpAttrs, OpKind};
 use crate::ops::{lookup_kernel, OpKey, OpMode};
-use crate::op_defs::{op_schema, supports_pattern};
+use crate::op_defs::{op_schema, OpSchema, supports_pattern};
 use crate::runtime::state::SharedTensor;
 use crate::simulator::Device;
-use crate::tensor::TensorValue;
+use crate::tensor::{DType, TensorValue};
+
+/// Resolve acc_rule from attrs or schema default for dispatch.
+/// When acc is omitted, returns None so output_dtype uses output_type (Same) for backward compatibility.
+pub(crate) fn resolve_acc_rule(
+    schema: &OpSchema,
+    _input_dtypes: &[DType],
+    attrs: &OpAttrs,
+) -> Option<Vec<DType>> {
+    if schema.accumulation_rules.is_empty() {
+        return None;
+    }
+    if let Some(attr) = attrs.items.iter().find(|a| a.name == "acc") {
+        if let AttrValue::DTypeList(rule) = &attr.value {
+            return Some(rule.clone());
+        }
+    }
+    // When acc is omitted: return None so output_dtype uses output_type (Same).
+    None
+}
 
 /// Execute a single op kernel given inputs and optional output storage.
 pub fn exec_op(
@@ -53,19 +72,37 @@ pub fn exec_op(
         ));
     }
 
+    let acc_rule = resolve_acc_rule(op_schema(op).unwrap(), &input_dtypes, attrs);
     let key = OpKey {
         kind: op,
         mode,
         broadcast: is_broadcast,
         inputs: input_dtypes.clone(),
         out0: output_dtype,
+        acc_rule: acc_rule.clone(),
+    };
+
+    // Ensure attrs has acc when acc_rule is set, so kernels can read it
+    let attrs_to_use = if let Some(rule) = &acc_rule {
+        if !attrs.items.iter().any(|a| a.name == "acc") {
+            let mut items = attrs.items.clone();
+            items.push(OpAttr {
+                name: "acc".to_string(),
+                value: AttrValue::DTypeList(rule.clone()),
+            });
+            OpAttrs { items }
+        } else {
+            attrs.clone()
+        }
+    } else {
+        attrs.clone()
     };
 
     let kernel = lookup_kernel(device, key)?;
     if let Some(out) = output_guard.as_ref() {
         ensure_layout_supported(out)?;
     }
-    kernel(attrs, inputs, output_guard.as_deref_mut())
+    kernel(&attrs_to_use, inputs, output_guard.as_deref_mut())
 }
 
 fn ensure_layout_supported(value: &TensorValue) -> Result<()> {

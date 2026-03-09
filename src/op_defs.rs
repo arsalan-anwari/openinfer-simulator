@@ -26,6 +26,8 @@ pub enum ParamKind {
     String,
     /// Single scalar type (e.g. u64 for bits).
     Scalar(DType),
+    /// DTypeList that must match one of the op's accumulation_rules.
+    AccumulationRules,
 }
 
 impl ParamKind {
@@ -64,11 +66,23 @@ pub struct OpSchema {
     pub parameter_types: &'static [ParamDef],
     pub supports_broadcast: bool,
     pub supports_inplace: bool,
+    /// For ops with accumulation: list of allowed type combinations.
+    /// All rules have the same length (op-specific; 2 for matmul, 1 for sum_axis, etc.).
+    pub accumulation_rules: &'static [&'static [DType]],
 }
 
 impl OpSchema {
     /// Infer output dtype from inputs and attributes.
     pub fn output_dtype(&self, input_dtypes: &[DType], attrs: &OpAttrs) -> Result<DType> {
+        // For ops with accumulation_rules, when acc is explicitly set, output is the last element of the rule.
+        // When acc is omitted, use output_type (e.g. Same) for backward compatibility.
+        if !self.accumulation_rules.is_empty() {
+            if let Some(attr) = attrs.items.iter().find(|a| a.name == "acc") {
+                if let AttrValue::DTypeList(r) = &attr.value {
+                    return Ok(*r.last().ok_or_else(|| anyhow!("empty accumulation rule"))?);
+                }
+            }
+        }
         match &self.output_type {
             OutputType::Same => input_dtypes
                 .first()
@@ -131,6 +145,8 @@ struct OpSchemaJson {
     supports_broadcast: bool,
     #[serde(default)]
     supports_inplace: bool,
+    #[serde(default)]
+    accumulation_rules: Vec<Vec<String>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -177,6 +193,8 @@ fn load_registry() -> Result<OpRegistry> {
         let parameter_types: &'static [ParamDef] =
             Box::leak(param_defs.into_boxed_slice());
 
+        let accumulation_rules = parse_accumulation_rules(&op.name, &op.accumulation_rules)?;
+
         let name_static: &'static str = Box::leak(op.name.into_boxed_str());
 
         schemas.push(OpSchema {
@@ -189,6 +207,7 @@ fn load_registry() -> Result<OpRegistry> {
             parameter_types,
             supports_broadcast: op.supports_broadcast,
             supports_inplace: op.supports_inplace,
+            accumulation_rules,
         });
     }
     Ok(OpRegistry { schemas })
@@ -221,6 +240,47 @@ fn parse_output_type(
     }
 }
 
+fn parse_accumulation_rules(
+    op_name: &str,
+    rules: &[Vec<String>],
+) -> Result<&'static [&'static [DType]]> {
+    if rules.is_empty() {
+        return Ok(&[]);
+    }
+    let rule_len = rules[0].len();
+    for (i, rule) in rules.iter().enumerate() {
+        if rule.len() != rule_len {
+            return Err(anyhow!(
+                "op {}: accumulation_rules must have same length; rule {} has {} types, rule 0 has {}",
+                op_name,
+                i,
+                rule.len(),
+                rule_len
+            ));
+        }
+    }
+    let parsed: Vec<Vec<DType>> = rules
+        .iter()
+        .map(|rule| {
+            rule.iter()
+                .map(|s| DType::from_ident(s))
+                .collect::<Result<Vec<_>>>()
+        })
+        .collect::<Result<Vec<_>>>()?;
+    let boxed: Vec<Box<[DType]>> = parsed
+        .into_iter()
+        .map(|v| v.into_boxed_slice())
+        .collect();
+    let leaked: Vec<&'static [DType]> = boxed
+        .into_iter()
+        .map(|b| {
+            let ptr = Box::leak(b);
+            ptr as &'static [DType]
+        })
+        .collect();
+    Ok(Box::leak(leaked.into_boxed_slice()))
+}
+
 fn parse_param_def(p: &ParamTypeJson) -> Result<ParamDef> {
     let name_static: &'static str = Box::leak(p.name.clone().into_boxed_str());
     let kind = match &p.kind {
@@ -236,6 +296,7 @@ fn parse_param_def(p: &ParamTypeJson) -> Result<ParamDef> {
             "i64[]" | "i32[]" => ParamKind::IntList,
             "bool" => ParamKind::Bool,
             "string" => ParamKind::String,
+            "accumulation_rules" => ParamKind::AccumulationRules,
             scalar => ParamKind::Scalar(DType::from_ident(scalar)?),
         },
         _ => return Err(anyhow!("invalid parameter kind for {}", p.name)),
@@ -261,6 +322,14 @@ pub fn supports_pattern(
         .all(|d| schema.input_tensor_types.contains(d))
     {
         return false;
+    }
+    // For accumulation ops with explicit acc, output must match the rule's last element.
+    if !schema.accumulation_rules.is_empty() {
+        if let Some(attr) = attrs.items.iter().find(|a| a.name == "acc") {
+            if let AttrValue::DTypeList(r) = &attr.value {
+                return r.last().map_or(false, |d| *d == output_dtype);
+            }
+        }
     }
     match &schema.output_type {
         OutputType::Same => {

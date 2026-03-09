@@ -1,5 +1,6 @@
 #include "../../../shaders/common.slang"
 #include "../../../shaders/float_utils.slang"
+#include "../../../shaders/accum_utils.slang"
 #include "common.slang"
 
 
@@ -438,8 +439,21 @@ void matmul_i8_normal(uint3 tid : SV_DispatchThreadID) {
     uint out_stride_n = out.strides[batch_rank + 1u];
     uint a_m_offset = a_base + m * a_stride_m;
     uint out_offset = out_base + m * out_stride_m + n * out_stride_n;
-    int acc = 0;
     uint k_len = a.shape[batch_rank + 1u];
+    uint acc_flags = push.acc_flags;
+#if HAS_I64
+    if (acc_flags == ACC_MATMUL_I32_I64 || acc_flags == ACC_MATMUL_I64_I64) {
+        int64_t acc = 0;
+        for (uint k = 0; k < k_len; k++) {
+            uint a_offset = a_m_offset + k * a_stride_k;
+            uint b_offset = b_base + k * b_stride_k + n * b_stride_n;
+            acc += int64_t(load_i8_elem(a, a_offset)) * int64_t(load_i8_elem(b, b_offset));
+        }
+        store_i8_elem(out, out_offset, int(acc));
+        return;
+    }
+#endif
+    int acc = 0;
     for (uint k = 0; k < k_len; k++) {
         uint a_offset = a_m_offset + k * a_stride_k;
         uint b_offset = b_base + k * b_stride_k + n * b_stride_n;

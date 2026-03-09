@@ -29,6 +29,7 @@ fn build_cast_entries() -> Result<Vec<(OpKey, KernelFn)>> {
                 broadcast: false,
                 inputs: vec![*in_dtype; schema.input_count],
                 out0: out_dtype,
+                acc_rule: None,
             };
             entries.push((key, kernel::cast_normal_dispatch as KernelFn));
         }

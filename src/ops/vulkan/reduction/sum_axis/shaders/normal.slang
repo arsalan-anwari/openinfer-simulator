@@ -1,5 +1,6 @@
 #include "../../../shaders/common.slang"
 #include "../../../shaders/reduce_utils.slang"
+#include "../../../shaders/accum_utils.slang"
 #include "common.slang"
 
 #ifndef HAS_F64
@@ -17,7 +18,7 @@
 [[vk::binding(2, 0)]] RWByteAddressBuffer out_buf;
 [[vk::push_constant]] cbuffer Push { SumAxisPush push; }
 
-#define SUM_AXIS_FLOAT(NAME, LOAD_FN, STORE_FN) \
+#define SUM_AXIS_FLOAT(NAME, LOAD_FN, STORE_SAME, STORE_F32, STORE_F64) \
     [numthreads(256, 1, 1)] \
     [shader("compute")] \
     void NAME(uint3 tid : SV_DispatchThreadID) { \
@@ -28,17 +29,37 @@
         uint out_coords[OPENINFER_VK_MAX_DIMS]; \
         uint in_coords[OPENINFER_VK_MAX_DIMS]; \
         linear_to_coords(out_idx, out_desc, out_coords); \
-        float acc = 0.0f; \
-        for (uint i = 0u; i < push.input_len; ++i) { \
-            linear_to_coords(i, input_desc, in_coords); \
-            if (coords_match(input_desc.rank, out_desc.rank, push.axes_mask, push.keepdims, in_coords, out_coords)) { \
-                acc += LOAD_FN(input_desc, i, data); \
+        if (HAS_F64 && (push.acc_flags == ACC_SUM_AXIS_F64_F64)) { \
+            double acc = 0.0; \
+            for (uint i = 0u; i < push.input_len; ++i) { \
+                linear_to_coords(i, input_desc, in_coords); \
+                if (coords_match(input_desc.rank, out_desc.rank, push.axes_mask, push.keepdims, in_coords, out_coords)) { \
+                    acc += double(LOAD_FN(input_desc, i, data)); \
+                } \
             } \
+            STORE_F64(out_desc, out_idx, acc, out_buf); \
+        } else if (push.acc_flags == ACC_SUM_AXIS_F32_F32) { \
+            float acc = 0.0f; \
+            for (uint i = 0u; i < push.input_len; ++i) { \
+                linear_to_coords(i, input_desc, in_coords); \
+                if (coords_match(input_desc.rank, out_desc.rank, push.axes_mask, push.keepdims, in_coords, out_coords)) { \
+                    acc += LOAD_FN(input_desc, i, data); \
+                } \
+            } \
+            STORE_F32(out_desc, out_idx, acc, out_buf); \
+        } else { \
+            float acc = 0.0f; \
+            for (uint i = 0u; i < push.input_len; ++i) { \
+                linear_to_coords(i, input_desc, in_coords); \
+                if (coords_match(input_desc.rank, out_desc.rank, push.axes_mask, push.keepdims, in_coords, out_coords)) { \
+                    acc += LOAD_FN(input_desc, i, data); \
+                } \
+            } \
+            STORE_SAME(out_desc, out_idx, acc, out_buf); \
         } \
-        STORE_FN(out_desc, out_idx, acc, out_buf); \
     }
 
-#define SUM_AXIS_INT(NAME, LOAD_FN, STORE_FN) \
+#define SUM_AXIS_INT(NAME, LOAD_FN, STORE_SAME, STORE_I32, STORE_I64) \
     [numthreads(256, 1, 1)] \
     [shader("compute")] \
     void NAME(uint3 tid : SV_DispatchThreadID) { \
@@ -49,17 +70,37 @@
         uint out_coords[OPENINFER_VK_MAX_DIMS]; \
         uint in_coords[OPENINFER_VK_MAX_DIMS]; \
         linear_to_coords(out_idx, out_desc, out_coords); \
-        int acc = 0; \
-        for (uint i = 0u; i < push.input_len; ++i) { \
-            linear_to_coords(i, input_desc, in_coords); \
-            if (coords_match(input_desc.rank, out_desc.rank, push.axes_mask, push.keepdims, in_coords, out_coords)) { \
-                acc += int(LOAD_FN(input_desc, i, data)); \
+        if (HAS_I64 && (push.acc_flags == ACC_SUM_AXIS_I64_I64)) { \
+            int64_t acc = 0; \
+            for (uint i = 0u; i < push.input_len; ++i) { \
+                linear_to_coords(i, input_desc, in_coords); \
+                if (coords_match(input_desc.rank, out_desc.rank, push.axes_mask, push.keepdims, in_coords, out_coords)) { \
+                    acc += int64_t(LOAD_FN(input_desc, i, data)); \
+                } \
             } \
+            STORE_I64(out_desc, out_idx, acc, out_buf); \
+        } else if (push.acc_flags == ACC_SUM_AXIS_I32_I32) { \
+            int acc = 0; \
+            for (uint i = 0u; i < push.input_len; ++i) { \
+                linear_to_coords(i, input_desc, in_coords); \
+                if (coords_match(input_desc.rank, out_desc.rank, push.axes_mask, push.keepdims, in_coords, out_coords)) { \
+                    acc += int(LOAD_FN(input_desc, i, data)); \
+                } \
+            } \
+            STORE_I32(out_desc, out_idx, acc, out_buf); \
+        } else { \
+            int acc = 0; \
+            for (uint i = 0u; i < push.input_len; ++i) { \
+                linear_to_coords(i, input_desc, in_coords); \
+                if (coords_match(input_desc.rank, out_desc.rank, push.axes_mask, push.keepdims, in_coords, out_coords)) { \
+                    acc += int(LOAD_FN(input_desc, i, data)); \
+                } \
+            } \
+            STORE_SAME(out_desc, out_idx, acc, out_buf); \
         } \
-        STORE_FN(out_desc, out_idx, acc, out_buf); \
     }
 
-#define SUM_AXIS_UINT(NAME, LOAD_FN, STORE_FN) \
+#define SUM_AXIS_UINT(NAME, LOAD_FN, STORE_SAME, STORE_U32, STORE_U64) \
     [numthreads(256, 1, 1)] \
     [shader("compute")] \
     void NAME(uint3 tid : SV_DispatchThreadID) { \
@@ -70,36 +111,56 @@
         uint out_coords[OPENINFER_VK_MAX_DIMS]; \
         uint in_coords[OPENINFER_VK_MAX_DIMS]; \
         linear_to_coords(out_idx, out_desc, out_coords); \
-        uint acc = 0u; \
-        for (uint i = 0u; i < push.input_len; ++i) { \
-            linear_to_coords(i, input_desc, in_coords); \
-            if (coords_match(input_desc.rank, out_desc.rank, push.axes_mask, push.keepdims, in_coords, out_coords)) { \
-                acc += uint(LOAD_FN(input_desc, i, data)); \
+        if (HAS_U64 && (push.acc_flags == ACC_SUM_AXIS_U64_U64)) { \
+            uint64_t acc = 0u; \
+            for (uint i = 0u; i < push.input_len; ++i) { \
+                linear_to_coords(i, input_desc, in_coords); \
+                if (coords_match(input_desc.rank, out_desc.rank, push.axes_mask, push.keepdims, in_coords, out_coords)) { \
+                    acc += uint64_t(LOAD_FN(input_desc, i, data)); \
+                } \
             } \
+            STORE_U64(out_desc, out_idx, acc, out_buf); \
+        } else if (push.acc_flags == ACC_SUM_AXIS_U32_U32) { \
+            uint acc = 0u; \
+            for (uint i = 0u; i < push.input_len; ++i) { \
+                linear_to_coords(i, input_desc, in_coords); \
+                if (coords_match(input_desc.rank, out_desc.rank, push.axes_mask, push.keepdims, in_coords, out_coords)) { \
+                    acc += uint(LOAD_FN(input_desc, i, data)); \
+                } \
+            } \
+            STORE_U32(out_desc, out_idx, acc, out_buf); \
+        } else { \
+            uint acc = 0u; \
+            for (uint i = 0u; i < push.input_len; ++i) { \
+                linear_to_coords(i, input_desc, in_coords); \
+                if (coords_match(input_desc.rank, out_desc.rank, push.axes_mask, push.keepdims, in_coords, out_coords)) { \
+                    acc += uint(LOAD_FN(input_desc, i, data)); \
+                } \
+            } \
+            STORE_SAME(out_desc, out_idx, acc, out_buf); \
         } \
-        STORE_FN(out_desc, out_idx, acc, out_buf); \
     }
 
-SUM_AXIS_FLOAT(sum_axis_f8_normal, load_f8, store_f8)
-SUM_AXIS_FLOAT(sum_axis_f16_normal, load_f16, store_f16)
-SUM_AXIS_FLOAT(sum_axis_bf16_normal, load_bf16, store_bf16)
-SUM_AXIS_FLOAT(sum_axis_f32_normal, load_f32, store_f32)
+SUM_AXIS_FLOAT(sum_axis_f8_normal, load_f8, store_f8, store_f32, store_f64)
+SUM_AXIS_FLOAT(sum_axis_f16_normal, load_f16, store_f16, store_f32, store_f64)
+SUM_AXIS_FLOAT(sum_axis_bf16_normal, load_bf16, store_bf16, store_f32, store_f64)
+SUM_AXIS_FLOAT(sum_axis_f32_normal, load_f32, store_f32, store_f32, store_f64)
 #if HAS_F64
-SUM_AXIS_FLOAT(sum_axis_f64_normal, load_f64, store_f64)
+SUM_AXIS_FLOAT(sum_axis_f64_normal, load_f64, store_f32, store_f32, store_f64)
 #endif
 
-SUM_AXIS_INT(sum_axis_i8_normal, load_i8, store_i8)
-SUM_AXIS_INT(sum_axis_i16_normal, load_i16, store_i16)
-SUM_AXIS_INT(sum_axis_i32_normal, load_i32, store_i32)
+SUM_AXIS_INT(sum_axis_i8_normal, load_i8, store_i8, store_i32, store_i64)
+SUM_AXIS_INT(sum_axis_i16_normal, load_i16, store_i16, store_i32, store_i64)
+SUM_AXIS_INT(sum_axis_i32_normal, load_i32, store_i32, store_i32, store_i64)
 #if HAS_I64
-SUM_AXIS_INT(sum_axis_i64_normal, load_i64, store_i64)
+SUM_AXIS_INT(sum_axis_i64_normal, load_i64, store_i64, store_i32, store_i64)
 #endif
 
-SUM_AXIS_UINT(sum_axis_u8_normal, load_u8_val, store_u8_val)
-SUM_AXIS_UINT(sum_axis_u16_normal, load_u16_val, store_u16_val)
-SUM_AXIS_UINT(sum_axis_u32_normal, load_u32, store_u32)
+SUM_AXIS_UINT(sum_axis_u8_normal, load_u8_val, store_u8_val, store_u32, store_u64)
+SUM_AXIS_UINT(sum_axis_u16_normal, load_u16_val, store_u16_val, store_u32, store_u64)
+SUM_AXIS_UINT(sum_axis_u32_normal, load_u32, store_u32, store_u32, store_u64)
 #if HAS_U64
-SUM_AXIS_UINT(sum_axis_u64_normal, load_u64, store_u64)
+SUM_AXIS_UINT(sum_axis_u64_normal, load_u64, store_u64, store_u32, store_u64)
 #endif
 
 #undef SUM_AXIS_FLOAT

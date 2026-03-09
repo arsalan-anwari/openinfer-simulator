@@ -129,6 +129,25 @@ def build_models() -> None:
         ),
     )
 
+    # Accumulation demo: matmul + sum_axis with acc=[f32,f32]
+    b, d, h = 4, 8, 6
+    x_acc = rng.normal(scale=0.2, size=(b, d)).astype(np.float32)
+    w_acc = rng.normal(scale=0.2, size=(d, h)).astype(np.float32)
+    matmul_out = x_acc @ w_acc
+    sum_axis_out = matmul_out.sum(axis=1, keepdims=True).astype(np.float32)
+    write_model(
+        "accumulation_demo",
+        ModelSpec(
+            sizevars={"B": SizeVar(b), "D": SizeVar(d), "H": SizeVar(h)},
+            tensors={
+                "x": TensorSpec(x_acc),
+                "w": TensorSpec(w_acc),
+                "matmul_out": TensorSpec(matmul_out),
+                "sum_axis_out": TensorSpec(sum_axis_out),
+            },
+        ),
+    )
+
 
 def main() -> None:
     build_models()

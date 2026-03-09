@@ -7,7 +7,8 @@ use crate::tensor::{DType, TensorValue};
 
 use bytemuck::{Pod, Zeroable};
 
-use crate::ops::vulkan::descriptor::{build_tensor_desc, MAX_DIMS};
+use crate::ops::vulkan::descriptor::{build_tensor_desc, encode_acc_rule, MAX_DIMS};
+use crate::runtime::resolve_acc_rule;
 use crate::ops::vulkan::dispatch::VulkanOpSpec;
 use crate::ops::vulkan::op_helpers::{
     build_desc_bytes, build_output_desc, dispatch_with_standard_bindings, prepare_unary_staging_io,
@@ -25,7 +26,7 @@ struct SumAxisPush {
     output_rank: u32,
     axes_mask: u32,
     keepdims: u32,
-    _pad0: u32,
+    acc_flags: u32,
     _pad1: u32,
 }
 
@@ -110,6 +111,12 @@ fn dispatch_sum_axis(
         axes_mask |= 1u32 << axis;
     }
 
+    let schema = crate::op_defs::op_schema(OpKind::SumAxis).unwrap();
+    let acc_flags = resolve_acc_rule(schema, &[input_dtype], attrs)
+        .as_ref()
+        .map(|r| encode_acc_rule(r))
+        .unwrap_or(0);
+
     let push = SumAxisPush {
         input_len: inputs[0].len() as u32,
         output_len: output.len() as u32,
@@ -117,7 +124,7 @@ fn dispatch_sum_axis(
         output_rank: out_rank as u32,
         axes_mask,
         keepdims: if keepdims { 1 } else { 0 },
-        _pad0: 0,
+        acc_flags,
         _pad1: 0,
     };
 
@@ -170,12 +177,15 @@ fn cpu_fallback(
     output: Option<&mut TensorValue>,
     output_dtype: DType,
 ) -> Result<()> {
+    let schema = crate::op_defs::op_schema(OpKind::SumAxis).unwrap();
+    let acc_rule = resolve_acc_rule(schema, &[inputs[0].dtype()], attrs);
     let key = OpKey {
         kind: OpKind::SumAxis,
         mode,
         broadcast: false,
         inputs: inputs.iter().map(|tensor| tensor.dtype()).collect(),
         out0: output_dtype,
+        acc_rule,
     };
     let kernel = crate::ops::cpu::registry::lookup_kernel(key)?;
     kernel(attrs, inputs, output)

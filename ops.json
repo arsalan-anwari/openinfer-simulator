@@ -912,7 +912,12 @@
         "i4",
         "u4"
       ],
-      "parameter_types": [],
+      "parameter_types": [
+        {
+          "name": "acc",
+          "kind": "accumulation_rules"
+        }
+      ],
       "output_type": "same",
       "accumulation_rules": [
         [
@@ -1170,6 +1175,10 @@
         {
           "name": "keepdims",
           "kind": "bool"
+        },
+        {
+          "name": "acc",
+          "kind": "accumulation_rules"
         }
       ],
       "output_type": "same",
@@ -1269,6 +1278,10 @@
         {
           "name": "keepdims",
           "kind": "bool"
+        },
+        {
+          "name": "acc",
+          "kind": "accumulation_rules"
         }
       ],
       "output_type": "same",
@@ -1331,6 +1344,10 @@
         {
           "name": "keepdims",
           "kind": "bool"
+        },
+        {
+          "name": "acc",
+          "kind": "accumulation_rules"
         }
       ],
       "output_type": "same",

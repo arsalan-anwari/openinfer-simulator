@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 
-use crate::graph::{MemoryKind, OpAttrs, OpKind};
+use crate::graph::{AttrValue, MemoryKind, OpAttrs, OpKind};
 use crate::op_defs::{op_schema, supports_pattern};
 use super::attrs;
 use super::context::ValidationContext;
@@ -52,6 +52,33 @@ pub fn validate_op(
 
     if !schema.supports_broadcast && input_shapes.windows(2).any(|pair| pair[0] != pair[1]) {
         return Err(anyhow!("op {} does not allow broadcast inputs", op));
+    }
+
+    // Validate acc against accumulation_rules before output_dtype (so invalid acc is reported first)
+    if !schema.accumulation_rules.is_empty() {
+        if let Some(attr) = attrs.items.iter().find(|a| a.name == "acc") {
+            match &attr.value {
+                AttrValue::DTypeList(user_rule) => {
+                    if !schema
+                        .accumulation_rules
+                        .iter()
+                        .any(|r| r.as_ref() == user_rule.as_slice())
+                    {
+                        return Err(anyhow!(
+                            "op {}: acc={:?} does not match any accumulation rule; valid: {:?}",
+                            op,
+                            user_rule,
+                            schema.accumulation_rules
+                        ));
+                    }
+                }
+                _ => {
+                    return Err(anyhow!("op {}: acc must be a dtype list", op));
+                }
+            }
+        }
+    } else if attrs.items.iter().any(|a| a.name == "acc") {
+        return Err(anyhow!("op {}: acc is not supported (no accumulation rules)", op));
     }
 
     let output_decl = ctx.decl_for(output);

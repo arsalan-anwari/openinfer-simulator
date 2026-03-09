@@ -3,6 +3,8 @@ use anyhow::{anyhow, Result};
 use crate::graph::{OpAttrs, OpKind};
 use crate::ops::cpu::broadcast::broadcast_shape;
 use crate::ops::registry::{op_supports_dtype, OpKey, OpMode};
+use crate::ops::vulkan::descriptor::encode_acc_rule;
+use crate::runtime::resolve_acc_rule;
 use crate::tensor::{DType, TensorValue};
 
 use bytemuck::{Pod, Zeroable};
@@ -23,6 +25,7 @@ struct MatmulPush {
     tensor_count: u32,
     params_offset: u32,
     flags: u32,
+    acc_flags: u32,
 }
 
 pub fn matmul_normal_dispatch(
@@ -132,11 +135,20 @@ fn dispatch_matmul(
     descs.push(build_tensor_desc(&inputs[1], out_rank, io_buffers.input1_offset)?);
     descs.push(build_output_desc(output, out_rank, 0)?);
 
+    let schema = crate::op_defs::op_schema(OpKind::Matmul).unwrap();
+    let input_dtypes: Vec<DType> = inputs.iter().map(|t| t.dtype()).collect();
+    let acc_rule = resolve_acc_rule(schema, &input_dtypes, attrs);
+    let acc_flags = acc_rule
+        .as_ref()
+        .map(|r| encode_acc_rule(r))
+        .unwrap_or(0);
+
     let push = MatmulPush {
         len: output.len() as u32,
         tensor_count: descs.len() as u32,
         params_offset: 0,
         flags: 0,
+        acc_flags,
     };
 
     let target = match target_name(OpKind::Matmul, mode, input_dtype, output_dtype) {
@@ -189,12 +201,16 @@ fn cpu_fallback(
     output_dtype: DType,
     broadcast: bool,
 ) -> Result<()> {
+    let schema = crate::op_defs::op_schema(OpKind::Matmul).unwrap();
+    let input_dtypes: Vec<DType> = inputs.iter().map(|t| t.dtype()).collect();
+    let acc_rule = resolve_acc_rule(schema, &input_dtypes, attrs);
     let key = OpKey {
         kind: OpKind::Matmul,
         mode,
         broadcast,
-        inputs: inputs.iter().map(|tensor| tensor.dtype()).collect(),
+        inputs: input_dtypes,
         out0: output_dtype,
+        acc_rule,
     };
     let kernel = crate::ops::cpu::registry::lookup_kernel(key)?;
     kernel(attrs, inputs, output)

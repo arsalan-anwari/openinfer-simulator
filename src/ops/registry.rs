@@ -18,6 +18,9 @@ pub struct OpKey {
     pub broadcast: bool,
     pub inputs: Vec<DType>,
     pub out0: DType,
+    /// For ops with accumulation_rules: the selected rule.
+    /// None = no accumulation / default accumulation.
+    pub acc_rule: Option<Vec<DType>>,
 }
 
 pub type KernelFn = fn(&OpAttrs, &[TensorValue], Option<&mut TensorValue>) -> Result<()>;
@@ -69,6 +72,7 @@ pub fn build_op_entries_same_input(
                 broadcast,
                 inputs: vec![*in_dtype; input_count],
                 out0: out_dtype,
+                acc_rule: None,
             };
             if let Some(kernel) = kernel_for_mode(OpMode::Normal) {
                 entries.push((normal_key, kernel));
@@ -80,9 +84,103 @@ pub fn build_op_entries_same_input(
                     broadcast,
                     inputs: vec![*in_dtype; input_count],
                     out0: out_dtype,
+                    acc_rule: None,
                 };
                 if let Some(kernel) = kernel_for_mode(OpMode::Inplace) {
                     entries.push((inplace_key, kernel));
+                }
+            }
+        }
+    }
+    Ok(entries)
+}
+
+#[allow(unused)]
+/// Build entries for ops with accumulation_rules. One entry per (input_dtype, acc_rule).
+pub fn build_op_entries_with_accumulation(
+    kind: crate::graph::OpKind,
+    kernel_for_mode: impl Fn(OpMode) -> Option<KernelFn>,
+) -> Result<Vec<(OpKey, KernelFn)>> {
+    let schema = op_schema(kind).ok_or_else(|| anyhow!("missing op schema {:?}", kind))?;
+    if schema.accumulation_rules.is_empty() {
+        return Err(anyhow!(
+            "op {:?} has no accumulation_rules, use build_op_entries_same_input",
+            kind
+        ));
+    }
+    let input_count = schema.input_count;
+    let broadcast_flags: &[bool] = if schema.supports_broadcast {
+        &[false, true]
+    } else {
+        &[false]
+    };
+
+    let mut entries = Vec::new();
+    // Entries with explicit acc (one per rule)
+    for in_dtype in schema.input_tensor_types {
+        for rule in schema.accumulation_rules {
+            let out_dtype = *rule
+                .last()
+                .ok_or_else(|| anyhow!("accumulation rule has no elements"))?;
+            for &broadcast in broadcast_flags {
+                let normal_key = OpKey {
+                    kind,
+                    mode: OpMode::Normal,
+                    broadcast,
+                    inputs: vec![*in_dtype; input_count],
+                    out0: out_dtype,
+                    acc_rule: Some(rule.to_vec()),
+                };
+                if let Some(kernel) = kernel_for_mode(OpMode::Normal) {
+                    entries.push((normal_key, kernel));
+                }
+                if schema.supports_inplace {
+                    let inplace_key = OpKey {
+                        kind,
+                        mode: OpMode::Inplace,
+                        broadcast,
+                        inputs: vec![*in_dtype; input_count],
+                        out0: out_dtype,
+                        acc_rule: Some(rule.to_vec()),
+                    };
+                    if let Some(kernel) = kernel_for_mode(OpMode::Inplace) {
+                        entries.push((inplace_key, kernel));
+                    }
+                }
+            }
+        }
+    }
+    // Entries with acc omitted (output_type Same: output = input)
+    let out_same = match &schema.output_type {
+        OutputType::Same => true,
+        OutputType::Fixed(_) | OutputType::FromAttr(_) => false,
+    };
+    if out_same {
+        for in_dtype in schema.input_tensor_types {
+            for &broadcast in broadcast_flags {
+                let normal_key = OpKey {
+                    kind,
+                    mode: OpMode::Normal,
+                    broadcast,
+                    inputs: vec![*in_dtype; input_count],
+                    out0: *in_dtype,
+                    acc_rule: None,
+                };
+                if let Some(kernel) = kernel_for_mode(OpMode::Normal) {
+                    entries.push((normal_key, kernel));
+                }
+                if schema.supports_inplace {
+                    let inplace_key = OpKey {
+                        kind,
+                        mode: OpMode::Inplace,
+                        broadcast,
+                        inputs: vec![*in_dtype; input_count],
+                        out0: *in_dtype,
+                        acc_rule: None,
+                    };
+                    if let Some(kernel) = kernel_for_mode(OpMode::Inplace) {
+                        entries.push((inplace_key, kernel));
+                    }
                 }
             }
         }
@@ -114,6 +212,7 @@ pub fn build_op_entries_with_outputs(
                     broadcast,
                     inputs: vec![*in_dtype; input_count],
                     out0: out_dtype,
+                    acc_rule: None,
                 };
                 if let Some(kernel) = kernel_for_mode(OpMode::Normal) {
                     entries.push((normal_key, kernel));
@@ -125,6 +224,7 @@ pub fn build_op_entries_with_outputs(
                         broadcast,
                         inputs: vec![*in_dtype; input_count],
                         out0: out_dtype,
+                        acc_rule: None,
                     };
                     if let Some(kernel) = kernel_for_mode(OpMode::Inplace) {
                         entries.push((inplace_key, kernel));

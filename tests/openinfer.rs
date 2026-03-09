@@ -25,6 +25,8 @@ mod ops_float_special;
 mod ops_packed;
 #[path = "ops/ops_full_matrix.rs"]
 mod ops_full_matrix;
+#[path = "ops/ops_accumulation.rs"]
+mod ops_accumulation;
 
 #[path = "graph/graph_simple.rs"]
 mod graph_simple;

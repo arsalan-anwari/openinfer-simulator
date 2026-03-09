@@ -6,6 +6,7 @@ struct MatmulPush {
     uint tensor_count;
     uint params_offset;
     uint flags;
+    uint acc_flags;  // encoded accumulation rule (dtype_code per byte)
 };
 
 #endif // OPENINFER_MATMUL_COMMON_SLANG

@@ -73,5 +73,6 @@ fn param_kind_matches(kind: &ParamKind, value: &AttrValue) -> bool {
                 | AttrValue::Bool(_)
                 | AttrValue::Var(_)
         ),
+        ParamKind::AccumulationRules => matches!(value, AttrValue::DTypeList(_)),
     }
 }

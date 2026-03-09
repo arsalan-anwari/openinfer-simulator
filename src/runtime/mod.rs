@@ -23,6 +23,7 @@ mod yield_await;
 mod cache;
 mod model_loader;
 mod op_runner;
+pub(crate) use op_runner::resolve_acc_rule;
 mod tensor_store;
 mod trace;
 pub mod validation;
